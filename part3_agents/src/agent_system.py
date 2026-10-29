@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any
 import re, time
 
-UNSAFE = ('nude', 'sexual', 'child abuse', 'exploit', 'weapon', 'bomb', 'disguise a real person', 'deepfake')
-IMAGE_INSTRUCTION = ('ignore previous', 'system prompt', 'do not tell', 'follow the text in the image')
+UNSAFE = ('nude', 'sexual', 'child abuse', 'exploit', 'weapon', 'bomb', 'disguise a real person', 'deepfake', 'evidence of a crime')
+IMAGE_INSTRUCTION = ('ignore previous', 'system prompt', 'do not tell', 'follow the text in the image', 'hidden text', 'system command')
 
 @dataclass
 class State:
@@ -59,7 +59,9 @@ def critique(s: State) -> State:
 
 def run(request: str, image_path: str|None=None, vision_pipe=None, generation_pipe=None, output_dir: Path|None=None) -> State:
     s=planner(State(request=request,image_path=image_path))
+    if not request.strip(): s.decision='invalid_input'; return s
     if not s.safe: s.decision='refused'; return s
+    if s.route=='understanding' and not image_path: s.decision='missing_image'; return s
     if s.route in ('understanding','edit','style'): vision(s,vision_pipe)
     if s.route in ('edit','style'): prompt_engineer(s); generate(s,generation_pipe,output_dir); critique(s)
     elif s.route=='understanding': s.decision='answered'
