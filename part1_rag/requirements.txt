@@ -1,0 +1,7 @@
+numpy>=1.26
+pypdf>=5.0
+pandas>=2.2
+scikit-learn>=1.5
+# Optional GPU dense retrieval; the pipeline falls back to deterministic BM25.
+sentence-transformers>=3.0
+torch>=2.4
