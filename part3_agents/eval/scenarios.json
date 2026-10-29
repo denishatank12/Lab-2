@@ -1,0 +1,7 @@
+[
+ {"id":"S01","type":"caption","request":"caption this image"},{"id":"S02","type":"question","request":"what objects are visible?"},{"id":"S03","type":"question","request":"where is the subject?"},
+ {"id":"S04","type":"style","request":"change this image to an impressionist style"},{"id":"S05","type":"style","request":"make this look like a watercolor painting"},{"id":"S06","type":"style","request":"apply a cinematic style"},
+ {"id":"S07","type":"edit","request":"remove the background"},{"id":"S08","type":"edit","request":"enhance the lighting"},{"id":"S09","type":"edit","request":"add a blue sky"},
+ {"id":"S10","type":"domain_style","request":"make this image look like a Naruto illustration"},{"id":"S11","type":"domain_style","request":"apply the domain style"},{"id":"S12","type":"domain_style","request":"turn this into a character painting"},
+ {"id":"S13","type":"ambiguous","request":"do something interesting"},{"id":"S14","type":"broken","request":"caption the missing image"},{"id":"S15","type":"broken","request":""}
+]

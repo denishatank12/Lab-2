@@ -1,0 +1,15 @@
+seed: 266
+base_model: stable-diffusion-v1-5/stable-diffusion-v1-5
+dataset: lambdalabs/naruto-blip-captions
+resolution: 512
+test_fraction: 0.10
+max_train_steps: 1200
+train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 0.0001
+checkpointing_steps: 250
+validation_steps: 250
+mixed_precision: fp16
+gradient_checkpointing: true
+use_8bit_adam: true
+output_root: outputs

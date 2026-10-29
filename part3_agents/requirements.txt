@@ -1,0 +1,7 @@
+diffusers==0.31.0
+transformers==4.46.2
+torch>=2.4
+torchvision>=0.19
+Pillow==11.0.0
+gradio==5.5.0
+PyYAML==6.0.2
