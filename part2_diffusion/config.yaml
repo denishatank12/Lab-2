@@ -1,5 +1,7 @@
 seed: 266
 base_model: stable-diffusion-v1-5/stable-diffusion-v1-5
+base_revision: 451f4fe16113bff5a5d2269ed5ad43b0592e9a14
+variant: fp16
 dataset: lambdalabs/naruto-blip-captions
 resolution: 512
 test_fraction: 0.10
@@ -11,5 +13,7 @@ checkpointing_steps: 250
 validation_steps: 250
 mixed_precision: fp16
 gradient_checkpointing: true
-use_8bit_adam: true
+use_8bit_adam: false
+checkpoint_limit: 2
+dataloader_num_workers: 0
 output_root: outputs

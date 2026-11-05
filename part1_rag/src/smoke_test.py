@@ -8,11 +8,12 @@ from rag_pipeline import build_index
 
 def main() -> None:
     data = ROOT / "data"
-    index = build_index(data)
+    index = build_index(data, use_dense=False)
     assert len(index.passages) > 20, "PDF ingestion returned too few passages"
     hits = index.search("What happened to unemployment after the crisis?", k=3)
     assert len(hits) == 3
     assert all("passage" in h and h["passage"]["doc_id"] in {"DOC1", "DOC2", "DOC3"} for h in hits)
+    assert not any(p.doc_id == 'DOC3' and p.page == 7 for p in index.passages)
     print(f"PASS: indexed {len(index.passages)} passages; retrieval returned 3 grounded hits")
 
 

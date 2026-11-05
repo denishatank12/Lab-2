@@ -8,6 +8,7 @@ submission schema or retrieval contract.
 from __future__ import annotations
 
 import argparse
+import os
 import csv
 import json
 import re
@@ -43,10 +44,14 @@ def main() -> None:
     ap.add_argument("--data-dir", default="data")
     ap.add_argument("--output", default="outputs/submission.csv")
     ap.add_argument("--top-k", type=int, default=5)
+    ap.add_argument("--questions-path", default=os.environ.get("QUESTIONS_PATH"))
+    ap.add_argument("--lexical-only", action="store_true")
+    ap.add_argument("--require-dense", action="store_true")
     args = ap.parse_args()
     data_dir = Path(args.data_dir)
-    index = build_index(data_dir)
-    rows = list(csv.DictReader((data_dir / "Questions.csv").open(newline="", encoding="utf-8")))
+    index = build_index(data_dir, use_dense=not args.lexical_only, require_dense=args.require_dense)
+    questions = Path(args.questions_path) if args.questions_path else data_dir / "Questions.csv"
+    rows = list(csv.DictReader(questions.open(newline="", encoding="utf-8")))
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", newline="", encoding="utf-8") as f:

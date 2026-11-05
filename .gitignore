@@ -1,6 +1,13 @@
 __pycache__/
 *.py[cod]
 .venv/
+.bootstrap/
+.lab2-python312/
+.lab2_runtime.json
+tools/train_text_to_image_lora.py
+part2_diffusion/data/processed/
+part3_agents/sample_input.png
+runtime_checks/
 .pytest_cache/
 outputs/
 checkpoints/

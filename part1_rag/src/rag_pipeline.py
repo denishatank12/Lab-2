@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 import math
 import re
+import warnings
+from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
@@ -52,6 +54,12 @@ def extract_passages(data_dir: Path, chunk_words: int = 180, overlap_words: int 
     for doc in manifest["documents"]:
         reader = PdfReader(str(data_dir / doc["file"]))
         for page_no, page in enumerate(reader.pages, start=1):
+            trust = doc.get("trust_level", "medium")
+            for override in doc.get("section_trust_overrides", []):
+                if page_no in override.get("pages", []):
+                    trust = override["trust_level"]
+            if trust == "low":
+                continue
             text = re.sub(r"\s+", " ", page.extract_text() or "").strip()
             if not text:
                 continue
@@ -66,7 +74,7 @@ def extract_passages(data_dir: Path, chunk_words: int = 180, overlap_words: int 
                         doc_id=doc["doc_id"],
                         page=page_no,
                         text=chunk,
-                        trust_level=doc.get("trust_level", "medium"),
+                        trust_level=trust,
                         figure_ids=_labels(chunk, "figure"),
                         table_ids=_labels(chunk, "table"),
                     )
@@ -77,7 +85,10 @@ def extract_passages(data_dir: Path, chunk_words: int = 180, overlap_words: int 
 
 
 class HybridIndex:
-    def __init__(self, passages: list[Passage], dense_model: str = "all-MiniLM-L6-v2"):
+    def __init__(self, passages: list[Passage], dense_model: str = "all-MiniLM-L6-v2",
+                 use_dense: bool = True, require_dense: bool = False):
+        if not passages:
+            raise ValueError("No PDF passages were extracted. Check the data folder.")
         self.passages = passages
         self._terms = [_tokens(p.text) for p in passages]
         self._idf: dict[str, float] = {}
@@ -90,6 +101,9 @@ class HybridIndex:
         self._idf = {t: math.log(1 + (n - f + 0.5) / (f + 0.5)) for t, f in df.items()}
         self._embedder = None
         self._vectors = None
+        self.dense_error = None
+        if not use_dense:
+            return
         try:
             from sentence_transformers import SentenceTransformer
 
@@ -97,16 +111,21 @@ class HybridIndex:
             self._vectors = self._embedder.encode(
                 [p.text for p in passages], normalize_embeddings=True, show_progress_bar=False
             )
-        except Exception:
-            # The lexical fallback is deterministic and allows smoke tests to run offline.
+            if not np.isfinite(self._vectors).all():
+                raise RuntimeError("Embedding model returned nonfinite vectors.")
+        except Exception as exc:
             self._embedder = None
+            self.dense_error = f"{type(exc).__name__}: {exc}"
+            if require_dense:
+                raise RuntimeError("Dense retrieval failed: " + self.dense_error) from exc
+            warnings.warn("Using BM25 only; dense retrieval failed: " + self.dense_error, RuntimeWarning)
 
     def _bm25(self, query: str) -> np.ndarray:
         q = _tokens(query)
         scores = np.zeros(len(self.passages), dtype=np.float32)
         k1, b = 1.5, 0.75
         for i, terms in enumerate(self._terms):
-            counts = {t: terms.count(t) for t in set(terms)}
+            counts = Counter(terms)
             dl = len(terms)
             for term in q:
                 if term not in counts:
@@ -119,6 +138,8 @@ class HybridIndex:
         if self._embedder is None or self._vectors is None:
             return np.zeros(len(self.passages), dtype=np.float32)
         q = self._embedder.encode([query], normalize_embeddings=True, show_progress_bar=False)[0]
+        if not np.isfinite(q).all():
+            raise RuntimeError("Invalid query embedding; refusing to write misleading results.")
         return np.asarray(self._vectors @ q, dtype=np.float32)
 
     def search(self, query: str, k: int = 5) -> list[dict]:
@@ -146,9 +167,9 @@ def _cuda_available() -> bool:
         return False
 
 
-def build_index(data_dir: str | Path) -> HybridIndex:
+def build_index(data_dir: str | Path, use_dense=True, require_dense=False) -> HybridIndex:
     data_dir = Path(data_dir)
-    return HybridIndex(extract_passages(data_dir))
+    return HybridIndex(extract_passages(data_dir), use_dense=use_dense, require_dense=require_dense)
 
 
 def save_index(index: HybridIndex, path: str | Path) -> None:

@@ -9,18 +9,20 @@ uses CUDA automatically when PyTorch reports an available GPU.
 ## Run
 
 ```bash
-cd part1_rag
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python src/smoke_test.py
-python src/generate_submission.py --data-dir data --output outputs/submission.csv
-python data/validate_submission.py outputs/submission.csv data/Questions.csv
+# From the repository root:
+python tools/setup_runtime.py --device cuda
+# Then use the Part1_RAG_Run.ipynb notebook, or the printed LAB2_PYTHON interpreter.
 ```
 
 The generated CSV is an auditable retrieval baseline. It is not the final tuned answerer yet:
 the next step is adding the local answer-generation model, figure-image extraction/description,
 the 25-question golden evaluation, and the Kaggle notebook after the baseline is verified.
+
+The smoke test is intentionally lexical and offline. The normal notebook run
+requires dense embeddings to load successfully; failures are no longer silently
+called hybrid retrieval. Appendix C's low-trust page is excluded. The
+`QUESTIONS_PATH` environment variable is respected by both generation and
+validation. A valid CSV schema does not establish semantic answer correctness.
 
 ## Overnight safety
 

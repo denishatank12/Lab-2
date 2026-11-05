@@ -1,5 +1,82 @@
 [
- {"category":"in_domain","prompt":"a young ninja warrior in a forest"},{"category":"in_domain","prompt":"a small ninja village at sunset"},{"category":"in_domain","prompt":"a warrior standing beside a waterfall"},{"category":"in_domain","prompt":"a girl with dark hair and a red scarf"},{"category":"in_domain","prompt":"a masked character in a snowy mountain"},{"category":"in_domain","prompt":"a character reading beside a river"},{"category":"in_domain","prompt":"a ninja running through autumn leaves"},{"category":"in_domain","prompt":"a character looking at the moon"},{"category":"in_domain","prompt":"a warrior in a bamboo forest"},{"category":"in_domain","prompt":"a group of characters near a village gate"},
- {"category":"ood","prompt":"a Victorian steam train in a city"},{"category":"ood","prompt":"a bowl of fruit on a kitchen table"},{"category":"ood","prompt":"a lighthouse beside the ocean"},{"category":"ood","prompt":"a robot in a laboratory"},{"category":"ood","prompt":"a cozy cabin in the snow"},
- {"category":"compositional","prompt":"two characters, one in red and one in blue, standing together"},{"category":"compositional","prompt":"a small character holding a lantern beside a large dragon"},{"category":"compositional","prompt":"three warriors crossing a bridge in rain"},{"category":"compositional","prompt":"a character riding a bicycle through a flower field"},{"category":"compositional","prompt":"two friends sharing tea under a tree"}
+  {
+    "prompt": "a man with brown hair and green eyes",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a man with blonde hair and blue eyes",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a woman with green eyes and black hair",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a bird flying over a rocky mountain range",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a group of people in a field with one person holding a sword",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a man with long hair and a brown jacket",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a person with a green shirt and brown hair",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a yellow pokemon with a blue shirt on",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "two people standing next to each other people",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a man with a camera in his hand",
+    "category": "in_domain"
+  },
+  {
+    "prompt": "a Victorian steam train in a city",
+    "category": "out_of_domain"
+  },
+  {
+    "prompt": "a bowl of fruit on a kitchen table",
+    "category": "out_of_domain"
+  },
+  {
+    "prompt": "a lighthouse beside the ocean",
+    "category": "out_of_domain"
+  },
+  {
+    "prompt": "a robot in a laboratory",
+    "category": "out_of_domain"
+  },
+  {
+    "prompt": "a cozy cabin in the snow",
+    "category": "out_of_domain"
+  },
+  {
+    "prompt": "two characters, one in red and one in blue, standing together",
+    "category": "compositional"
+  },
+  {
+    "prompt": "a small character holding a lantern beside a large dragon",
+    "category": "compositional"
+  },
+  {
+    "prompt": "three warriors crossing a bridge in rain",
+    "category": "compositional"
+  },
+  {
+    "prompt": "a character riding a bicycle through a flower field",
+    "category": "compositional"
+  },
+  {
+    "prompt": "two friends sharing tea under a tree",
+    "category": "compositional"
+  }
 ]

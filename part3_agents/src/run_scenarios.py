@@ -11,15 +11,31 @@ SCENARIOS=[
  ('ambiguous_1','do something interesting'),('broken_1','caption the missing image'),('broken_2','')]
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--output',default='outputs/scenario_traces.json'); ap.add_argument('--enable-models',action='store_true'); ap.add_argument('--image',default=None); ap.add_argument('--lora-path',default=None); a=ap.parse_args()
-    vision_pipe = generation_pipe = None
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--output',default='outputs/scenario_traces.json')
+    ap.add_argument('--enable-models',action='store_true')
+    ap.add_argument('--image',default=None)
+    ap.add_argument('--lora-path',default=None)
+    ap.add_argument('--no-critique',action='store_true')
+    a=ap.parse_args()
+    runtime = None
     if a.enable_models:
-        import torch
-        from diffusers import StableDiffusionPipeline
-        dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-        generation_pipe=StableDiffusionPipeline.from_pretrained('stable-diffusion-v1-5/stable-diffusion-v1-5',torch_dtype=dtype,safety_checker=None).to('cuda' if torch.cuda.is_available() else 'cpu')
-        generation_pipe.enable_attention_slicing()
-        if a.lora_path: generation_pipe.load_lora_weights(a.lora_path)
-    states=[run(q,image_path=a.image,generation_pipe=generation_pipe,output_dir=Path(a.output).parent/'generated') for _,q in SCENARIOS]
-    save_trace(states,Path(a.output)); print(json.dumps({'scenarios':len(states),'safe_refusals':sum(x.decision=='refused' for x in states),'generated':sum(bool(x.output_path and x.output_path.endswith('.png')) for x in states),'output':a.output},indent=2))
+        from model_runtime import ModelRuntime
+        runtime = ModelRuntime(a.lora_path)
+    root=Path(__file__).resolve().parents[1]
+    scenarios=json.loads((root/'eval/scenarios.json').read_text())
+    states=[]
+    for scenario in scenarios:
+        image=a.image if scenario['type'] != 'broken' else None
+        state=run(scenario['request'], image_path=image, vision_pipe=runtime, generation_pipe=runtime,
+                  output_dir=Path(a.output).parent/'generated'/Path(a.output).stem/scenario['id'],
+                  critique_loop=not a.no_critique,scenario_id=scenario['id'])
+        states.append(state)
+        save_trace(states,Path(a.output))
+        print(scenario['id'],state.decision,state.error,flush=True)
+    print(json.dumps({'scenarios':len(states),'models_enabled':a.enable_models,
+        'critique_loop':not a.no_critique,'safe_refusals':sum(x.decision=='refused' for x in states),
+        'generated':sum(bool(x.output_path and x.output_path.endswith('.png')) for x in states),
+        'note':'Task success and critic agreement require the two members to judge the saved traces.',
+        'output':a.output},indent=2))
 if __name__=='__main__': main()
