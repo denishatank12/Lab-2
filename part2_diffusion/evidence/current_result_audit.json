@@ -1,0 +1,171 @@
+{
+  "ready": false,
+  "checks": {
+    "500_plus_images_seeded_disjoint_split": true,
+    "20_fixed_prompts_from_heldout": true,
+    "run1_cuda_training": true,
+    "run2_cuda_training": true,
+    "120_images_same_protocol": true,
+    "8_comparison_grids": true,
+    "kid_clip_lpips_for_all_models": true,
+    "final_run_with_explanation": true,
+    "2_visually_reviewed_failure_modes": true,
+    "25_blind_pairs_3_real_raters": false,
+    "memorization_10_images_and_3_pairs": true,
+    "both_adapters_and_image_dataset_uploaded": true,
+    "artifact_access_for_graders_verified": false,
+    "team_details_recorded": false,
+    "license_and_redistribution_reviewed": false
+  },
+  "pending": [
+    "25_blind_pairs_3_real_raters",
+    "artifact_access_for_graders_verified",
+    "team_details_recorded",
+    "license_and_redistribution_reviewed"
+  ],
+  "training": [
+    {
+      "model": "run1",
+      "rank": 4,
+      "steps": 1200,
+      "final_loss": 0.03939952945802361,
+      "trainable_parameters": 797184,
+      "learning_rate": 0.0001,
+      "batch_size": 1,
+      "gradient_accumulation_steps": 4,
+      "training_seconds": 764.5366399130003,
+      "gpu_hours": 0.21237128886472229,
+      "peak_allocated_mib": 1949.8759765625
+    },
+    {
+      "model": "run2",
+      "rank": 8,
+      "steps": 1200,
+      "final_loss": 0.03925747598987073,
+      "trainable_parameters": 1594368,
+      "learning_rate": 0.0001,
+      "batch_size": 1,
+      "gradient_accumulation_steps": 4,
+      "training_seconds": 772.9784723099997,
+      "gpu_hours": 0.21471624230833325,
+      "peak_allocated_mib": 1960.8876953125
+    }
+  ],
+  "data": {
+    "schema_version": 2,
+    "dataset": "lambdalabs/naruto-blip-captions",
+    "seed": 266,
+    "dataset_revision": "1ed13e8ef280bd45e3bbac4cfa8bbd9d64ec9f89",
+    "train": 1098,
+    "test": 123,
+    "removed": {
+      "corrupt": 0,
+      "duplicate": 0,
+      "empty_caption": 0
+    },
+    "train_sha256": "605f2e9212041b3c4c833e5dab34d3d379b46485045eaffee39366e281e2bb9d"
+  },
+  "evaluation": {
+    "generated_images": 120,
+    "metrics": [
+      {
+        "model": "base",
+        "kid_mean": 0.1274063140153885,
+        "kid_std": 0.010731786489486694,
+        "kid_generated_n": 20,
+        "kid_test_n": 123,
+        "kid_subset_size": 20,
+        "nsfw_filtered": 0,
+        "clip_score_mean": 31.237676963210106,
+        "lpips_seed_pair_mean_256px": 0.6529428869485855
+      },
+      {
+        "model": "run1",
+        "kid_mean": 0.06809695065021515,
+        "kid_std": 0.007952291518449783,
+        "kid_generated_n": 20,
+        "kid_test_n": 123,
+        "kid_subset_size": 20,
+        "nsfw_filtered": 6,
+        "clip_score_mean": 29.535545744001865,
+        "lpips_seed_pair_mean_256px": 0.7546817541122437
+      },
+      {
+        "model": "run2",
+        "kid_mean": 0.09409822523593903,
+        "kid_std": 0.008286387659609318,
+        "kid_generated_n": 20,
+        "kid_test_n": 123,
+        "kid_subset_size": 20,
+        "nsfw_filtered": 7,
+        "clip_score_mean": 29.48808815330267,
+        "lpips_seed_pair_mean_256px": 0.6462350636720657
+      }
+    ],
+    "clip_model": "openai/clip-vit-base-patch32",
+    "sampling": {
+      "scheduler": "DDIMScheduler",
+      "steps": 20,
+      "guidance_scale": 7.5,
+      "eta": 0.0,
+      "height": 512,
+      "width": 512,
+      "negative_prompt": ""
+    },
+    "human_evaluation": "Pending: collect 25 pair judgments from at least three real raters.",
+    "human_evaluation_folder": "/root/DATA266/Lab-2/part2_diffusion/outputs/human_run1",
+    "kid_note": "Only 20 in-domain generations per model; KID is noisy and may be negative."
+  },
+  "review": {
+    "final_run": "run1",
+    "selection_reason": "I would choose run1, the rank-4 adapter, for the domain-style model. It has the lowest KID of the three models and a slightly higher CLIP score than run2, while using half as many trainable adapter parameters. The visible portrait examples also show the intended move from photographic faces toward an anime style. This is a trade-off, not a win on every measure: the base model has the highest overall CLIP score. Run1's larger LPIPS value is not enough to claim better useful diversity, because safety-filtered black outputs can affect that measurement. The choice is based on automatic metrics and an AI-assisted inspection of the saved grids; the independent human comparison is still pending.",
+    "review_method": "AI-assisted visual inspection of the eight saved seed-0 comparison grids. These observations are not the required three-rater human study.",
+    "failure_modes": [
+      {
+        "model": "run1",
+        "prompt_index": 2,
+        "seed": 0,
+        "comparison_index": 2,
+        "mode": "Attribute binding",
+        "observation": "The prompt asks for a woman with green eyes and black hair. In the rank-4 panel the hair is dark, but a strong green tint covers much of the face while the eyes look dark or gray rather than clearly green. The image adopts an anime style without reliably keeping the requested color attached to the eyes.",
+        "explanation": "This suggests a prompt-attribute binding problem. Fine-tuning may strengthen familiar colors and portrait patterns without improving which object receives each attribute. That explanation is a hypothesis from the visible example, not a proven mechanism. More varied, better-captioned training examples and a separate attribute-following evaluation would help test it."
+      },
+      {
+        "model": "run1",
+        "prompt_index": 4,
+        "seed": 0,
+        "comparison_index": 4,
+        "mode": "Counting and relationships",
+        "observation": "The prompt asks for a group in a field with one person holding a sword. In the rank-4 panel, a foreground character and a background character both appear to hold blades. The field and group idea are present, but the 'one person' relationship is not preserved. The base comparison also has several visible weapons, so this is not a failure unique to LoRA.",
+        "explanation": "The model appears to capture the general scene more easily than the exact count and ownership of the swords. A single CLIP similarity score can overlook this kind of compositional error. A useful follow-up would score the number of sword-holders explicitly and improve captions that describe counts and relationships."
+      },
+      {
+        "model": "run1",
+        "prompt_index": 5,
+        "seed": 0,
+        "comparison_index": 5,
+        "mode": "Safety-filtered output",
+        "observation": "For the prompt about a man with long hair and a brown jacket, both fine-tuned panels are completely black. The saved generation logs report safety filtering, and the aggregate counts are six filtered outputs for run1 and seven for run2. These panels provide no usable visual answer to the prompt.",
+        "explanation": "The enabled safety checker replaces flagged generations with black images. The underlying unfiltered images are not available, so the black panels alone do not establish whether those flags were correct or false positives. Keep the filter enabled, report the missing usable outputs, and do not silently regenerate until a preferred result appears."
+      }
+    ]
+  },
+  "human": {
+    "complete": false,
+    "reason": "ratings.json not supplied; at least three real raters are required."
+  },
+  "hub_links": {
+    "run1": "https://huggingface.co/denishatank/data266-lab2-p2-run1",
+    "run1_commit": "c6cff82b89d1da57c875b2eb593d55e451f5c3b1",
+    "run2": "https://huggingface.co/denishatank/data266-lab2-p2-run2",
+    "run2_commit": "2159a352e6f494c1c2f0810e57cefc7417e195f9",
+    "images": "https://huggingface.co/datasets/denishatank/data266-lab2-p2-images",
+    "images_commit": "7537445184c4acd32389ea6bea6af43a7b491dc7",
+    "private": true,
+    "grader_access_verified": false,
+    "rights_acknowledged": false,
+    "verification": "Authenticated Hugging Face file listings verified both adapters and all 120 current generated PNG files, metadata and cards. No training dataset or optimizer checkpoints were uploaded.",
+    "rights_note": "Restricted to course non-commercial research. Source-image rights remain unresolved; private storage does not grant redistribution rights. Confirm permitted sharing and grader access before submission."
+  },
+  "scope": "Part 2 only. Common team recordings, combined IEEE report, tag and Canvas zip still require final team verification."
+}

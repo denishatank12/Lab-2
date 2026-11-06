@@ -1,0 +1,13 @@
+{
+  "run1": "https://huggingface.co/denishatank/data266-lab2-p2-run1",
+  "run1_commit": "c6cff82b89d1da57c875b2eb593d55e451f5c3b1",
+  "run2": "https://huggingface.co/denishatank/data266-lab2-p2-run2",
+  "run2_commit": "2159a352e6f494c1c2f0810e57cefc7417e195f9",
+  "images": "https://huggingface.co/datasets/denishatank/data266-lab2-p2-images",
+  "images_commit": "7537445184c4acd32389ea6bea6af43a7b491dc7",
+  "private": true,
+  "grader_access_verified": false,
+  "rights_acknowledged": false,
+  "verification": "Authenticated Hugging Face file listings verified both adapters and all 120 current generated PNG files, metadata and cards. No training dataset or optimizer checkpoints were uploaded.",
+  "rights_note": "Restricted to course non-commercial research. Source-image rights remain unresolved; private storage does not grant redistribution rights. Confirm permitted sharing and grader access before submission."
+}

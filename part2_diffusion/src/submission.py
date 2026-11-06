@@ -132,6 +132,9 @@ def audit(root=ROOT):
         and all((output / f"memorization_{final}_{i}.png").is_file() for i in range(3)))
     links = read_json(output / "hub_links.json", {})
     checks["both_adapters_and_image_dataset_uploaded"] = all(links.get(key) for key in ["run1", "run2", "images"])
+    checks["artifact_access_for_graders_verified"] = bool(
+        checks["both_adapters_and_image_dataset_uploaded"]
+        and (links.get("private") is False or links.get("grader_access_verified") is True))
     details = read_json(root / "submission_details.json", {})
     checks["team_details_recorded"] = bool(details.get("partner_name") and details.get("team_number"))
     # Acknowledging rights is a real prerequisite, not a made-up dataset license.

@@ -1,5 +1,24 @@
 # Lab 2 Part 2 - Stable Diffusion fine-tuning
 
+## Current results
+
+The latest notebook contains the user's actual RTX 4090 run: both 1,200-update
+experiments, 120 generated images, eight comparison grids and measured metrics.
+Its original GPU cells and outputs are unchanged. A separate, executed CPU review
+section shows the three closest training-image pairs and records the uploads.
+The full original result ZIP is preserved in Downloads and the imported files
+are available locally under `outputs/`. The measured report is
+`../docs/Part2_Findings_DRAFT.pdf`.
+
+Both adapters and the generated-image dataset are uploaded privately under
+`denishatank`; exact URLs and commit IDs are in `evidence/hub_links.json`.
+Do not rerun training just to finish the report. The remaining steps are real
+ratings from two team members and one external rater, actual team details,
+confirmation of permitted sharing, and grader access. The 24-GB RTX 4090 run
+does not itself verify the lab's 16-GB execution target. Earlier repair instructions
+below describe how to run or resume the experiment, not an instruction to retrain
+the completed results. No final submission tag has been created for this draft.
+
 This implementation uses `lambdalabs/naruto-blip-captions` and Stable Diffusion 1.5,
 with exact dataset and model revisions recorded in the code/configuration. The
 90/10 split is actually shuffled with seed 266 after deduplication. Two LoRA
@@ -55,7 +74,7 @@ and images to your team Hugging Face account after the real run.
    and outputs. The first setup can take several minutes and needs working internet.
 2. Run All. The normal path runs both 1,200-update experiments, all 120 generations,
    KID/CLIP/LPIPS, nearest-training-image checks, the comparison table and a PDF.
-   Full training was not completed in the uploaded failed notebook. Existing compatible
+   Full training completed in the later supplied result notebook. Existing compatible
    completed stages resume or skip rather than retrain.
 3. Save the executed notebook and the entire `outputs` directory. The PDF is under
    `output/pdf/Part2_Findings.pdf`. It says DRAFT while required evidence is missing.
@@ -69,10 +88,9 @@ and images to your team Hugging Face account after the real run.
    (`A`, `B`, `tie`) and `prompt_match` (`A`, `B`, `tie`). Do not show raters the key.
    Each rater needs 25 rows; there must be two team members and an external rater.
    The notebook has a switch to prepare run2's blinded set if you select run2.
-6. Create your own account at https://huggingface.co/join and verify the email.
-   Choose any available appropriate username. No particular username is required
-   by the PDF. Make a write-scoped token at https://huggingface.co/settings/tokens.
-   Enter it only through the notebook's hidden prompt, never in code or a chat.
+6. The verified account is `denishatank`. The current artifacts are already uploaded;
+   a new token or repeated upload is not needed. If you later run the optional API
+   uploader, enter a write token only through its hidden prompt, never in code or chat.
 7. In the upload cell, set your real `HF_NAMESPACE`, review redistribution rights,
    then explicitly enable uploads. The helper creates private model repositories
    `USERNAME/data266-lab2-p2-run1`, `USERNAME/data266-lab2-p2-run2` and image dataset

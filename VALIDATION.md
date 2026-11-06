@@ -1,5 +1,37 @@
 # Notebook repair validation
 
+## Latest Part 2 evidence: completed GPU run and imported results
+
+This section supersedes the earlier failed Part 2 upload described below. The
+later `Part2_FineTune_Run_(2).ipynb` completed all ten code cells on an RTX 4090
+with zero saved error outputs. Both LoRA experiments completed 1,200 updates.
+The full result ZIP passed its CRC check. Its SHA-256 is
+`5085f961414fa35c795233513219be4218730ac1591e271c8fca28f8696d8d7e`.
+
+The original trained safetensors were inspected: both contain 256 finite LoRA
+tensors. All 120 current image files, eight comparison grids, loss histories,
+KID/CLIP/LPIPS records and six nearest-training-image figures are present.
+Historical generations and optimizer pickle checkpoints were left in the
+original archive rather than imported. Existing differing files were backed up.
+
+The canonical Part 2 notebook preserves every original GPU cell and output.
+An explicitly separate macOS CPU review cell was actually executed afterward;
+it reads the imported evidence, shows nearest pairs and refreshes the report.
+It does not claim a second GPU run. Twenty offline regression tests passed,
+including incomplete ZIP rejection, path traversal rejection and backup checks.
+Test fixtures are not experimental results or human judgments.
+
+The authenticated Hugging Face account was verified as `denishatank`. Both
+adapters and the 120-image dataset were uploaded privately, with model/data cards
+and commit IDs recorded in `part2_diffusion/evidence/hub_links.json`. The report
+includes measured tables, original figures and AI-assisted failure review.
+
+Part 2 is not yet fully submission-ready: independent real ratings, team details,
+grader access to private artifacts and redistribution-rights confirmation remain.
+No human win rates or permissions were invented. This RTX 4090 run does not
+establish the lab's single-16-GB-GPU execution requirement or complete the common
+team deliverables and other parts of the lab.
+
 ## Generation recovery follow-up
 
 The generation-fingerprint error is now handled without changing the training

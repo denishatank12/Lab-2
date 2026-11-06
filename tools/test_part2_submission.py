@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 import unittest
+import zipfile
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,63 @@ from submission import human_results, audit
 import setup_runtime
 from blinding import prepare_blind_pairs
 from generation_state import prepare_generation_folder
+from import_result_bundle import import_bundle
+
+
+class TestResultImport(unittest.TestCase):
+    """ZIP fixtures contain no real model or image measurements."""
+    def fixture(self, archive, extra=None, omit=None):
+        members = {"outputs/evaluation.json": "{}", "outputs/memorization.json": "[]"}
+        rows = []
+        for model in ["base", "run1", "run2"]:
+            for index in range(20):
+                for seed in [0, 1]:
+                    name = f"{model}_{index:02d}_{seed}.png"
+                    rows.append({"file": name})
+                    members["outputs/generations/" + name] = "TEMPORARY IMAGE FIXTURE"
+        members["outputs/generations/manifest.json"] = json.dumps(rows)
+        for run in ["run1", "run2"]:
+            for name in ["pytorch_lora_weights.safetensors", "training_metrics.json", "run_config.json"]:
+                members[f"outputs/{run}/{name}"] = "TEMPORARY TEST FIXTURE"
+        members["outputs/run1/checkpoint-1200/training_state.pt"] = "NEVER IMPORT"
+        if extra:
+            members.update(extra)
+        if omit:
+            members.pop(omit)
+        with zipfile.ZipFile(archive, "w") as bundle:
+            for name, value in members.items():
+                bundle.writestr(name, value)
+
+    def test_complete_import_preserves_changed_files_and_skips_optimizer_pickle(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "fixture.zip"
+            self.fixture(archive)
+            (root / "outputs").mkdir()
+            (root / "outputs/evaluation.json").write_text("OLD FIXTURE")
+            with redirect_stdout(io.StringIO()):
+                result = import_bundle(archive, root)
+            self.assertEqual(result["generation_records"], 120)
+            self.assertFalse((root / "outputs/run1/checkpoint-1200").exists())
+            self.assertEqual((Path(result["backup"]) / "outputs/evaluation.json").read_text(), "OLD FIXTURE")
+
+    def test_missing_image_rejected_before_writes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "fixture.zip"
+            self.fixture(archive, omit="outputs/generations/base_00_0.png")
+            with self.assertRaises(ValueError):
+                import_bundle(archive, root)
+            self.assertFalse((root / "outputs").exists())
+
+    def test_traversal_rejected_before_writes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "fixture.zip"
+            self.fixture(archive, extra={"outputs/../../outside.txt": "UNSAFE FIXTURE"})
+            with self.assertRaises(ValueError):
+                import_bundle(archive, root)
+            self.assertFalse((root / "outputs").exists())
 
 
 class TestGenerationRecovery(unittest.TestCase):

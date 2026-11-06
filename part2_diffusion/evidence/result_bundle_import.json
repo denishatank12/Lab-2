@@ -1,0 +1,8 @@
+{
+  "archive": "Part2_results_20261106_025010.zip",
+  "archive_sha256": "5085f961414fa35c795233513219be4218730ac1591e271c8fca28f8696d8d7e",
+  "imported_files": 184,
+  "generation_records": 120,
+  "skipped": "Historical generations, Hub export copies and optimizer checkpoints remain in the original ZIP.",
+  "backup": "/Users/denishatank/Documents/ChatGPT/Gen AI/Lab-2/part2_diffusion/outputs/import_history/20261106T030337619953Z"
+}

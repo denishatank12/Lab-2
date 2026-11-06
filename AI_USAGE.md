@@ -1,5 +1,22 @@
 # AI assistance used for the runtime repair
 
+## Completed-run review and artifact upload
+
+AI assistance also inspected the later successful GPU notebook and the original
+result ZIP, imported actual saved results with backups, checked adapter tensors,
+reviewed original image comparisons and the three closest training pairs, and
+updated the Part 2 findings PDF. The selected rank-4 model and failure analysis
+are AI-assisted interpretations of real measurements and images, not independent
+human-rating results. The notebook's original GPU cells and outputs are preserved;
+the appended review was actually run separately on CPU and is labeled that way.
+
+With the user's authorization, both original adapters and the 120 generated
+images were uploaded to private repositories under the verified Hugging Face
+account `denishatank`. No passwords, tokens, original training-image dataset or
+rater identities were published. Team details, real human judgments, sharing
+permissions and grader access remain unresolved. The older failed-run account
+below is historical and is superseded for Part 2 by this successful result bundle.
+
 AI assistance was used to inspect the notebooks and requirements, identify setup
 and memory problems, rewrite the shared environment setup, repair the data split,
 implement cached LoRA training and actual metric calculations, repair agent image

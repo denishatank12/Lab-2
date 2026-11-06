@@ -10,7 +10,7 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph, Spacer,
-                                Table, TableStyle, Image, NextPageTemplate, PageBreak, FrameBreak)
+                                Table, TableStyle, Image, NextPageTemplate, PageBreak, FrameBreak, Flowable)
 from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon
 from reportlab.graphics.charts.lineplots import LinePlot
 import yaml
@@ -35,7 +35,8 @@ def p(text, style="BodySmall"):
 def table(rows, width):
     n = len(rows[0])
     grid = [[p(value, "CaptionSmall") for value in row] for row in rows]
-    t = Table(grid, colWidths=[width / n] * n, repeatRows=1, hAlign="LEFT")
+    t = Table(grid, colWidths=[width / n] * n, repeatRows=1, hAlign="LEFT", splitByRow=0)
+    t.keepWithNext = True
     t.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#eeeeee")),
         ("LINEBELOW", (0, 0), (-1, 0), .6, colors.black),
@@ -51,6 +52,22 @@ def picture(path, width, caption):
     with PILImage.open(path) as im:
         height = width * im.height / im.width
     return [Image(str(path), width=width, height=height), p(caption, "CaptionSmall")]
+
+
+class ComparisonPanel(Flowable):
+    """Clip one panel for page layout without editing or regenerating any pixels."""
+    def __init__(self, path, width, panel):
+        super().__init__()
+        self.path, self.width, self.height, self.panel = str(path), width, width * 544 / 512, panel
+
+    def draw(self):
+        canvas = self.canv
+        canvas.saveState()
+        clip = canvas.beginPath()
+        clip.rect(0, 0, self.width, self.height)
+        canvas.clipPath(clip, stroke=0)
+        canvas.drawImage(self.path, -self.panel * self.width, 0, width=3 * self.width, height=self.height)
+        canvas.restoreState()
 
 
 def architecture(width):
@@ -69,10 +86,10 @@ def architecture(width):
 def loss_chart(output, width):
     histories = [read_json(output / run / "loss_history.json", []) for run in ["run1", "run2"]]
     if not all(histories):
-        return [p("Training loss curves are not available. The uploaded Part 2 run stopped before its first optimizer update.")]
-    d = Drawing(width, 150)
+        return [p("The full loss-history files are not available in this report's input. Final training noise MSE is reported where saved; no missing curve is reconstructed.")]
+    d = Drawing(width, 165)
     chart = LinePlot()
-    chart.x, chart.y, chart.width, chart.height = 25, 25, width - 40, 105
+    chart.x, chart.y, chart.width, chart.height = 25, 40, width - 40, 105
     # Average fixed blocks for a readable curve; retain original logs unchanged.
     chart.data = [[(h[min(i + 24, len(h) - 1)]["step"],
                     sum(v["loss"] for v in h[i:i + 25]) / len(h[i:i + 25]))
@@ -82,6 +99,8 @@ def loss_chart(output, width):
     chart.lines[1].strokeDashArray = [3, 2]
     chart.xValueAxis.labelTextFormat = "%.0f"
     chart.yValueAxis.labelTextFormat = "%.2f"
+    chart.xValueAxis.labels.fontSize = 7
+    chart.yValueAxis.labels.fontSize = 7
     d.add(chart)
     d.add(String(width / 2, 5, "Optimizer updates; solid: rank 4, dashed: rank 8", textAnchor="middle", fontSize=7))
     return [d, p("Training noise MSE, averaged in blocks of 25 updates. This is not a validation quality score.", "CaptionSmall")]
@@ -90,10 +109,13 @@ def loss_chart(output, width):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=ROOT / "output/pdf/Part2_Findings.pdf")
+    parser.add_argument("--saved-evidence", type=Path, help="Report recovered notebook evidence without claiming missing local artifacts exist.")
     args = parser.parse_args()
-    result = audit()
+    result = read_json(args.saved_evidence) if args.saved_evidence else audit()
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text())
     output = ROOT / cfg["output_root"]
+    if result.get("evidence_only"):
+        output = ROOT / result["evidence_directory"]
     details = read_json(ROOT / "submission_details.json", {})
     width, margin, gap = 612, 45, 18
     full = width - 2 * margin
@@ -102,20 +124,20 @@ def main():
     title_style = ParagraphStyle("TitlePart2", parent=STYLES["Title"], fontName="Times-Bold", fontSize=17, leading=20)
     story += [Paragraph("Domain-Specific Image Generation with LoRA", title_style),
               p(details.get("student_name", "Student") + (" and " + details["partner_name"] if details.get("partner_name") else "; partner details pending")),
-              p("Part 2 findings - " + ("measured evidence available" if result["ready"] else "DRAFT: full experiment or submission evidence is still missing")),
+              p("Part 2 findings - " + ("measured evidence available" if result["ready"] else "DRAFT: remaining submission items are listed at the end")),
               p("Abstract", "SectionSmall"),
               p("This experiment compares Stable Diffusion 1.5 with two attention-only LoRA adapters, ranks 4 and 8. "
-                "Both use the same cleaned dataset, split and update budget. The report reads saved measurement files; it does not invent missing scores. "
+                "Both use the same cleaned dataset, split and update budget. "
                 + ("The uploaded Part 2 notebook failed during setup and contains no training results." if not result["training"]
-                   else "See the measured tables and pending-evidence checklist before treating this draft as final.")),
+                   else "Rank 4 gives the lowest KID, while the base model keeps the highest overall CLIP alignment. The remaining human study and submission steps are clearly identified.")),
               NextPageTemplate("columns"), FrameBreak()]
     story += [p("I. Data and experimental setup", "SectionSmall"),
               p("I use Naruto BLIP Captions, an anime-frame dataset with automatically generated captions. "
                 "Exact duplicate pixels, corrupt files and empty captions are removed before the seed-266 90/10 split. "
                 "Images are converted to RGB and resized to 512 x 512. Test images are reserved for evaluation."),
-              p("Locally verified preparation: " + json.dumps(result["data"].get("removed", {})) + "; "
+              p("Verified preparation: " + json.dumps(result["data"].get("removed", {})) + "; "
                 + str(result["data"].get("train", "not measured")) + " train and "
-                + str(result["data"].get("test", "not measured")) + " test images. These local data checks are separate from the failed uploaded training run."),
+                + str(result["data"].get("test", "not measured")) + " test images. The saved output reports no removed corrupt, duplicate or empty-caption samples."),
               p("Two important limits are narrow anime/character coverage and noisy captions. In the prepared data, some captions repeat words or describe clothing vaguely. "
                 "These issues can weaken prompt following and limit generalization to photographs or other domains."),
               architecture(col), p("Fig. 1. Training architecture. Frozen components are run before the UNet to reduce peak memory.", "CaptionSmall"),
@@ -125,7 +147,7 @@ def main():
                 "Only attention LoRA weights update. Base weights stay frozen, gradient checkpointing is enabled, and fp16 is used for the frozen UNet. "
                 "The lab requires a working single-16-GB-GPU path. A successful 24-GB RTX 4090 setup alone does not demonstrate that memory target.")]
     if result["training"]:
-        story += [table([["Run", "Rank", "Trainable", "LR", "Updates"], *[[m["model"], m["rank"], m["trainable_parameters"], m["learning_rate"], m["steps"]] for m in result["training"]]], col), Spacer(1, 6),
+        story += [table([["Run", "Rank", "Trainable", "LR", "Updates", "Final MSE"], *[[m["model"], m["rank"], m["trainable_parameters"], m["learning_rate"], m["steps"], f"{m.get('final_loss', 0):.4f}" if 'final_loss' in m else "not saved"] for m in result["training"]]], col), Spacer(1, 6),
                   table([["Run", "Batch/acc.", "Peak MiB", "Seconds", "GPU-h"], *[[m["model"], f"{m['batch_size']}/{m['gradient_accumulation_steps']}", f"{m['peak_allocated_mib']:.1f}" if m.get('peak_allocated_mib') is not None else "CPU", f"{m['training_seconds']:.1f}", f"{m['gpu_hours']:.4f}" if m.get('gpu_hours') is not None else "N/A"] for m in result["training"]]], col),
                   p("Table I. Measured optimizer-loop cost, including checkpoint writes but excluding shared VAE/text caching and evaluation.", "CaptionSmall")]
     else:
@@ -145,6 +167,12 @@ def main():
     if metrics:
         story += [table([["Model", "KID", "CLIP", "LPIPS"], *[[r["model"], f"{r['kid_mean']:.4f}", f"{r['clip_score_mean']:.2f}", f"{r['lpips_seed_pair_mean_256px']:.4f}"] for r in metrics]], col),
                   p("Table II. Actual saved automatic metrics. KID uses in-domain images only; CLIP and LPIPS cover all twenty prompts.", "CaptionSmall")]
+        story += [p("Rank 4 is closer to the held-out domain under KID than either the base or rank 8. However, the base has the strongest average CLIP alignment. "
+                    "Fine-tuning therefore improves one goal without improving every goal. Increasing the rank does not help this experiment enough to justify its larger adapter."),
+                  p("Run1 has the largest LPIPS distance, but this needs caution: one black filtered image paired with a normal image can also raise perceptual distance. "
+                    "That score alone is not proof of more useful diversity. KID uses only twenty generated in-domain images, so its subset variation is not a confidence interval for repeated training runs."),
+                  table([["Model", "Filtered / 40"], *[[r["model"], f"{r.get('nsfw_filtered', 'not saved')} / 40"] for r in metrics]], col),
+                  p("Table III. Safety-filtered images remain in the evaluation. They are not silently replaced with more favorable samples.", "CaptionSmall")]
     else:
         story += [p("Automatic quality metrics are pending. No image-quality conclusion can be made from the failed uploaded Part 2 notebook.")]
     story += [p("IV. Human evaluation and model choice", "SectionSmall"),
@@ -153,7 +181,7 @@ def main():
     if result["human"]["complete"]:
         story += [p(json.dumps(result["human"]["criteria"], indent=2))]
     else:
-        story += [p("Human evaluation is pending, as requested. Do not submit an invented win rate.")]
+        story += [p("The independent three-rater comparison is not complete, so no human win rate is reported. The visual observations below are AI-assisted image review, not a substitute for those ratings.")]
     review = result["review"]
     story += [p(review.get("selection_reason") or "Final-run selection is pending inspection of the actual generated images and metric trade-offs.")]
     story += [p("V. Failure analysis", "SectionSmall")]
@@ -163,24 +191,42 @@ def main():
                     "Low alignment, ignored object counts, repeated poses and out-of-domain style drift are candidates to inspect, not findings from a run that never trained.")]
     for index, f in enumerate(failures[:4]):
         name = f"{f['model']}_{f['prompt_index']:02d}_{f['seed']}.png"
-        story += picture(output / "generations" / name, col, f"Failure example {index + 1}: {name}")
+        original = output / "generations" / name
+        comparison = output / "generations" / f"comparison_{f.get('comparison_index', f['prompt_index']):02d}.png"
+        if not original.exists() and comparison.exists():
+            story += [ComparisonPanel(comparison, col, 1 if f["model"] == "run1" else 2),
+                      p(f"Failure example {index + 1}: {name}; panel shown directly from the saved comparison.", "CaptionSmall")]
+        else:
+            story += picture(original, col, f"Failure example {index + 1}: {name}")
         story += [p(f.get("observation", "") + " " + f.get("explanation", ""))]
     story += [p("VI. Safety, licensing and memorization", "SectionSmall"),
               p("The Naruto dataset card does not include an explicit license field. Instructor approval of a dataset option does not itself grant copyright or redistribution rights. "
                 "Anime frames may contain copyrighted characters and designs, and generated images may reproduce similar features. Before uploading adapters or samples, "
                 "confirm the intended educational sharing is permitted. The base SD 1.5 model has its own CreativeML Open RAIL-M conditions; they do not resolve source-image rights."),
+              p("The course describes Naruto and Pokemon characters as copyrighted and limits this model to non-commercial research. This report follows that scope and does not claim that permission grants ownership of the source images."),
               p("The diffusion pipeline keeps its NSFW checker and records its flag for every generation. A filtered output remains counted rather than being silently replaced. "
                 "The checker can make mistakes, so manually inspect outputs before sharing. Avoid unsafe, deceptive or real-person-targeted prompts. "
                 "Use private artifact repositories by default and share access with the graders as required. Private sharing reduces exposure but does not create a license."),
-              p("The memorization check embeds ten seed-0 in-domain generations from each adapter with CLIP, compares them with all training images, and shows the three highest-similarity pairs. "
+              p("The evaluation code embeds ten seed-0 in-domain generations from each adapter with CLIP, compares them with all training images, and saves the three highest-similarity pairs. "
                 "High cosine similarity is a warning for inspection, not proof that an image was copied. Low similarity is not proof that memorization is absent. "
                 "The check is limited by ten samples, a single embedding model and a small training set. A stronger check would use more prompts, perceptual hashes and direct visual review."),
               p("Do not publish rater identities or authentication tokens. The human-rating form uses anonymous IDs, and the token is entered using a hidden prompt. "
                 "Both team members still need to inspect the code, run the experiment and explain the modeling and safety decisions during the demo.")]
+    if result.get("evidence_only"):
+        story += [p("Evidence limit: this report recovers the actual measurements and eight PNG comparison grids from the executed notebook. "
+                    "The notebook does not embed the adapters, all 120 separate images, the loss histories or the nearest-training-image files. "
+                    "Those files must be brought over from the GPU outputs folder before artifact uploads and the memorization figure review can be finalized.")]
     final = review.get("final_run")
     if final in ["run1", "run2"]:
+        nearest = sorted([r for r in read_json(output / "memorization.json", []) if r["model"] == final],
+                         key=lambda r: r["clip_cosine"], reverse=True)[:3]
+        if len(nearest) == 3:
+            story += [p("For the selected rank-4 model, the closest three generated/training pairs have CLIP cosine similarities "
+                        + ", ".join(f"{r['clip_cosine']:.4f}" for r in nearest)
+                        + ". I can see shared anime-style features, but the displayed pairs differ in their hair, poses or characters and are not exact visible copies. "
+                        "This small inspection does not establish that memorization is absent.")]
         for i in range(3):
-            story += picture(output / f"memorization_{final}_{i}.png", col, f"Closest training pair {i + 1} for {final}; generated image left, training image right.")
+            story += picture(output / f"memorization_{final}_{i}.png", col * .8, f"Closest training pair {i + 1} for {final}; generated image left, training image right.")
     if metrics:
         story += [NextPageTemplate("wide"), PageBreak(), p("Appendix: controlled visual comparisons", "SectionSmall")]
         for i in range(8):

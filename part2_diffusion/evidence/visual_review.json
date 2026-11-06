@@ -1,0 +1,34 @@
+{
+  "final_run": "run1",
+  "selection_reason": "I would choose run1, the rank-4 adapter, for the domain-style model. It has the lowest KID of the three models and a slightly higher CLIP score than run2, while using half as many trainable adapter parameters. The visible portrait examples also show the intended move from photographic faces toward an anime style. This is a trade-off, not a win on every measure: the base model has the highest overall CLIP score. Run1's larger LPIPS value is not enough to claim better useful diversity, because safety-filtered black outputs can affect that measurement. The choice is based on automatic metrics and an AI-assisted inspection of the saved grids; the independent human comparison is still pending.",
+  "review_method": "AI-assisted visual inspection of the eight saved seed-0 comparison grids. These observations are not the required three-rater human study.",
+  "failure_modes": [
+    {
+      "model": "run1",
+      "prompt_index": 2,
+      "seed": 0,
+      "comparison_index": 2,
+      "mode": "Attribute binding",
+      "observation": "The prompt asks for a woman with green eyes and black hair. In the rank-4 panel the hair is dark, but a strong green tint covers much of the face while the eyes look dark or gray rather than clearly green. The image adopts an anime style without reliably keeping the requested color attached to the eyes.",
+      "explanation": "This suggests a prompt-attribute binding problem. Fine-tuning may strengthen familiar colors and portrait patterns without improving which object receives each attribute. That explanation is a hypothesis from the visible example, not a proven mechanism. More varied, better-captioned training examples and a separate attribute-following evaluation would help test it."
+    },
+    {
+      "model": "run1",
+      "prompt_index": 4,
+      "seed": 0,
+      "comparison_index": 4,
+      "mode": "Counting and relationships",
+      "observation": "The prompt asks for a group in a field with one person holding a sword. In the rank-4 panel, a foreground character and a background character both appear to hold blades. The field and group idea are present, but the 'one person' relationship is not preserved. The base comparison also has several visible weapons, so this is not a failure unique to LoRA.",
+      "explanation": "The model appears to capture the general scene more easily than the exact count and ownership of the swords. A single CLIP similarity score can overlook this kind of compositional error. A useful follow-up would score the number of sword-holders explicitly and improve captions that describe counts and relationships."
+    },
+    {
+      "model": "run1",
+      "prompt_index": 5,
+      "seed": 0,
+      "comparison_index": 5,
+      "mode": "Safety-filtered output",
+      "observation": "For the prompt about a man with long hair and a brown jacket, both fine-tuned panels are completely black. The saved generation logs report safety filtering, and the aggregate counts are six filtered outputs for run1 and seven for run2. These panels provide no usable visual answer to the prompt.",
+      "explanation": "The enabled safety checker replaces flagged generations with black images. The underlying unfiltered images are not available, so the black panels alone do not establish whether those flags were correct or false positives. Keep the filter enabled, report the missing usable outputs, and do not silently regenerate until a preferred result appears."
+    }
+  ]
+}
