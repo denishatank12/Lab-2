@@ -34,6 +34,38 @@ quality but completed result is not silently regenerated until it looks better.
 This protects completed work, not a promise that no error or further review can
 ever occur. Human judgments and external submission actions still need people.
 
+## Download the ZIP to send for review
+
+The launcher's final cell collects all available Parts 1, 2 and 3 results into
+`Lab2_All_Results_<timestamp>.zip`. Run it after the job, or run only that cell
+if an earlier stage failed. It never trains or generates images.
+
+The ZIP includes matching autosaved executed notebooks (including a partial
+failed notebook when present), generated images, LoRA adapters, saved metrics,
+evaluation traces, reports, configuration/source snapshots and diagnostic logs.
+It excludes Python environments, downloaded base models, original datasets,
+optimizer pickle checkpoints and old ZIPs. Its `BUNDLE_MANIFEST.json` records
+each included file's SHA-256 and lists expected files missing on this runtime.
+It cannot recover files from another PC or an expired runtime automatically.
+
+In Colab, the cell transfers the ZIP over the notebook connection and requests
+a browser save. This also supports a local Colab kernel without installing the
+`google.colab` package. Keep that kernel connected while it transfers. If the
+browser blocks automatic downloads, click the visible Download/Save ZIP link.
+The destination follows your browser's download settings, usually Downloads.
+
+A native Windows or Mac kernel also copies the ZIP into its accessible local
+Downloads folder. For a Docker-mounted host folder, you may set
+`LAB2_DOWNLOAD_DIR` to that existing mounted path. A container's `/root` is not
+your Windows Downloads folder. Other notebook frontends can use that copy or
+the exact runtime path printed by the cell; no unreachable localhost link is
+presented as a completed download.
+
+The archive is local and is not pushed to GitHub. Common credential patterns are
+redacted from copied text without editing your originals; still review the ZIP
+before sharing. Upload the resulting ZIP in this chat for the next audit. It is
+a review bundle, not an automatic declaration that the Canvas submission is ready.
+
 ## Part 1
 
 1. Get the latest `Part1_RAG_Run.ipynb` from this repository. Use a fresh GPU kernel.

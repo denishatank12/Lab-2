@@ -11,6 +11,13 @@ It preflights both real model paths before the long work, then runs Parts 1 and 
 sequentially and autosaves their executed notebooks. It does not repeat Part 2
 training. Do not leave until both real GPU preflights pass on that PC.
 
+Afterward, use the final **Download one ZIP with all available lab results** cell.
+It creates one integrity-checked ZIP for all three parts and offers a browser
+download through the Colab notebook connection, including local runtimes. No
+localhost file link or extra web server is needed. Missing results stay listed
+in its manifest. You can run only this cell after a failure without repeating
+GPU work. See the rerun guide for the contents and download details.
+
 | Part | Notebook | What needs running now? |
 | --- | --- | --- |
 | 1 | [RAG](part1_rag/notebooks/Part1_RAG_Run.ipynb) | Full revised GPU run |

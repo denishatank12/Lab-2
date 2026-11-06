@@ -1,5 +1,11 @@
 # AI assistance used for the runtime repair
 
+AI assistance added a combined evidence ZIP and a notebook-channel download
+button. Packaging tests use temporary synthetic files. The frontend test mocks
+the Colab comms API; it is not a claim that a real browser download or GPU run
+has completed. Common credentials are redacted in archive copies, not in original
+files, and missing evidence remains explicitly listed.
+
 ## November 6 cross-part revision
 
 The overnight follow-up added fingerprinted per-item checkpoints, restored

@@ -28,6 +28,38 @@ def md(text): return nb.v4.new_markdown_cell(text)
 def code(text): return nb.v4.new_code_cell(text)
 
 
+def add_download_section(notebook):
+    heading='## Download one ZIP with all available lab results'
+    existing=next((i for i,c in enumerate(notebook.cells) if c.cell_type=='markdown' and heading in c.source),None)
+    if existing is not None:
+        notebook.cells=notebook.cells[:existing]
+    notebook.cells.extend([
+        md(heading+'\n\nRun this cell after the overnight work. It bundles all available results for Parts 1, 2 and 3, executed notebooks, source/configuration, reports, adapters, generated images and diagnostic logs. Base-model downloads, environments, original datasets and old archives are excluded. Missing files are listed honestly in `BUNDLE_MANIFEST.json`.\n\nThe ZIP transfers through the Colab notebook connection, including a local kernel, without a localhost hyperlink. A native Windows/Mac runtime also copies it into its accessible Downloads folder. Browser location follows your download settings. Keep the kernel connected until transfer finishes. If the run fails, you can execute only this export cell to send the partial evidence; no GPU work is repeated.'),
+        code('''from pathlib import Path
+import os, sys, subprocess, json, importlib.util
+
+if "ROOT" not in globals():
+    candidates = [Path.cwd(), *Path.cwd().parents,
+        Path(os.environ.get("LAB2_ROOT", str(Path.home() / "DATA266/Lab-2"))),
+        Path("/content/Lab-2"), Path("/kaggle/working/Lab-2")]
+    ROOT = next((p.resolve() for p in candidates if (p / "tools/export_lab_results.py").is_file()), None)
+    if ROOT is None:
+        raise FileNotFoundError("Set LAB2_ROOT to your existing Lab-2 folder. Do not rerun training just to export files.")
+
+# This script only collects saved files. It does not install packages, train, or generate.
+subprocess.run([sys.executable, str(ROOT / "tools/export_lab_results.py"), "--all"], cwd=ROOT, check=True)
+bundle = json.loads((ROOT / "output/exports/latest_all_results.json").read_text())
+print("Upload this ZIP in our chat:", bundle["archive"])
+print("ZIP SHA256:", bundle["sha256"])
+if globals().get("SMOKE_ONLY", False):
+    print("CPU smoke: bundle verified, browser download intentionally not triggered. These are not new GPU results.")
+else:
+    spec = importlib.util.spec_from_file_location("lab2_download_results", ROOT / "tools/download_results.py")
+    downloader = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(downloader)
+    downloader.offer_download(bundle["archive"], auto_start=True)''')])
+
+
 def save(part,name,cells):
     path=ROOT/part/'notebooks'/name
     if path.exists():
@@ -255,9 +287,22 @@ print("Execution progress:", ROOT / "runtime_checks/overnight_progress.json")'''
         md('## After the run\nKeep the completed notebooks and ZIPs. Inspect the saved failures and fill the real-rating forms. Those review steps do not require repeating training or completed generation. The lab is not submission-ready merely because the computational stages finished.')])
     launcher.metadata={'kernelspec':{'name':'python3','display_name':'Python 3','language':'python'},
         'language_info':{'name':'python'},'validation_scope':'GPU preflights must pass on the actual RTX 4050; local smoke is not full inference.'}
+    add_download_section(launcher)
     nb.write(launcher,ROOT/'Lab2_Overnight_Run.ipynb')
     print('Updated Part 1 and Part 3 run notebooks; preserved Part 2 GPU results and appended refresh cells.')
 
 
 if __name__=='__main__':
-    main()
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--download-only',action='store_true',help='Append export/download without resetting any existing results.')
+    args=parser.parse_args()
+    if args.download_only:
+        path=ROOT/'Lab2_Overnight_Run.ipynb'
+        notebook=nb.read(path,as_version=4)
+        add_download_section(notebook)
+        nb.validate(notebook)
+        nb.write(notebook,path)
+        print('Refreshed the download section; existing workflow cells and results were preserved.')
+    else:
+        main()

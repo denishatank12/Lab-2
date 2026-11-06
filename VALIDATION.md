@@ -1,5 +1,17 @@
 # Notebook repair validation
 
+## Combined ZIP and download cell
+
+Nine packaging/download tests passed: per-file hashes and ZIP integrity,
+missing-file disclosure, correct autosaved/failed notebook selection, excluding
+base weights/caches/raw data, retaining LoRA adapters, secret-pattern redaction
+without changing originals, symlink rejection, bounded binary comm transfer,
+native directory copying, repeatable notebook-cell insertion, and frontend
+JavaScript handling complete versus interrupted transfers. Some checks share a
+test method. The browser test uses a mocked Colab frontend; it does not certify a
+real user-browser download. The final cell was separately executed in CPU export
+mode without repeating training or modifying prior GPU outputs.
+
 ## November 6 revision: missing rubric components
 
 ### Overnight restart safeguards
