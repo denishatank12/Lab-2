@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
-import re, time
+import re, time, unicodedata
 
 UNSAFE = ('nude', 'sexual', 'child abuse', 'exploit', 'weapon', 'bomb', 'disguise a real person', 'deepfake', 'evidence of a crime')
 IMAGE_INSTRUCTION = ('ignore previous', 'system prompt', 'do not tell', 'follow the text in the image', 'hidden text', 'system command')
@@ -25,15 +25,19 @@ class State:
     clip_similarity: float | None = None
     generation_metadata: dict[str, Any] = field(default_factory=dict)
     error: str = ''
+    message: str = ''
+    seconds: float = 0.0
     trace: list[dict[str, Any]] = field(default_factory=list)
 
     def log(self, agent: str, inp: Any, out: Any, started: float):
         self.trace.append({'agent': agent, 'input': inp, 'output': out, 'seconds': round(time.perf_counter()-started, 4)})
 
 def planner(s: State) -> State:
-    t=time.perf_counter(); q=s.request.lower(); s.safe=not any(x in q for x in UNSAFE+IMAGE_INSTRUCTION)
+    t=time.perf_counter(); q=unicodedata.normalize('NFKC',s.request).lower().strip()
+    deceptive_evidence=bool(re.search(r'\b(fake|fabricat\w*|forg\w*)\b.{0,50}\b(evidence|proof|document|identity)\b',q))
+    s.safe=not (any(x in q for x in UNSAFE+IMAGE_INSTRUCTION) or deceptive_evidence)
     if not s.safe: s.route='refuse'
-    elif any(x in q for x in ('caption','describe','what is','where is','how many')): s.route='understanding'
+    elif re.search(r'\b(caption|describe)\b|^(what|where|which|who|how|is|are|does)\b',q): s.route='understanding'
     elif any(x in q for x in ('naruto','pokemon','domain','character painting')): s.route='domain_style'
     elif any(x in q for x in ('style','monet','watercolor','painting','cinematic')): s.route='style'
     elif any(x in q for x in ('edit','remove','add','enhance')): s.route='edit'
@@ -48,7 +52,7 @@ def vision(s: State, pipe=None) -> State:
         s.caption = result['caption']
         s.visual_answer = result.get('answer', s.caption)
         s.visual_details = result
-        if any(x in (str(result.get('visible_text','')) + ' ' + s.caption).lower() for x in IMAGE_INSTRUCTION):
+        if result.get('unsafe') is True or any(x in (str(result.get('visible_text','')) + ' ' + s.caption).lower() for x in IMAGE_INSTRUCTION):
             s.safe = False
     elif pipe:
         from PIL import Image
@@ -56,9 +60,12 @@ def vision(s: State, pipe=None) -> State:
     else: s.caption='Image supplied; run with --enable-models for model-generated caption.'
     s.log('vision',s.image_path,{'caption':s.caption,'details':s.visual_details,'answer':s.visual_answer},t); return s
 
-def prompt_engineer(s: State) -> State:
+def prompt_engineer(s: State, runtime=None) -> State:
     t=time.perf_counter()
-    s.prompt = f'{s.request}. Main subject: {s.caption}. Preserve the main subject and composition.'
+    if runtime and hasattr(runtime, 'rewrite'):
+        s.prompt = runtime.rewrite(s)
+    else:
+        s.prompt = f'{s.request}. Main subject: {s.caption}. Preserve the main subject and composition.'
     if s.revisions:
         s.prompt += ' Revision guidance: ' + s.critique
     s.log('prompt_engineering',s.request,s.prompt,t); return s
@@ -91,7 +98,12 @@ def critique(s: State, reviewer=None) -> State:
         result = reviewer.review(s)
         s.clip_similarity = float(result['clip_similarity'])
         s.critique = result['revision_instruction']
-        s.decision = 'accept' if result['accept'] and s.safe else 'revise'
+        if result.get('safe') is False:
+            s.safe = False
+            s.decision = 'refused_output'
+            s.output_path = ''
+        else:
+            s.decision = 'accept' if result['accept'] and s.safe else 'revise'
         s.log('critique', s.output_path, result, t)
     else:
         s.critique = 'No model-based critique was performed.'
@@ -99,14 +111,14 @@ def critique(s: State, reviewer=None) -> State:
         s.log('critique', s.output_path, {'decision':s.decision}, t)
     return s
 
-def run(request: str, image_path: str|None=None, vision_pipe=None, generation_pipe=None, output_dir: Path|None=None,
+def _run(request: str, image_path: str|None=None, vision_pipe=None, generation_pipe=None, output_dir: Path|None=None,
         critique_loop: bool=True, scenario_id: str='') -> State:
     s=planner(State(request=request,image_path=image_path))
     s.scenario_id = scenario_id
-    if not request.strip(): s.decision='invalid_input'; return s
-    if not s.safe: s.decision='refused'; return s
-    if s.route == 'unsupported': s.decision='unsupported'; return s
-    if not image_path: s.decision='missing_image'; return s
+    if not request.strip(): s.decision='invalid_input'; s.message='Enter a non-empty request.'; return s
+    if not s.safe: s.decision='refused'; s.message='This request is unsafe or asks me to obey untrusted instructions.'; return s
+    if s.route == 'unsupported': s.decision='unsupported'; s.message='Please specify a caption, visual question, style change, edit or domain-style request.'; return s
+    if not image_path: s.decision='missing_image'; s.message='Select a readable input image.'; return s
     phase='input'
     try:
         from PIL import Image
@@ -117,13 +129,13 @@ def run(request: str, image_path: str|None=None, vision_pipe=None, generation_pi
                 s.decision = 'invalid_image'; s.error = 'The image is too small to process reliably.'; return s
         phase='vision'
         vision(s,vision_pipe)
-        if not s.safe: s.decision='refused'; return s
+        if not s.safe: s.decision='refused'; s.message='The input was flagged as unsafe or contained instruction-like image text.'; return s
         if s.route == 'understanding':
             s.decision = 'answered' if vision_pipe else 'models_disabled'
             return s
         while True:
             phase='generation'
-            prompt_engineer(s)
+            prompt_engineer(s,generation_pipe)
             generate(s,generation_pipe,output_dir)
             if s.decision in {'models_disabled','refused_output'}:
                 break
@@ -144,6 +156,16 @@ def run(request: str, image_path: str|None=None, vision_pipe=None, generation_pi
         import traceback
         s.log('error',s.route,{'error':s.error,'traceback':traceback.format_exc()},time.perf_counter())
     return s
+
+def run(*args, **kwargs) -> State:
+    started = time.perf_counter()
+    state = _run(*args, **kwargs)
+    state.seconds = time.perf_counter() - started
+    if state.error and not state.message:
+        state.message = 'The request could not be completed: ' + state.error
+    if state.decision == 'revision_limit':
+        state.message = 'Two revisions were attempted without passing the critic. Please inspect the result; this is not an automatic task success.'
+    return state
 
 def save_trace(states: list[State], path: Path):
     path.parent.mkdir(parents=True,exist_ok=True); path.write_text(__import__('json').dumps([asdict(s) for s in states],indent=2),encoding='utf-8')

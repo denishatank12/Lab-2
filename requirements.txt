@@ -31,3 +31,9 @@ ipykernel==6.29.5
 nbformat==5.10.4
 nbclient==0.10.2
 reportlab==4.2.5
+PyMuPDF==1.24.14
+qdrant-client==1.12.1
+grpcio==1.68.1
+grpcio-tools==1.68.1
+protobuf==5.28.3
+portalocker==2.10.1

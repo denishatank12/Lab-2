@@ -1,5 +1,25 @@
 # AI assistance used for the runtime repair
 
+## November 6 cross-part revision
+
+AI assistance mapped the full PDF rubric to code, implemented the missing
+multimodal retrieval and local vision-language answering path, rewrote the agent
+model runtime and evaluation scripts, and added draft reporting, evidence exports
+and regression tests. The proposed 25 golden references and scenario rubrics are
+AI-assisted drafts; the team must review, revise and understand them rather than
+claiming independent authorship. Their verification flags remain unset.
+
+The revised Part 1 and Part 3 notebooks were executed locally only in explicit
+CPU smoke mode. Their pretrained-model GPU measurements remain pending.
+The successful earlier Part 2 GPU results were preserved, not regenerated or
+altered. New upload checks bind to the actual original artifact hashes.
+
+At the user's request, AI prepared blank real-rating forms and a separate
+synthetic format example marked sample-only and do-not-submit. The examples are
+not human observations, are not installed as rating files, and do not populate
+the report's human measurements. Required real raters, contributions, access
+permissions and live-demo confirmations cannot be invented by the assistant.
+
 ## Completed-run review and artifact upload
 
 AI assistance also inspected the later successful GPU notebook and the original

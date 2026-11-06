@@ -76,11 +76,9 @@ def run_script(relative, *arguments):
 
 
 def write(part, filename, cells):
-    n=nb.v4.new_notebook(cells=cells)
-    n.metadata={"kernelspec":{"name":"python3","language":"python","display_name":"Python 3"},
-                "language_info":{"name":"python"}}
-    nb.validate(n)
-    nb.write(n,ROOT/part/'notebooks'/filename)
+    # Historical cell specifications below remain for provenance only.
+    # Never replace a measured notebook with the older baseline template.
+    return
 
 
 def md(text): return nb.v4.new_markdown_cell(text)
@@ -230,4 +228,6 @@ if LAUNCH_APP:
 else:
     print("App not launched. Run the app.py command when ready for the demo.")'''),
 md('## Limits\nVisible text is currently a VQA guess, not verified OCR. The image critic uses CLIP and a generated caption, not independent human judgment. Text guardrails and the diffusion safety checker reduce risk but are not a guarantee. Full grading also requires real test images, human judgments, team documentation and model uploads.')])
-print('Rebuilt all three notebooks.')
+if __name__=='__main__':
+    from update_final_notebooks import main
+    main()

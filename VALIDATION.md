@@ -1,5 +1,40 @@
 # Notebook repair validation
 
+## November 6 revision: missing rubric components
+
+This section supersedes historical implementation descriptions below.
+The revised Part 1 includes figure/table extraction, CLIP image retrieval,
+Qdrant storage, a local vision-language answerer and isolated conversation state.
+The revised Part 3 includes a vision-language model, distinct instruction editing,
+Hub adapter provenance, image-aware safety cases and paired evaluation rubrics.
+Neither revised system has a completed full pretrained-model GPU evaluation yet.
+
+Twenty-one new offline tests passed. They check actual extraction of 179 trusted
+text passages and 35 trusted numbered objects, one quarantined object, real local
+Qdrant storage with fixture vectors, exact/corrected figure identity, session
+isolation, failed-citation rejection, routing, image-instruction handling, and
+rating/upload safeguards. A tiny randomly initialized Qwen2-VL performed an actual
+multimodal CPU forward pass. It tests API wiring, not model quality. The official
+pinned processor also encoded an image/text input successfully. Twenty Part 2
+regression tests passed again, including generation recovery and blinded ratings.
+The actual local Gradio API also processed a deceptive-evidence refusal without
+loading a model or private adapter. This is a preflight/UI check, not the required
+model-backed team demo or proof of broad safety.
+
+All revised Part 1 and Part 3 notebook code cells executed in CPU smoke mode
+with no saved errors. Model inference, image generation and quality measurements
+were explicitly skipped. The Part 2 refresh cell executed separately on CPU while
+preserving every original GPU cell and output. The machine-readable record is
+`validation/revised_notebook_smoke.json`. The Part 2 upload registry now binds to
+the original adapter and image-manifest hashes instead of certifying any later
+replacement weights automatically.
+
+Blank rating forms and an explicitly synthetic format example are separate from
+actual results. No independent human judgments, team details, rights, grader
+access, 16-GB execution or leaderboard submission are inferred. See
+`RERUN_GUIDE.md` for the exact rerun and remaining-work instructions. The combined
+report is a draft with pending values, not a claim that the whole lab is ready.
+
 ## Latest Part 2 evidence: completed GPU run and imported results
 
 This section supersedes the earlier failed Part 2 upload described below. The

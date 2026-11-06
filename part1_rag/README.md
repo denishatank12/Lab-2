@@ -1,4 +1,19 @@
-# Lab 2 Part 1 - Multimodal RAG baseline
+# Lab 2 Part 1 - Multimodal RAG
+
+## Revised implementation
+
+Use `notebooks/Part1_RAG_Run.ipynb`. The revised full path now implements Qdrant
+text/image indexing, exact figure/table extraction, CLIP search, BM25 fusion,
+Qwen2-VL JSON answers and per-conversation memory. Run the new notebook on the
+GPU; the saved CPU smoke outputs do not contain its new model evaluations.
+
+Read the repository's `RERUN_GUIDE.md`. The golden-set file contains AI-assisted
+proposals awaiting team review. Real human groundedness ratings are separate.
+
+## Historical baseline notes
+
+The following describes the earlier extractive fallback, retained only for
+offline checks. It is not the canonical notebook's full model-backed path.
 
 This folder contains the first runnable implementation for the official Part 1 assets.
 It ingests the three PDFs into page-addressable passages, preserves document trust metadata,

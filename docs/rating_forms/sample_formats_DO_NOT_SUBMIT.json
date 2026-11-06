@@ -1,0 +1,28 @@
+{
+  "sample_only": true,
+  "do_not_submit": true,
+  "explanation": "These invented format examples are not observations or human-evaluation results. They are intentionally outside the machine-read ratings schema.",
+  "part1_format": {
+    "id": "EXAMPLE_ONLY",
+    "member_a": 4,
+    "member_b": 5,
+    "member_a_comment": "Example only: a 4 would mean the answer is mostly supported but needs a small citation correction."
+  },
+  "part2_format": {
+    "sample_only": true,
+    "rater_id": "EXAMPLE_ONLY",
+    "role": "external",
+    "pair_id": 0,
+    "domain_style": "A",
+    "prompt_match": "tie",
+    "comment": "Example only: choose A for style only if it actually matches the domain better; use tie if both match the request equally."
+  },
+  "part3_format": {
+    "scenario_id": "EXAMPLE_ONLY",
+    "system": "critique",
+    "member_a": true,
+    "member_b": false,
+    "resolved_pass": false,
+    "resolution_note": "Example only: after discussing the real rubric, the members could agree that a requested edit was not visible."
+  }
+}

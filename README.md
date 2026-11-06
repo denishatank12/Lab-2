@@ -1,63 +1,65 @@
 # DATA 266 Lab 2
 
-This repository is for DATA 266 Lab 2 only. It contains the official Part 1 source assets,
-a hybrid-retrieval baseline, a checkpointed Stable Diffusion LoRA pipeline, and a typed
-multi-agent image pipeline.
+This repository contains the three lab implementations and their run notebooks.
+The latest repair keeps the completed Part 2 GPU results and replaces the older
+Part 1 and Part 3 baselines with the missing model-backed components.
 
-## Current status
+## Open these notebooks
 
-- Part 1 source PDFs, manifest, questions, sample submission, and validator: included.
-- Part 1 ingestion, BM25 retrieval, optional GPU dense retrieval, submission writer, and smoke test: included.
-- Part 2: `part2_diffusion/` (public Naruto captions dataset, deterministic split, two LoRA runs,
-  checkpoint/resume wrapper, fixed prompt set, generation manifest, and evaluation hooks).
-- Part 3: `part3_agents/` (planner, vision, prompt, generation, critique, safety routing,
-  15 scenarios, 10 red-team cases, JSON traces, smoke test, and Gradio app).
+| Part | Notebook | What needs running now? |
+| --- | --- | --- |
+| 1 | [RAG](part1_rag/notebooks/Part1_RAG_Run.ipynb) | Full revised GPU run |
+| 2 | [Fine-tuning](part2_diffusion/notebooks/Part2_FineTune_Run.ipynb) | Reuse completed training; refresh the last review cell when evidence changes |
+| 3 | [Agents](part3_agents/notebooks/Part3_Agents_Run.ipynb) | Full revised GPU run using the existing Part 2 adapter |
 
-## RTX 4050 notebook fixes
+Read [RERUN_GUIDE.md](RERUN_GUIDE.md) before running. The setup creates an isolated,
+pinned environment. Run one notebook at a time in a fresh kernel. A first full
+run needs internet and about 25 GB of free disk. Private adapter download asks
+for a token securely; do not put tokens in source code or notebook outputs.
 
-Open the notebook for the part you want and use a fresh kernel, then Run All:
+The lab specifies a single 16-GB GPU. The saved Part 2 run used a 24-GB RTX 4090.
+That result is preserved honestly, not renamed as a 16-GB run. A 6-GB RTX 4050
+is not the grading target and the revised large-model paths have not been fully
+tested on it.
 
-- [Part 1 RAG](part1_rag/notebooks/Part1_RAG_Run.ipynb)
-- [Part 2 fine-tuning](part2_diffusion/notebooks/Part2_FineTune_Run.ipynb)
-- [Part 3 agents](part3_agents/notebooks/Part3_Agents_Run.ipynb)
+## What changed
 
-The setup cell handles Windows, Linux, Colab and Kaggle, creates an isolated
-environment, and selects CUDA-enabled PyTorch for Parts 2 and 3. It does not
-replace packages inside your notebook kernel. Python 3.13 hosts use a managed
-Python 3.12 runtime. Keep at least 20 GB of disk free for a first full GPU run.
-Run one part at a time and close other GPU-heavy programs on a 6 GB RTX 4050.
-The lab's required grading target is still a 16 GB GPU; this smaller-card profile
-is an additional compatibility path, not proof of a completed grading run.
+Part 1 now extracts numbered figure/table images as well as text, stores dense
+and CLIP vectors in local Qdrant, combines dense search with BM25 and image
+retrieval, and uses a local vision-language model for grounded JSON answers.
+Memory is isolated per conversation; Appendix C is quarantined. The 25 proposed
+golden references still need the team's own review and revision.
 
-Part 2 now caches latents and text embeddings, trains only one LoRA UNet at a
-time, checkpoints the optimizer and random generator, resumes compatible runs,
-and preserves old trainer outputs in a named legacy backup folder. Inference
-uses CPU offload and keeps the diffusion safety checker enabled. There is no
-bitsandbytes or xformers dependency.
+Part 2 retains the actual two 1,200-update LoRA runs, 120 images and measured
+KID/CLIP/LPIPS results. The private Hugging Face upload records are tied to the
+actual adapter and image-manifest hashes. Existing GPU cells are unchanged.
 
-The uploaded November 5 Part 1 run completed its 40-row schema validation on an
-RTX 4090. The uploaded Part 2 run failed in package setup before training. The
-installer now serializes setup and bypasses damaged environments. Part 2 also
-builds a measured comparison table, a clearly labeled PDF draft, real-rating
-aggregation, opt-in Hugging Face uploads and an evidence checklist. Team details
-and human ratings are saved as pending, as requested. See its README for steps.
+Part 3 now has image question answering/text transcription, prompt rewriting,
+separate style and instruction-editing models, a pinned Hub adapter, visual
+critique and image-based safety cases. Fifteen rubric-defined scenarios run with
+and without critique. Automatic acceptance is not counted as human task success.
+The default real inputs are held-out anime frames; this does not establish
+performance on unrelated photographs.
 
-Part 3 now uses img2img with the input image, actual vision calls, a bounded
-critique loop, separate scenario/revision outputs, and explicit error states.
-The synthetic image in its notebook is a wiring example, not the final test set.
+## Ratings and reports
 
-Read [VALIDATION.md](VALIDATION.md) for exactly what was tested. Local CPU smoke
-outputs in the notebooks are explicitly labeled. They are not full SD training
-results and must be replaced by your actual Restart & Run All GPU outputs.
+[Blank forms and rating instructions](docs/rating_forms/README.md) are provided.
+The separate `sample_formats_DO_NOT_SUBMIT.json` illustrates the format only.
+Its invented examples are not measurements and are rejected as an input ballot.
+Real ratings must come from the required people looking at the actual outputs.
+
+[Final_Lab_Report_DRAFT.pdf](docs/Final_Lab_Report_DRAFT.pdf) combines the three
+parts and keeps unmeasured values marked pending. It is not a finished report
+until the revised runs, human review and team details are complete.
+
+See [VALIDATION.md](VALIDATION.md) for the precise scope of local checks and
+[AI_USAGE.md](AI_USAGE.md) for the assistance disclosure. CPU smoke outputs in
+Parts 1 and 3 are deliberately labeled and are not final GPU experiments.
 
 ## Submission status
 
-Runtime fixes do not make the whole lab submission complete. Part 1 remains an
-extractive baseline and still needs the full multimodal answerer and its golden-set
-evaluation. Real GPU runs, human ratings, diverse Part 3 inputs, model/image uploads,
-the combined report and team documents remain separate work. No results or human
-ratings are fabricated and no final lab tags are created by this runtime repair.
-
-Datasets, model weights and generated images are ignored by Git; put the required
-artifacts on your team Hugging Face account. Notebook outputs are saved in Git.
-See each part's README for additional commands.
+The final audit also checks team details, grader access, the required repository
+name/privacy, human ratings, final Kaggle selection, recordings, contributions,
+demo rehearsal and final part tags. Those actions need real evidence; the
+software does not invent them. No new final tag is created by this repair.
+Weights and generated-image datasets belong on Hugging Face, not in Git.

@@ -47,8 +47,50 @@ def main() -> None:
     ap.add_argument("--questions-path", default=os.environ.get("QUESTIONS_PATH"))
     ap.add_argument("--lexical-only", action="store_true")
     ap.add_argument("--require-dense", action="store_true")
+    ap.add_argument("--dense-only", action="store_true", help="Required baseline: dense retrieval without BM25/CLIP fusion.")
     args = ap.parse_args()
     data_dir = Path(args.data_dir)
+    if not args.lexical_only:
+        from multimodal import MultimodalIndex, Conversation
+        import time
+        index = MultimodalIndex(data_dir, Path(args.output).parent / "index")
+        questions = Path(args.questions_path) if args.questions_path else data_dir / "Questions.csv"
+        with questions.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        conversations, answers, traces = {}, {}, []
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        groups = {}
+        for row in rows:
+            groups.setdefault(row["conversation_id"], []).append(row)
+        try:
+            for conv_id, turns in groups.items():
+                chat = Conversation(index, dense_only=args.dense_only)
+                # Share the model, never the conversation state.
+                if conversations:
+                    chat.model = next(iter(conversations.values())).model
+                conversations[conv_id] = chat
+                for row in sorted(turns, key=lambda r: int(r["turn"])):
+                    started = time.perf_counter()
+                    answer = chat.answer(row["question"])
+                    answers[row["id"]] = dict(id=row["id"], conversation_id=conv_id, question_id=row["question_id"],
+                        answer=answer["answer"], status=answer["status"],
+                        figure_references=",".join(answer["figure_references"]) or "NONE",
+                        citations=",".join(answer["citations"]) or "NONE")
+                    traces.append(dict(**row, result=answer, retrieved=chat.last_hits,
+                                       seconds=time.perf_counter()-started))
+                    output.with_suffix(".traces.json").write_text(json.dumps(traces, indent=2))
+                    print(row["id"], answer["status"], flush=True)
+            with output.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=["id", "conversation_id", "question_id", "answer", "figure_references", "citations", "status"])
+                writer.writeheader()
+                writer.writerows(answers[row["id"]] for row in rows)
+            print(f"wrote {len(rows)} model-generated rows to {output}")
+        finally:
+            if conversations:
+                next(iter(conversations.values())).model.unload()
+            index.db.close()
+        return
     index = build_index(data_dir, use_dense=not args.lexical_only, require_dense=args.require_dense)
     questions = Path(args.questions_path) if args.questions_path else data_dir / "Questions.csv"
     rows = list(csv.DictReader(questions.open(newline="", encoding="utf-8")))

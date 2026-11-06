@@ -1,5 +1,23 @@
 # Lab 2 Part 3 - Multimodal multi-agent system
 
+## Revised model-backed system
+
+Use `notebooks/Part3_Agents_Run.ipynb` and the root `RERUN_GUIDE.md`. The new runtime
+uses Qwen2-VL for visual questions, text transcription, rewriting and critique;
+SD img2img for styles; InstructPix2Pix for edits; and the pinned Part 2 Hub adapter
+for domain requests. It unloads the VLM before diffusion inference.
+
+The new notebook runs both configurations on held-out anime images, saves full
+traces and outputs, and tests actual image-pixel attacks. Independent rubric
+ratings stay pending until people supply them. Generated-image Hub upload is an
+explicit opt-in action after rights review. The local smoke check is not the
+full GPU experiment or a completed live team demo.
+
+## Historical baseline notes
+
+The description below refers to the older BLIP/ViLT implementation. It is kept
+for context only; the revised notebook uses the new model runtime above.
+
 The implementation uses plain typed Python functions so it is easy to audit:
 Planner -> Vision -> Prompt -> Generation -> Critique, with at most two revisions.
 Unsafe and deceptive text requests are refused before generation. Broken images

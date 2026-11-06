@@ -1,0 +1,24 @@
+{
+  "time": "2026-11-06T10:59:15.845651-08:00",
+  "notebooks": [
+    {
+      "part": "part1_rag",
+      "mode": "CPU smoke only; real VLM/generation/evaluation skipped",
+      "executed_code_cells": 6,
+      "saved_errors": 0,
+      "seconds": 14.695721249998314
+    },
+    {
+      "part": "part3_agents",
+      "mode": "CPU smoke only; real VLM/generation/evaluation skipped",
+      "executed_code_cells": 8,
+      "saved_errors": 0,
+      "seconds": 14.176300749997608
+    },
+    {
+      "part": "part2_diffusion",
+      "mode": "Original GPU results preserved; CPU refresh only",
+      "saved_errors": 0
+    }
+  ]
+}

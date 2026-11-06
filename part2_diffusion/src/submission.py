@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import math
+import hashlib
 from pathlib import Path
 import re
 import shutil
@@ -25,6 +26,13 @@ def human_results(folder):
     rows = read_json(path)
     if not isinstance(rows, list):
         raise ValueError("ratings.json must contain a list of individual judgments.")
+    if any(not isinstance(row,dict) for row in rows):
+        raise ValueError("Each rating must be an individual judgment object.")
+    if any(row.get('sample_only') is True for row in rows):
+        return {"complete":False,"reason":"Sample-only ratings cannot be used as human evaluation."}
+    if any(not isinstance(row.get('rater_id'),str) or not row['rater_id'].strip()
+           or any(row.get(key) is None for key in ['domain_style','prompt_match']) for row in rows):
+        return {"complete":False,"reason":"The rating form is not filled in. Blank fields are not human judgments."}
     key = {r["pair_id"]: r["final_is_left"] for r in read_json(folder / "human_evaluation_key.json", [])}
     if set(key) != set(range(25)):
         raise ValueError("The original 25-pair blinding key is missing or incomplete.")
@@ -131,7 +139,14 @@ def audit(root=ROOT):
         and len([r for r in memorization if r["model"] == final]) == 10
         and all((output / f"memorization_{final}_{i}.png").is_file() for i in range(3)))
     links = read_json(output / "hub_links.json", {})
-    checks["both_adapters_and_image_dataset_uploaded"] = all(links.get(key) for key in ["run1", "run2", "images"])
+    def digest(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+    checks["both_adapters_and_image_dataset_uploaded"] = bool(
+        all(links.get(key) for key in ["run1", "run2", "images"])
+        and all(links.get(name + "_adapter_sha256") == digest(output / name / "pytorch_lora_weights.safetensors")
+                and links.get(name + "_adapter_sha256") for name in ["run1", "run2"])
+        and links.get("images_manifest_sha256") == digest(output / "generations/manifest.json")
+        and links.get("images_manifest_sha256"))
     checks["artifact_access_for_graders_verified"] = bool(
         checks["both_adapters_and_image_dataset_uploaded"]
         and (links.get("private") is False or links.get("grader_access_verified") is True))
@@ -220,6 +235,7 @@ The NSFW checker can miss unsafe content. CLIP nearest-neighbor checks are not p
                                   commit_message=f"Save measured {name} LoRA experiment")
         links[name] = f"https://huggingface.co/{repo_id}"
         links[name + "_commit"] = commit.oid
+        links[name + "_adapter_sha256"] = hashlib.sha256((source / "pytorch_lora_weights.safetensors").read_bytes()).hexdigest()
     target = staging / "images"
     target.mkdir(parents=True, exist_ok=True)
     rows = read_json(output / "generations/manifest.json")
@@ -236,7 +252,8 @@ The NSFW checker can miss unsafe content. CLIP nearest-neighbor checks are not p
                               allow_patterns=[*[r["file"] for r in rows], "metadata.jsonl", "README.md"],
                               commit_message="Add controlled image comparisons and generation metadata")
     links.update(images=f"https://huggingface.co/datasets/{repo_id}", images_commit=commit.oid,
-                 rights_acknowledged=True, private=not public)
+                 rights_acknowledged=True, private=not public,
+                 images_manifest_sha256=hashlib.sha256((output / "generations/manifest.json").read_bytes()).hexdigest())
     (output / "hub_links.json").write_text(json.dumps(links, indent=2))
     print(json.dumps(links, indent=2))
 

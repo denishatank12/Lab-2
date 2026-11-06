@@ -165,8 +165,24 @@ def main():
                 "None of these replaces checking whether characters, counts and relationships are actually correct.")]
     metrics = result["evaluation"].get("metrics", [])
     if metrics:
-        story += [table([["Model", "KID", "CLIP", "LPIPS"], *[[r["model"], f"{r['kid_mean']:.4f}", f"{r['clip_score_mean']:.2f}", f"{r['lpips_seed_pair_mean_256px']:.4f}"] for r in metrics]], col),
-                  p("Table II. Actual saved automatic metrics. KID uses in-domain images only; CLIP and LPIPS cover all twenty prompts.", "CaptionSmall")]
+        names=[r['model'] for r in metrics]
+        training={r['model']:r for r in result['training']}
+        selected=result['review'].get('final_run')
+        def human_value(model,criterion):
+            if model=='base':
+                return 'reference'
+            if model!=selected:
+                return 'not selected'
+            return f"{result['human']['criteria'][criterion]['win_rate']:.3f}" if result['human']['complete'] else 'pending'
+        summary=[['Measurement',*names]]
+        for label,key,precision in [('KID','kid_mean',4),('CLIP','clip_score_mean',2),('LPIPS','lpips_seed_pair_mean_256px',4)]:
+            summary.append([label,*[f'{r[key]:.{precision}f}' for r in metrics]])
+        summary.extend([
+            ['Human style win rate',*[human_value(name,'domain_style') for name in names]],
+            ['Human prompt win rate',*[human_value(name,'prompt_match') for name in names]],
+            ['Training seconds',*[f"{training[name]['training_seconds']:.1f}" if name in training else 'not trained' for name in names]]])
+        story += [table(summary,col),
+                  p("Table II. Baseline and adapter comparison. KID uses in-domain images; CLIP and LPIPS cover all twenty prompts. Human rates compare the selected adapter with the base model and remain pending until real ballots are supplied. Training time excludes shared caching and evaluation.", "CaptionSmall")]
         story += [p("Rank 4 is closer to the held-out domain under KID than either the base or rank 8. However, the base has the strongest average CLIP alignment. "
                     "Fine-tuning therefore improves one goal without improving every goal. Increasing the rank does not help this experiment enough to justify its larger adapter."),
                   p("Run1 has the largest LPIPS distance, but this needs caution: one black filtered image paired with a normal image can also raise perceptual distance. "
