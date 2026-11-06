@@ -2,6 +2,7 @@ from __future__ import annotations
 import argparse, gc, hashlib, json, os
 from pathlib import Path
 import yaml
+from generation_state import prepare_generation_folder
 
 PROMPTS = [
     'a young ninja warrior in a forest', 'a small ninja village at sunset', 'a warrior standing beside a waterfall', 'a girl with dark hair and a red scarf', 'a masked character in a snowy mountain', 'a character reading beside a river', 'a ninja running through autumn leaves', 'a character looking at the moon', 'a warrior in a bamboo forest', 'a group of characters near a village gate',
@@ -35,6 +36,8 @@ def main():
     parser.add_argument("--config", default="config.yaml")
     parser.add_argument("--steps", type=int, default=20)
     parser.add_argument("--freeze-prompts", action="store_true")
+    parser.add_argument("--fail-on-generation-change", action="store_true",
+                        help="Stop instead of preserving incompatible generations in a history folder.")
     args = parser.parse_args()
     prompts = freeze_prompts()
     if args.freeze_prompts:
@@ -46,8 +49,7 @@ def main():
     if not torch.cuda.is_available():
         raise RuntimeError("Full generation requires CUDA. The offline smoke test does not download SD 1.5.")
     config = yaml.safe_load((ROOT / args.config).read_text())
-    out = ROOT / config["output_root"] / "generations"
-    out.mkdir(parents=True, exist_ok=True)
+    output = ROOT / config["output_root"]
     models = {"base": None, "run1": ROOT / config["output_root"] / "run1",
               "run2": ROOT / config["output_root"] / "run2"}
     for name, adapter in models.items():
@@ -60,10 +62,9 @@ def main():
     signature = hashlib.sha256(json.dumps({"prompts": prompts, "sampling": sampling,
                               "base": config["base_model"], 'revision':config['base_revision'],
                               'adapter_sha256':adapter_hashes}, sort_keys=True).encode()).hexdigest()
+    out, previous = prepare_generation_folder(output, signature, args.fail_on_generation_change,
+                                              report=ROOT / "output/pdf/Part2_Findings.pdf")
     record = out / "manifest.json"
-    previous = json.loads(record.read_text()) if record.exists() else []
-    if previous and any(r.get("signature") != signature for r in previous):
-        raise RuntimeError("Generation settings changed. Use a fresh output_root rather than mix outputs.")
     manifest = {(r["model"], r["prompt_index"], r["seed"]): r for r in previous}
     for name, adapter in models.items():
         if all((name, i, seed) in manifest and (out / manifest[(name, i, seed)]["file"]).exists()

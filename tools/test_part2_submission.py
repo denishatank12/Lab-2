@@ -16,6 +16,121 @@ sys.path.insert(0, str(ROOT / "tools"))
 from submission import human_results, audit
 import setup_runtime
 from blinding import prepare_blind_pairs
+from generation_state import prepare_generation_folder
+
+
+class TestGenerationRecovery(unittest.TestCase):
+    def fixture(self, output, signature="previous-protocol"):
+        folder = output / "generations"
+        folder.mkdir(parents=True)
+        row = {"model": "run1", "prompt_index": 0, "seed": 0, "file": "run1_00_0.png", "signature": signature}
+        (folder / "manifest.json").write_text(json.dumps([row]))
+        (folder / row["file"]).write_bytes(b"TEMPORARY TEST IMAGE")
+        for run in ["run1", "run2"]:
+            path = output / run / "checkpoint-1200"
+            path.mkdir(parents=True)
+            (path.parent / "pytorch_lora_weights.safetensors").write_bytes(b"TEMPORARY ADAPTER TEST FIXTURE")
+            (path / "training_state.pt").write_bytes(b"TEMPORARY CHECKPOINT TEST FIXTURE")
+        (output / "evaluation.json").write_text('{"old": true}')
+        (output / "human_run1").mkdir()
+        (output / "human_run1/ratings.json").write_text("[]")
+        return row
+
+    def test_changed_protocol_archives_results_not_training(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "outputs"
+            self.fixture(output)
+            with redirect_stdout(io.StringIO()):
+                folder, rows = prepare_generation_folder(output, "current-protocol")
+            self.assertEqual(rows, [])
+            self.assertEqual(list(folder.iterdir()), [])
+            archives = list((output / "generation_history").iterdir())
+            self.assertEqual(len(archives), 1)
+            self.assertTrue((archives[0] / "generations/run1_00_0.png").is_file())
+            self.assertTrue((archives[0] / "evaluation.json").is_file())
+            self.assertTrue((archives[0] / "human_run1/ratings.json").is_file())
+            self.assertFalse((output / "evaluation.json").exists())
+            for run in ["run1", "run2"]:
+                self.assertEqual((output / run / "pytorch_lora_weights.safetensors").read_bytes(), b"TEMPORARY ADAPTER TEST FIXTURE")
+                self.assertTrue((output / run / "checkpoint-1200/training_state.pt").is_file())
+
+    def test_same_protocol_resumes_without_archive(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "outputs"
+            row = self.fixture(output, "same-protocol")
+            folder, rows = prepare_generation_folder(output, "same-protocol")
+            self.assertEqual(rows, [row])
+            self.assertTrue((folder / row["file"]).is_file())
+            self.assertFalse((output / "generation_history").exists())
+
+    def test_explicit_fail_preserves_everything(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "outputs"
+            self.fixture(output)
+            with self.assertRaises(RuntimeError):
+                prepare_generation_folder(output, "new", fail_on_change=True)
+            self.assertTrue((output / "generations/manifest.json").is_file())
+            self.assertFalse((output / "generation_history").exists())
+
+    def test_interrupted_manifest_is_preserved(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "outputs"
+            self.fixture(output)
+            (output / "generations/manifest.json").write_text("[{")
+            with redirect_stdout(io.StringIO()):
+                _, rows = prepare_generation_folder(output, "new")
+            self.assertEqual(rows, [])
+            archive = next((output / "generation_history").iterdir())
+            self.assertEqual((archive / "generations/manifest.json").read_text(), "[{")
+
+    def test_generation_entrypoint_recovers_and_resumes_without_training(self):
+        # Exercise the real 120-record orchestration with mocked model inference.
+        # The tiny gray fixture images are not model-quality evidence.
+        import generate_eval
+        import yaml
+        from PIL import Image
+        class FakeScheduler:
+            config = {}
+            @classmethod
+            def from_config(cls, config):
+                return cls()
+        class FakePipeline:
+            calls = 0
+            scheduler = FakeScheduler()
+            safety_checker = object()
+            @classmethod
+            def from_pretrained(cls, *args, **kwargs):
+                cls.calls += 1
+                return cls()
+            def enable_model_cpu_offload(self): pass
+            def enable_vae_slicing(self): pass
+            def enable_vae_tiling(self): pass
+            def set_progress_bar_config(self, **kwargs): pass
+            def load_lora_weights(self, folder): pass
+            def __call__(self, *args, **kwargs):
+                return type("Result", (), {"images": [Image.new("RGB", (4, 4), "gray")],
+                                           "nsfw_content_detected": [False]})()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            output = root / "outputs"
+            self.fixture(output)
+            cfg = {"output_root": "outputs", "base_model": "TEST FIXTURE ONLY",
+                   "base_revision": "TEST REVISION", "variant": "fp16"}
+            (root / "config.yaml").write_text(yaml.safe_dump(cfg))
+            prompts = [{"prompt": f"TEST FIXTURE {i}", "category": "in_domain"} for i in range(20)]
+            with patch.object(generate_eval, "ROOT", root), patch.object(generate_eval, "freeze_prompts", return_value=prompts), \
+                 patch("torch.cuda.is_available", return_value=True), patch("torch.cuda.empty_cache"), \
+                 patch("diffusers.StableDiffusionPipeline", FakePipeline), patch("diffusers.DDIMScheduler", FakeScheduler), \
+                 patch.object(sys, "argv", ["generate_eval.py"]), redirect_stdout(io.StringIO()):
+                generate_eval.main()
+                generate_eval.main()
+            manifest = json.loads((output / "generations/manifest.json").read_text())
+            self.assertEqual(len(manifest), 120)
+            self.assertEqual(len({r["signature"] for r in manifest}), 1)
+            self.assertEqual(FakePipeline.calls, 3)  # Second invocation resumed, no model loads.
+            self.assertTrue((output / "run1/checkpoint-1200/training_state.pt").exists())
+            self.assertTrue((output / "run2/pytorch_lora_weights.safetensors").exists())
+            self.assertEqual(len(list((output / "generation_history").iterdir())), 1)
 
 
 class TestHumanJudgments(unittest.TestCase):

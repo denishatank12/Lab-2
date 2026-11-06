@@ -1,5 +1,20 @@
 # Notebook repair validation
 
+## Generation recovery follow-up
+
+The generation-fingerprint error is now handled without changing the training
+configuration or rerunning training. An incompatible image set and its dependent
+metrics, blinded packets and review files move to a timestamped history folder.
+The original adapters, optimizer checkpoints and training metrics stay in place.
+Matching image sets resume normally. No old image is relabeled with a new hash.
+
+Seventeen offline regression tests passed, including the actual generation
+entry point with mocked inference: 120 coherent manifest records were produced,
+then a second invocation skipped all model loads. Tests also covered changed
+and interrupted manifests, preserving old judgments, and keeping adapter and
+checkpoint bytes unchanged. Mocked gray fixture images are not GPU generation
+or image-quality evidence. See `validation/generation_recovery.json`.
+
 ## Follow-up: uploaded runs checked on November 5
 
 The user's uploaded Part 1 notebook executed all 3 code cells, reported an RTX 4090
