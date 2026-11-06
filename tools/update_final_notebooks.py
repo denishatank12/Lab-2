@@ -12,6 +12,10 @@ BOOTSTRAP=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.
                and any(isinstance(t,ast.Name) and t.id=='BOOTSTRAP' for t in n.targets))
 BOOTSTRAP=BOOTSTRAP.replace('os.environ.get("LAB2_DEVICE", "auto")','os.environ.get("LAB2_DEVICE", "cuda")')
 BOOTSTRAP+='''
+# Permit first-time downloads during preflight, even after restarting this notebook.
+if not SMOKE_ONLY:
+    os.environ.pop("HF_HUB_OFFLINE", None)
+    os.environ.pop("TRANSFORMERS_OFFLINE", None)
 # Monitor actual device memory in each subprocess. A larger GPU is not relabeled as a T4.
 _run_stage = run_script
 def run_script(relative, *arguments):
@@ -39,18 +43,24 @@ def save(part,name,cells):
 
 def main():
     common='''This is the revised implementation, not the earlier baseline. Run it in a fresh GPU kernel,
-one notebook at a time. A nominal 16-GB GPU is the lab target. The first run needs internet,
-approximately 25 GB free disk, and time to download pinned models. No hosted model API is used.
+one notebook at a time. A nominal 16-GB GPU is the lab target. The RTX 4050 uses a CPU-offloaded
+low-VRAM profile, which must pass the real preflight on your own PC. A cold setup needs internet,
+roughly 40 GB free disk overall and enough host RAM for offload. No hosted model API is used.
 
 The default is a full run. `LAB2_SMOKE_ONLY=1` explicitly skips model-backed measurements;
 it is a developer check, never a completed experiment. Real human ratings are never generated.
 Device-memory sampling covers the actual subprocess stages but is not proof that an RTX 4090
 is a 16-GB GPU. Keep the printed hardware identity and all outputs.
+
+Before leaving the computer, run through the real GPU preflight and confirm it passes.
+Matching completed items resume from atomic checkpoints. Changed code, data or hardware starts
+a separate checkpoint namespace; no old result is relabeled. Keep the machine awake and the
+local GPU runtime running. Closing the local server or rebooting stops execution.
 '''
     save('part1_rag','Part1_RAG_Run.ipynb',[
         md('# Part 1: multimodal, conversation-aware RAG\n\n'+common),code(BOOTSTRAP),
         md('## Check the implementation\nThese offline regression tests exercise real PDF extraction, Qdrant storage with temporary vectors, exact figure identity and isolated conversation state. Mock model outputs are test fixtures only.'),
-        code('run_script("tools/test_lab_completion.py")'),
+        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_overnight_resume.py")'),
         md('## Locate the read-only data\nOn Kaggle attach the supplied competition data. `QUESTIONS_PATH` supports the hidden set without code edits. No question-specific rules or answer lookup is used.'),
         code('''P1 = ROOT / "part1_rag"
 DATA = Path(os.environ.get("LAB2_DATA_DIR", str(P1 / "data"))).resolve()
@@ -63,6 +73,13 @@ OUTPUT = P1 / "outputs/v2/submission.csv"
 if not QUESTIONS.is_file():
     raise FileNotFoundError("Attach Questions.csv or set QUESTIONS_PATH to the supplied hidden-set file.")
 print("Data:", DATA, "Questions:", QUESTIONS)'''),
+        md('## Real GPU preflight before leaving it overnight\nThis loads the actual embedding, image and VLM paths on this GPU and checks a grounded chart response. It also fills the public model cache before long stages start. Do not leave an unpassed preflight unattended. This is not the final answer-quality evaluation.'),
+        code('''if SMOKE_ONLY:
+    print("SKIPPED: real GPU preflight; no GPU readiness is claimed.")
+else:
+    run_script("tools/overnight_preflight.py", "--part", "part1_rag", "--data-dir", DATA)
+    os.environ["HF_HUB_OFFLINE"] = "1"
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"'''),
         md('## Ingest, retrieve and generate\nNumbered figures/tables retain exact labels, including the corrected version. Trusted text and CLIP image vectors are stored in local Qdrant. Appendix C is quarantined, never used as answer evidence. Each conversation starts with independent memory; user assumptions never modify the source PDFs or database.'),
         code('''if SMOKE_ONLY:
     print("SKIPPED: full VLM answers and competition submission. Unit-test vectors are not evaluation embeddings.")
@@ -96,20 +113,29 @@ run_script("tools/export_lab_results.py", "--part", "part1_rag")''')])
         md('# Part 3: image agents with measured evaluation\n\n'+common+'\nYour Part 2 training is reused, not repeated. Private adapter download asks for a read token securely before the expensive stages. Never put the token in this notebook or chat.'),
         code(BOOTSTRAP),
         md('## Offline regression tests\nNo mocked output is counted as task success. The full model-backed tests below are separate.'),
-        code('run_script("tools/test_lab_completion.py")\nrun_script("part3_agents/src/smoke_test.py")'),
+        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_overnight_resume.py")\nrun_script("part3_agents/src/smoke_test.py")'),
         md('## Real inputs and the pinned Part 2 Hub adapter\nThree actual held-out Naruto images are copied locally; synthetic instruction overlays and broken files are explicitly safety fixtures. This is a narrow anime-domain test set, not proof of broad photographic performance. Input hashes are saved. The adapter is fetched from its verified Hugging Face commit, not silently replaced by local/base weights.'),
         code('''P3 = ROOT / "part3_agents"
 RUN_DIR = P3 / "outputs/v2" / ("smoke" if SMOKE_ONLY else "runs") / time.strftime("%Y%m%d_%H%M%S")
-RUN_DIR.mkdir(parents=True, exist_ok=True)
-(P3 / ("outputs/v2/latest_smoke.json" if SMOKE_ONLY else "outputs/v2/latest_run.json")).write_text(json.dumps({"folder": str(RUN_DIR)}))
+if SMOKE_ONLY:
+    RUN_DIR.mkdir(parents=True, exist_ok=True)
+    (P3 / "outputs/v2/latest_smoke.json").write_text(json.dumps({"folder": str(RUN_DIR)}))
 INPUTS = P3 / "outputs/v2/inputs/inputs.json"
 ADAPTER = P3 / "outputs/hub_adapter"
 if SMOKE_ONLY:
     print("SKIPPED: real image preparation, private adapter download and full models.")
 else:
+    run_script("tools/run_checkpoint.py", "--select-run", "part3_agents")
+    RUN_DIR = Path(json.loads((P3 / "outputs/v2/latest_run.json").read_text())["folder"])
     from getpass import getpass
     temporary_token = False
-    if not os.environ.get("HF_TOKEN"):
+    import hashlib
+    expected_adapter = json.loads((ROOT / "part2_diffusion/evidence/hub_links.json").read_text())
+    already_downloaded = ((ADAPTER / "hub_provenance.json").is_file()
+        and (ADAPTER / "pytorch_lora_weights.safetensors").is_file()
+        and hashlib.sha256((ADAPTER / "pytorch_lora_weights.safetensors").read_bytes()).hexdigest()
+            == expected_adapter["run1_adapter_sha256"])
+    if not os.environ.get("HF_TOKEN") and not already_downloaded:
         os.environ["HF_TOKEN"] = getpass("Hugging Face read token for your private adapter (hidden): ")
         temporary_token = True
     try:
@@ -118,6 +144,13 @@ else:
         if temporary_token:
             os.environ.pop("HF_TOKEN", None)
     print("Adapter provenance:", (ADAPTER / "hub_provenance.json").read_text())'''),
+        md('## Actual GPU preflight\nBefore the long comparison, exercise the real VLM, critic, style pipeline, instruction editor and domain adapter sequentially. Two-step preflight images are diagnostic fixtures, not final generated results. Confirm `PREFLIGHT PASSED` on this RTX 4050 before leaving it overnight.'),
+        code('''if SMOKE_ONLY:
+    print("SKIPPED: actual GPU preflight. The local CPU smoke does not certify RTX 4050 readiness.")
+else:
+    run_script("tools/overnight_preflight.py", "--part", "part3_agents")
+    os.environ["HF_HUB_OFFLINE"] = "1"
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"'''),
         md('## Run both systems\nStyle changes use SD 1.5 img2img; edits use InstructPix2Pix. Domain requests use the pinned Part 2 adapter. Qwen2-VL transcribes image text, answers visual questions, rewrites prompts and critiques original versus generated images. The VLM is unloaded before diffusion to bound concurrent VRAM. Both configurations use the same inputs, prompts and initial seed; revisions are capped at two.'),
         code('''if SMOKE_ONLY:
     print("SKIPPED: 30 real model-backed scenario executions.")
@@ -195,6 +228,34 @@ run_script("tools/final_submission_audit.py")
 run_script("tools/build_combined_report.py")
 run_script("tools/export_lab_results.py", "--part", "part2_diffusion")''')])
         nb.write(n,path)
+    launcher=nb.v4.new_notebook(cells=[
+        md('# Lab 2: sequential overnight launcher\n\n'+common+'\nThis runs the revised Part 1 and Part 3 notebooks in order. It does not repeat your completed Part 2 training. Executed notebooks autosave after every cell, and the result ZIPs include the finished copies. Real ratings and external submission steps are not automated.'),
+        code(BOOTSTRAP),
+        md('## Before walking away\nRun this cell while you are still at the PC. Enter the Hugging Face read token securely if needed. It downloads the selected original adapter and runs both real GPU preflights. Do not leave until this cell prints that both preflights passed. For this RTX 4050, keep the PC on power with sleep disabled and the local runtime/server running.'),
+        code('''DATA = Path(os.environ.get("LAB2_DATA_DIR", str(ROOT / "part1_rag/data"))).resolve()
+if SMOKE_ONLY:
+    print("SKIPPED: all real GPU preflights. This is not an overnight-ready GPU result.")
+else:
+    from getpass import getpass
+    adapter = ROOT / "part3_agents/outputs/hub_adapter"
+    if not os.environ.get("HF_TOKEN") and not (adapter / "hub_provenance.json").is_file():
+        os.environ["HF_TOKEN"] = getpass("Hugging Face read token for your private Part 2 adapter (hidden): ")
+    run_script("part3_agents/src/prepare_evaluation.py", "--download-adapter")
+    run_script("tools/overnight_preflight.py", "--part", "part1_rag", "--data-dir", DATA)
+    run_script("tools/overnight_preflight.py", "--part", "part3_agents")
+    print("BOTH REAL GPU PREFLIGHTS PASSED. You can now start the next cell.")'''),
+        md('## Start the overnight work\nThis runs Parts 1 and 3 sequentially, never concurrently. Successful unchanged items are reused after an interruption. Runtime failures remain visible, not converted into successful results. The executed notebook files and exports are on the runtime filesystem; a local/Docker runtime does not automatically save files into browser Downloads.'),
+        code('''try:
+    run_script("tools/overnight_runner.py", *(["--smoke-only"] if SMOKE_ONLY else []))
+finally:
+    os.environ.pop("HF_TOKEN", None)
+print("Executed notebooks:", ROOT / "output/executed")
+print("Result ZIPs:", ROOT / "output/exports")
+print("Execution progress:", ROOT / "runtime_checks/overnight_progress.json")'''),
+        md('## After the run\nKeep the completed notebooks and ZIPs. Inspect the saved failures and fill the real-rating forms. Those review steps do not require repeating training or completed generation. The lab is not submission-ready merely because the computational stages finished.')])
+    launcher.metadata={'kernelspec':{'name':'python3','display_name':'Python 3','language':'python'},
+        'language_info':{'name':'python'},'validation_scope':'GPU preflights must pass on the actual RTX 4050; local smoke is not full inference.'}
+    nb.write(launcher,ROOT/'Lab2_Overnight_Run.ipynb')
     print('Updated Part 1 and Part 3 run notebooks; preserved Part 2 GPU results and appended refresh cells.')
 
 

@@ -55,6 +55,13 @@ def run_script(relative,*arguments):
     nbformat.write(original,path)
     assert json.loads(nbformat.writes(original))['cells'][:-1]==before
     records.append(dict(part='part2_diffusion',mode='Original GPU results preserved; CPU refresh only',saved_errors=0))
+    launcher_path=ROOT/'Lab2_Overnight_Run.ipynb'
+    if launcher_path.is_file():
+        launcher=nbformat.read(launcher_path,as_version=4)
+        execute(launcher)
+        nbformat.write(launcher,launcher_path)
+        records.append(dict(part='sequential overnight launcher',mode='CPU smoke only; actual GPU preflights skipped',
+            executed_code_cells=sum(c.cell_type=='code' for c in launcher.cells),saved_errors=0))
     output=ROOT/'validation/revised_notebook_smoke.json'
     output.write_text(json.dumps(dict(time=dt.datetime.now().astimezone().isoformat(),notebooks=records),indent=2))
     print(output.read_text())

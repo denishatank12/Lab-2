@@ -1,7 +1,10 @@
 from __future__ import annotations
-import argparse, json
+import argparse, json, sys
+from dataclasses import asdict
 from pathlib import Path
 from agent_system import run, save_trace
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'tools'))
+from run_checkpoint import ItemCheckpoint, experiment_sources, atomic_json, verify_inputs
 
 SCENARIOS=[
  ('caption_1','caption this image'),('caption_2','what objects are visible?'),('caption_3','where is the subject?'),
@@ -28,23 +31,36 @@ def main():
         runtime = ModelRuntime(a.lora_path, adapter_provenance=json.loads(provenance_path.read_text()))
     root=Path(__file__).resolve().parents[1]
     scenarios=json.loads((root/'eval/scenarios.json').read_text())
-    inputs=json.loads(Path(a.inputs).read_text()) if a.inputs else {}
+    inputs=verify_inputs(json.loads(Path(a.inputs).read_text())) if a.inputs else {}
+    checkpoint=ItemCheckpoint(Path(a.output).parent/'checkpoints',dict(kind='scenarios-v1',
+        sources=experiment_sources('part3_agents'),inputs=inputs,models_enabled=a.enable_models,
+        critique_loop=not a.no_critique,adapter=runtime.adapter_provenance if runtime else None))
     states=[]
     for scenario in scenarios:
+        saved=checkpoint.get(scenario['id'])
+        if saved is not None:
+            states.append(saved)
+            atomic_json(a.output,states)
+            print(scenario['id'],'RESUMED unchanged completed scenario',flush=True)
+            continue
         image=inputs.get(scenario.get('image_key'),{}).get('path',a.image) if scenario['type'] != 'broken' else None
         state=run(scenario['request'], image_path=image, vision_pipe=runtime, generation_pipe=runtime,
                   output_dir=Path(a.output).parent/'generated'/Path(a.output).stem/scenario['id'],
                   critique_loop=not a.no_critique,scenario_id=scenario['id'])
-        states.append(state)
-        save_trace(states,Path(a.output))
+        row=asdict(state)
+        states.append(row)
+        # Runtime failures remain visible and are retried only on explicit restart.
+        if not state.error:
+            checkpoint.put(scenario['id'],row,[state.output_path] if state.output_path else [])
+        atomic_json(a.output,states)
         print(scenario['id'],state.decision,state.error,flush=True)
     metadata = dict(schema_version=2, models_enabled=a.enable_models, critique_loop=not a.no_critique,
         inputs=inputs, adapter_provenance=runtime.adapter_provenance if runtime else None,
         scope='Actual model-backed scenarios' if runtime else 'Control-flow smoke only, not evaluation results')
     Path(a.output).with_suffix('.metadata.json').write_text(json.dumps(metadata,indent=2))
     print(json.dumps({'scenarios':len(states),'models_enabled':a.enable_models,
-        'critique_loop':not a.no_critique,'safe_refusals':sum(x.decision=='refused' for x in states),
-        'generated':sum(bool(x.output_path and x.output_path.endswith('.png')) for x in states),
+        'critique_loop':not a.no_critique,'safe_refusals':sum(x['decision']=='refused' for x in states),
+        'generated':sum(bool(x['output_path'] and x['output_path'].endswith('.png')) for x in states),
         'note':'Task success and critic agreement require the two members to judge the saved traces.',
         'output':a.output},indent=2))
 if __name__=='__main__': main()

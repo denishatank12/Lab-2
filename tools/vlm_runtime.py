@@ -9,6 +9,19 @@ import re
 
 MODEL = "Qwen/Qwen2-VL-2B-Instruct"
 REVISION = "895c3a49bc3fa70a340399125c650a463535e71c"
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def placement_plan(total_gpu_bytes):
+    """Reserve activation space on 6-8 GB cards; do not quantize or change the model."""
+    gib=2**30
+    if total_gpu_bytes < 10*gib:
+        if total_gpu_bytes < 5*gib:
+            raise RuntimeError('This low-VRAM profile needs at least a nominal 6-GB CUDA GPU.')
+        return dict(device_map='auto',max_memory={0:max(2*gib,int(total_gpu_bytes-2.75*gib)),'cpu':'20GiB'},
+            offload_folder=str(ROOT/'runtime_checks/qwen_weight_offload'),offload_state_dict=True,
+            offload_buffers=True)
+    return dict(device_map={'':'cuda:0'})
 
 
 def normalized(text):
@@ -38,6 +51,7 @@ class VisionLanguageModel:
     def __init__(self, seed=266, require_cuda=True):
         self.seed, self.require_cuda = seed, require_cuda
         self.model = self.processor = None
+        self.profile = {}
 
     def load(self):
         if self.model is not None:
@@ -49,11 +63,18 @@ class VisionLanguageModel:
         random.seed(self.seed)
         torch.manual_seed(self.seed)
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        total=torch.cuda.get_device_properties(0).total_memory if device.startswith('cuda') else 0
         self.processor = AutoProcessor.from_pretrained(MODEL, revision=REVISION,
-            min_pixels=56 * 56, max_pixels=768 * 768)
+            min_pixels=56 * 56, max_pixels=(512 if total and total<10*2**30 else 768) ** 2)
+        placement=placement_plan(total) if total else dict(device_map={'':'cpu'})
+        if placement.get('device_map')=='auto':
+            print('Low-VRAM VLM profile: CPU weight offload, reserved CUDA activation headroom, 512px image budget.',flush=True)
         self.model = Qwen2VLForConditionalGeneration.from_pretrained(MODEL, revision=REVISION,
             torch_dtype=torch.float16 if device.startswith("cuda") else torch.float32,
-            attn_implementation="sdpa", device_map={"": device}, low_cpu_mem_usage=True).eval()
+            attn_implementation="sdpa", low_cpu_mem_usage=True, **placement).eval()
+        self.profile = dict(low_vram_cpu_offload=placement.get('device_map')=='auto',
+            max_image_pixels=(512 if total and total<10*2**30 else 768)**2,
+            actual_device_map={k:str(v) for k,v in getattr(self.model,'hf_device_map',{}).items()})
 
     def ask(self, instruction, images=(), system=None, max_new_tokens=384):
         import torch

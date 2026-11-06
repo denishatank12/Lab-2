@@ -58,10 +58,22 @@ def adapter_from_hub(destination):
     links = json.loads((ROOT / 'part2_diffusion/evidence/hub_links.json').read_text())
     repo_id = links['run1'].split('huggingface.co/')[1]
     commit = links['run1_commit']
+    destination=Path(destination)
+    provenance=destination/'hub_provenance.json'
+    weights=destination/'pytorch_lora_weights.safetensors'
+    if provenance.is_file() and weights.is_file():
+        current=json.loads(provenance.read_text())
+        if (current.get('repo_id')==repo_id and current.get('revision')==commit
+            and current.get('adapter_sha256')==links.get('run1_adapter_sha256')
+            and hashlib.sha256(weights.read_bytes()).hexdigest()==current['adapter_sha256']):
+            print('Reusing verified original Hub adapter; no download or retraining needed.')
+            return current
     path = snapshot_download(repo_id, revision=commit, local_dir=destination,
         allow_patterns=['pytorch_lora_weights.safetensors', 'run_config.json', 'training_metrics.json', 'README.md'])
     result = dict(repo_id=repo_id, revision=commit, path=str(Path(path).resolve()),
                   adapter_sha256=hashlib.sha256((Path(path) / 'pytorch_lora_weights.safetensors').read_bytes()).hexdigest())
+    if result['adapter_sha256']!=links['run1_adapter_sha256']:
+        raise ValueError('Downloaded adapter hash does not match the selected original run.')
     (Path(destination) / 'hub_provenance.json').write_text(json.dumps(result, indent=2))
     return result
 

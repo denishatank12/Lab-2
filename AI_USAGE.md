@@ -2,6 +2,12 @@
 
 ## November 6 cross-part revision
 
+The overnight follow-up added fingerprinted per-item checkpoints, restored
+conversation state, atomic notebook autosaves, an actual-GPU preflight and a
+sequential launcher. The RTX 4050 VLM profile uses CPU weight offload, not invented
+GPU measurements. Interruption and autosave tests use clearly synthetic fixtures;
+the user still has to run and pass the real preflight on their own hardware.
+
 AI assistance mapped the full PDF rubric to code, implemented the missing
 multimodal retrieval and local vision-language answering path, rewrote the agent
 model runtime and evaluation scripts, and added draft reporting, evidence exports

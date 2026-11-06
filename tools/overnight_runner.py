@@ -1,0 +1,86 @@
+"""Execute Parts 1 and 3 sequentially and save notebook outputs after every cell."""
+import argparse
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+import nbformat
+from nbclient import NotebookClient
+from jupyter_client import KernelManager
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'tools'))
+from run_checkpoint import atomic_json,digest
+
+
+def execute_saved(source,target,working_dir=ROOT):
+    source,target=Path(source),Path(target)
+    notebook=nbformat.read(source,as_version=4)
+    for cell in notebook.cells:
+        if cell.cell_type=='code':
+            cell.outputs=[]
+            cell.execution_count=None
+    notebook.metadata['overnight_execution']=dict(source=str(source),completed=False,
+        smoke_only=os.environ.get('LAB2_SMOKE_ONLY')=='1',
+        source_cells_sha256=digest([c.source for c in notebook.cells]))
+    target.parent.mkdir(parents=True,exist_ok=True)
+    def save(**kwargs):
+        # Write atomically, retaining the last readable notebook if interrupted.
+        atomic_json(target,json.loads(nbformat.writes(notebook)))
+    def progress(cell,cell_index,**kwargs):
+        if cell.cell_type=='code':
+            print(source.name,'cell',cell_index+1,'of',len(notebook.cells),flush=True)
+    manager=KernelManager(kernel_name='python3')
+    manager.kernel_spec.argv=[sys.executable,'-m','ipykernel_launcher','-f','{connection_file}']
+    save()
+    started=time.perf_counter()
+    client=NotebookClient(notebook,km=manager,timeout=None,allow_errors=False,
+        resources={'metadata':{'path':str(working_dir)}},on_cell_start=progress,on_cell_executed=save)
+    try:
+        client.execute()
+        notebook.metadata['overnight_execution'].update(completed=True,seconds=time.perf_counter()-started)
+    finally:
+        save()
+        if client.kc is not None:
+            client.kc.stop_channels()
+        if manager.has_kernel:
+            manager.shutdown_kernel(now=True)
+        manager.cleanup_resources()
+    print('Saved fully executed notebook:',target,flush=True)
+    return target
+
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--smoke-only',action='store_true')
+    args=parser.parse_args()
+    if args.smoke_only:
+        os.environ['LAB2_SMOKE_ONLY']='1'
+        os.environ['LAB2_DEVICE']='cpu'
+    else:
+        os.environ.pop('LAB2_SMOKE_ONLY',None)
+        os.environ['LAB2_DEVICE']='cuda'
+        if not os.environ.get('HF_TOKEN') and not (ROOT/'part3_agents/outputs/hub_adapter/hub_provenance.json').is_file():
+            raise RuntimeError('Supply the private adapter read token securely in the launcher before starting.')
+    from export_lab_results import export
+    outcomes=[]
+    progress=ROOT/'runtime_checks/overnight_progress.json'
+    atomic_json(progress,dict(status='running',completed_parts=[],smoke_only=args.smoke_only))
+    try:
+        for part,name in [('part1_rag','Part1_RAG_Run.ipynb'),('part3_agents','Part3_Agents_Run.ipynb')]:
+            saved=execute_saved(ROOT/part/'notebooks'/name,ROOT/'output/executed'/part/name)
+            archive=export(part)
+            outcomes.append(dict(part=part,notebook=str(saved),archive=str(archive),smoke_only=args.smoke_only))
+            atomic_json(progress,dict(status='running',completed_parts=outcomes,smoke_only=args.smoke_only))
+    except Exception as exc:
+        atomic_json(progress,dict(status='failed',completed_parts=outcomes,smoke_only=args.smoke_only,error=str(exc)))
+        raise
+    atomic_json(progress,dict(status='completed',completed_parts=outcomes,smoke_only=args.smoke_only))
+    print('Both computational notebooks finished. Part 2 training was not repeated.',flush=True)
+    print('Real ratings, reference review, team details, demo, permissions and external submissions are still separate.',flush=True)
+
+
+if __name__=='__main__':
+    main()

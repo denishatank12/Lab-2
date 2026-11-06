@@ -225,6 +225,7 @@ class Conversation:
         self.last_hits = []
 
     def answer(self, question):
+        self.last_hits = []
         if re.search(r"permanent\w*|overwrite.{0,30}(document|knowledge)|modify.{0,20}(pdf|base)", question, re.I):
             return dict(answer="I cannot change the read-only documents. I can keep an explicit assumption within this conversation only.",
                         status="false_premise", citations=[], figure_references=[])
@@ -235,8 +236,29 @@ class Conversation:
                     for r in hits]
         payload = json.dumps(dict(question=question, session_facts=self.session_facts,
                                   prior_turns=self.history[-5:], evidence=evidence), ensure_ascii=False)
-        raw = self.model.json("Answer the authorized question using only this DATA:\n" + payload,
-                              system=RULES, images=[r["image_path"] for r in image_records], max_new_tokens=384)
+        instruction = "Answer the authorized question using only this DATA:\n" + payload
+        for attempt in range(2):
+            try:
+                raw = self.model.json(instruction, system=RULES,
+                    images=[r['image_path'] for r in image_records], max_new_tokens=512)
+                result = self.validate(raw,hits)
+                break
+            except ValueError as exc:
+                if attempt:
+                    output = getattr(self.index,'output',None)
+                    if output:
+                        from run_checkpoint import atomic_json
+                        atomic_json(Path(output)/'last_answer_validation_error.json',
+                            dict(question=question,error=str(exc),raw=locals().get('raw'),retrieved=hits))
+                    raise
+                instruction += '\nYour prior response failed the output schema: ' + str(exc) + '\nReturn a corrected JSON answer, not a fabricated source or truncated text.'
+        self.history.append(dict(user=question, assistant=result))
+        if re.search(r"assum|for this (?:chat|session)|change|use .*instead", question, re.I):
+            self.session_facts.append(question)
+        return result
+
+    @staticmethod
+    def validate(raw,hits):
         if raw.get("status") not in {"answered", "not_found", "conflict", "false_premise", "session_override"}:
             raise ValueError("Invalid model answer status; inspect the saved diagnostic, do not fabricate a replacement.")
         allowed = {r["citation"] for r in hits} | {f"{r['doc_id']}:p{r['page']}" for r in hits}
@@ -249,7 +271,8 @@ class Conversation:
         if not answer or len(answer.split()) > 120:
             raise ValueError("Answer is empty or exceeds the 120-word requirement.")
         result = {k: raw[k] for k in ["answer", "status", "citations", "figure_references"]}
-        self.history.append(dict(user=question, assistant=result))
-        if re.search(r"assum|for this (?:chat|session)|change|use .*instead", question, re.I):
-            self.session_facts.append(question)
         return result
+
+    def restore(self, history, session_facts, hits):
+        """Restore one exact completed turn without cross-conversation memory."""
+        self.history, self.session_facts, self.last_hits = history, session_facts, hits

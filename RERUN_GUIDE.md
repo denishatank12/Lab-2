@@ -1,5 +1,39 @@
 # What to run next
 
+## One overnight launch on the RTX 4050
+
+Use the latest `Lab2_Overnight_Run.ipynb` from GitHub. Do not start an old downloaded
+copy. Run its setup and preflight cells while you are still at the computer.
+Enter the private-adapter read token only in the hidden prompt, if requested.
+Wait for **BOTH REAL GPU PREFLIGHTS PASSED**. Those checks download the actual
+models and exercise image understanding, RAG, critique, style generation,
+instruction editing and the selected domain adapter on this GPU.
+
+If a preflight fails, do not leave it running and assume the long run will work.
+Keep the error and diagnostic log. The code was tested locally in CPU mode;
+that does not establish that the actual 4050 preflight or full inference passed.
+The 6-GB profile reserves activation space and offloads VLM weights to CPU. Allow
+roughly 40 GB free disk overall for a cold setup and at least 8 GiB free host RAM
+at preflight. Avoid other GPU-heavy programs, connect power and disable sleep.
+The local Colab/Jupyter server must stay running. Remote Colab quotas/disconnects
+are outside the notebook's control.
+
+After both preflights pass, start the overnight-work cell. It runs Parts 1 and 3
+one after the other, not simultaneously. It does not repeat Part 2 training.
+Executed notebooks autosave after every cell under `output/executed`; complete
+result ZIPs are written under `output/exports`. On a local/Docker Colab runtime,
+these are paths on that runtime, not automatic browser Downloads.
+
+If interrupted, run the same launcher again using the same checkout, inputs and
+hardware. Unchanged finished answers, evaluation turns and scenarios resume from
+atomic checkpoints. Missing/modified output images invalidate only their item.
+Changed code/data/hardware uses a new cache namespace; no old measurement is
+relabeled. Runtime failures are retained and retried on explicit restart. A low
+quality but completed result is not silently regenerated until it looks better.
+
+This protects completed work, not a promise that no error or further review can
+ever occur. Human judgments and external submission actions still need people.
+
 ## Part 1
 
 1. Get the latest `Part1_RAG_Run.ipynb` from this repository. Use a fresh GPU kernel.

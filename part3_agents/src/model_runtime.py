@@ -43,6 +43,7 @@ class ModelRuntime:
         result['text_method'] = 'Qwen2-VL literal image transcription; may still miss small or obfuscated text.'
         result['model'] = MODEL
         result['revision'] = REVISION
+        result['inference_profile'] = self.vlm.profile
         return result
 
     def rewrite(self, state):
@@ -57,7 +58,7 @@ class ModelRuntime:
             raise ValueError('Prompt rewriting returned no usable prompt.')
         return prompt.strip()
 
-    def generate(self, state):
+    def generate(self, state, num_inference_steps=20):
         from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionInstructPix2PixPipeline
         if not torch.cuda.is_available():
             raise RuntimeError('Real diffusion generation requires CUDA; CPU smoke outputs are not results.')
@@ -70,8 +71,7 @@ class ModelRuntime:
         revision = EDIT_REVISION if edit else self.config['base_revision']
         cls = StableDiffusionInstructPix2PixPipeline if edit else StableDiffusionImg2ImgPipeline
         kwargs = dict(revision=revision, torch_dtype=torch.float16, low_cpu_mem_usage=True)
-        if not edit:
-            kwargs['variant'] = self.config['variant']
+        kwargs['variant'] = 'fp16' if edit else self.config['variant']
         pipe = cls.from_pretrained(name, **kwargs)
         if pipe.safety_checker is None:
             raise RuntimeError('The checkpoint safety checker must remain enabled.')
@@ -86,11 +86,11 @@ class ModelRuntime:
         seed = self.seed + state.revisions
         state.generation_metadata = dict(model=name, revision=revision,
             adapter=self.adapter_provenance if domain else None,
-            mode='instruction_edit' if edit else 'img2img', seed=seed, steps=20,
+            mode='instruction_edit' if edit else 'img2img', seed=seed, steps=num_inference_steps,
             strength=None if edit else .6, guidance_scale=7.5, image_guidance_scale=1.5 if edit else None,
             prompt=state.prompt, safety_checker_enabled=True)
         try:
-            arguments = dict(prompt=state.prompt, image=image, num_inference_steps=20,
+            arguments = dict(prompt=state.prompt, image=image, num_inference_steps=num_inference_steps,
                 guidance_scale=7.5, generator=torch.Generator('cpu').manual_seed(seed))
             arguments.update(image_guidance_scale=1.5) if edit else arguments.update(strength=.6)
             return pipe(**arguments)
@@ -128,4 +128,5 @@ class ModelRuntime:
             safe=safe, visual_judgment=judgment.get('judgment', ''),
             revision_instruction=judgment.get('revision_instruction') or 'Apply the requested change while preserving the original subject: ' + state.request,
             model=MODEL, revision=REVISION,
+            inference_profile=self.vlm.profile,
             limitation='Automatic VLM/CLIP judgments can be wrong; independent team ratings are still required.')

@@ -2,6 +2,22 @@
 
 ## November 6 revision: missing rubric components
 
+### Overnight restart safeguards
+
+Thirteen additional tests passed for protocol/hardware separation, modified
+artifact invalidation, interrupted atomic writes, actual RAG/golden-evaluation
+entry-point resume with synthetic answers, actual scenario CLI resume in smoke
+mode, the low-VRAM placement plan, and real Jupyter-kernel autosave on success and
+failure. Fixture failures remain visible; no fixture is used as a quality score.
+The RTX 4050 memory plan and new real-model preflight are implemented, but their
+full pretrained-model GPU execution has not been verified on this CPU-only Mac.
+
+The sequential launcher was executed in explicitly labeled CPU smoke mode.
+Actual GPU preflights, model generation and model-quality evaluations were
+skipped, not reported successful. The real preflight must pass on the target PC
+before leaving the long run unattended. The first-time fp16 editor variant's
+required files were checked against its pinned Hugging Face file listing.
+
 This section supersedes historical implementation descriptions below.
 The revised Part 1 includes figure/table extraction, CLIP image retrieval,
 Qdrant storage, a local vision-language answerer and isolated conversation state.

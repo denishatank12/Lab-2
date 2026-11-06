@@ -1,10 +1,4 @@
-"""Generate a valid Part 1 submission from Questions.csv.
-
-This is an auditable extractive baseline: every answer is assembled only from
-retrieved source text, with citations and figure/table references.  A later
-LLM answerer can consume the same `retrieved` objects without changing the
-submission schema or retrieval contract.
-"""
+"""Generate multimodal answers, resuming only unchanged, complete conversation turns."""
 from __future__ import annotations
 
 import argparse
@@ -52,6 +46,7 @@ def main() -> None:
     data_dir = Path(args.data_dir)
     if not args.lexical_only:
         from multimodal import MultimodalIndex, Conversation
+        from run_checkpoint import ItemCheckpoint, experiment_sources, atomic_json, digest
         import time
         index = MultimodalIndex(data_dir, Path(args.output).parent / "index")
         questions = Path(args.questions_path) if args.questions_path else data_dir / "Questions.csv"
@@ -60,6 +55,9 @@ def main() -> None:
         conversations, answers, traces = {}, {}, []
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
+        checkpoint = ItemCheckpoint(output.parent / 'checkpoints', dict(kind='competition-answers-v1',
+            sources=experiment_sources('part1_rag'), document_sha256=index.ingestion['source_sha256'],
+            questions=rows, dense_only=args.dense_only))
         groups = {}
         for row in rows:
             groups.setdefault(row["conversation_id"], []).append(row)
@@ -71,15 +69,28 @@ def main() -> None:
                     chat.model = next(iter(conversations.values())).model
                 conversations[conv_id] = chat
                 for row in sorted(turns, key=lambda r: int(r["turn"])):
-                    started = time.perf_counter()
-                    answer = chat.answer(row["question"])
+                    item_key = dict(id=row['id'], prior_turns=digest(chat.history), session_facts=digest(chat.session_facts))
+                    previous = checkpoint.get(item_key)
+                    if previous is not None:
+                        answer = previous['result']
+                        chat.history = previous['history']
+                        chat.session_facts = previous['session_facts']
+                        chat.last_hits = previous['retrieved']
+                        elapsed = previous['seconds']
+                        print(row['id'], 'RESUMED unchanged answer', flush=True)
+                    else:
+                        started = time.perf_counter()
+                        answer = chat.answer(row["question"])
+                        elapsed = time.perf_counter()-started
+                        checkpoint.put(item_key, dict(result=answer, history=chat.history,
+                            session_facts=chat.session_facts, retrieved=chat.last_hits, seconds=elapsed))
                     answers[row["id"]] = dict(id=row["id"], conversation_id=conv_id, question_id=row["question_id"],
                         answer=answer["answer"], status=answer["status"],
                         figure_references=",".join(answer["figure_references"]) or "NONE",
                         citations=",".join(answer["citations"]) or "NONE")
                     traces.append(dict(**row, result=answer, retrieved=chat.last_hits,
-                                       seconds=time.perf_counter()-started))
-                    output.with_suffix(".traces.json").write_text(json.dumps(traces, indent=2))
+                                       seconds=elapsed))
+                    atomic_json(output.with_suffix(".traces.json"), traces)
                     print(row["id"], answer["status"], flush=True)
             with output.open("w", newline="", encoding="utf-8") as handle:
                 writer = csv.DictWriter(handle, fieldnames=["id", "conversation_id", "question_id", "answer", "figure_references", "citations", "status"])

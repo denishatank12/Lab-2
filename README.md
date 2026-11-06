@@ -6,6 +6,11 @@ Part 1 and Part 3 baselines with the missing model-backed components.
 
 ## Open these notebooks
 
+For the RTX 4050 overnight run, open [Lab2_Overnight_Run.ipynb](Lab2_Overnight_Run.ipynb).
+It preflights both real model paths before the long work, then runs Parts 1 and 3
+sequentially and autosaves their executed notebooks. It does not repeat Part 2
+training. Do not leave until both real GPU preflights pass on that PC.
+
 | Part | Notebook | What needs running now? |
 | --- | --- | --- |
 | 1 | [RAG](part1_rag/notebooks/Part1_RAG_Run.ipynb) | Full revised GPU run |
@@ -20,7 +25,8 @@ for a token securely; do not put tokens in source code or notebook outputs.
 The lab specifies a single 16-GB GPU. The saved Part 2 run used a 24-GB RTX 4090.
 That result is preserved honestly, not renamed as a 16-GB run. A 6-GB RTX 4050
 is not the grading target and the revised large-model paths have not been fully
-tested on it.
+tested on it. The new low-VRAM profile uses CPU weight offload and a 512-pixel
+image budget; it still needs an actual successful preflight and full GPU run.
 
 ## What changed
 

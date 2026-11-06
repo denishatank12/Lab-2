@@ -3,6 +3,8 @@ import argparse
 from datetime import datetime,timezone
 from pathlib import Path
 import zipfile
+import json
+import hashlib
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -22,6 +24,15 @@ def export(part):
                 continue
             bundle.write(path,arcname=str(Path(part)/relative))
         for path in (root/'notebooks').glob('*.ipynb'):
+            executed=ROOT/'output/executed'/part/path.name
+            if executed.is_file():
+                value=json.loads(executed.read_text())
+                original=json.loads(path.read_text())
+                fingerprint=hashlib.sha256(json.dumps([c['source'] if isinstance(c['source'],str) else ''.join(c['source']) for c in original['cells']],
+                    sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+                if (value.get('metadata',{}).get('overnight_execution',{}).get('completed') is True
+                    and value['metadata']['overnight_execution']['source_cells_sha256']==fingerprint):
+                    path=executed
             bundle.write(path,arcname=str(Path(part)/'notebooks'/path.name))
         for path in [ROOT/'docs/Final_Lab_Report_DRAFT.pdf',ROOT/'runtime_checks/final_submission_audit.json']:
             if path.is_file():
