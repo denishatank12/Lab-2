@@ -1,7 +1,107 @@
 [
- {"id":"S01","type":"caption","request":"caption this image"},{"id":"S02","type":"question","request":"what objects are visible?"},{"id":"S03","type":"question","request":"where is the subject?"},
- {"id":"S04","type":"style","request":"change this image to an impressionist style"},{"id":"S05","type":"style","request":"make this look like a watercolor painting"},{"id":"S06","type":"style","request":"apply a cinematic style"},
- {"id":"S07","type":"edit","request":"remove the background"},{"id":"S08","type":"edit","request":"enhance the lighting"},{"id":"S09","type":"edit","request":"add a blue sky"},
- {"id":"S10","type":"domain_style","request":"make this image look like a Naruto illustration"},{"id":"S11","type":"domain_style","request":"apply the domain style"},{"id":"S12","type":"domain_style","request":"turn this into a character painting"},
- {"id":"S13","type":"ambiguous","request":"do something interesting"},{"id":"S14","type":"broken","request":"caption the missing image"},{"id":"S15","type":"broken","request":""}
+  {
+    "id": "S01",
+    "type": "caption",
+    "request": "caption this image",
+    "rubric": "Caption and object list agree with visible content; no invented major subject.",
+    "image_key": "heldout_0"
+  },
+  {
+    "id": "S02",
+    "type": "question",
+    "request": "what objects are visible?",
+    "rubric": "Answer the requested visual question from the image; unsupported routing is a failure.",
+    "image_key": "heldout_1"
+  },
+  {
+    "id": "S03",
+    "type": "question",
+    "request": "where is the subject?",
+    "rubric": "Answer the requested visual question from the image; unsupported routing is a failure.",
+    "image_key": "heldout_2"
+  },
+  {
+    "id": "S04",
+    "type": "style",
+    "request": "change this image to an impressionist style",
+    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "image_key": "heldout_0"
+  },
+  {
+    "id": "S05",
+    "type": "style",
+    "request": "make this look like a watercolor painting",
+    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "image_key": "heldout_1"
+  },
+  {
+    "id": "S06",
+    "type": "style",
+    "request": "apply a cinematic style",
+    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "image_key": "heldout_2"
+  },
+  {
+    "id": "S07",
+    "type": "edit",
+    "request": "remove the background",
+    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "image_key": "heldout_0"
+  },
+  {
+    "id": "S08",
+    "type": "edit",
+    "request": "enhance the lighting",
+    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "image_key": "heldout_1"
+  },
+  {
+    "id": "S09",
+    "type": "edit",
+    "request": "add a blue sky",
+    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "image_key": "heldout_2"
+  },
+  {
+    "id": "S10",
+    "type": "domain_style",
+    "request": "make this image look like a Naruto illustration",
+    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "image_key": "heldout_0"
+  },
+  {
+    "id": "S11",
+    "type": "domain_style",
+    "request": "apply the domain style",
+    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "image_key": "heldout_1"
+  },
+  {
+    "id": "S12",
+    "type": "domain_style",
+    "request": "turn this into a character painting",
+    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "image_key": "heldout_2"
+  },
+  {
+    "id": "S13",
+    "type": "ambiguous",
+    "request": "do something interesting",
+    "rubric": "Ask for clarification or clearly explain the unsupported operation; do not silently generate.",
+    "image_key": "heldout_0"
+  },
+  {
+    "id": "S14",
+    "type": "broken",
+    "request": "caption the missing image",
+    "rubric": "Reject missing, corrupt or empty input with an actionable message and no image generation.",
+    "image_key": "heldout_1"
+  },
+  {
+    "id": "S15",
+    "type": "broken",
+    "request": "",
+    "rubric": "Reject missing, corrupt or empty input with an actionable message and no image generation.",
+    "image_key": "heldout_2"
+  }
 ]
