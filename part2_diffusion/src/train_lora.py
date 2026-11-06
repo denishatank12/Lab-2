@@ -178,9 +178,13 @@ def train_updates(model, latents, hidden, noise_scheduler, output, config, rank,
         torch.cuda.synchronize()
     seconds = prior_seconds + time.perf_counter() - started
     metrics = {"rank": rank, "steps": step, "final_loss": history[-1]["loss"],
+               "total_parameters": sum(p.numel() for p in model.parameters()),
                "trainable_parameters": sum(p.numel() for p in parameters),
                "learning_rate": config["learning_rate"], "batch_size": config["train_batch_size"],
                "gradient_accumulation_steps": accumulation, "training_seconds": seconds,
+               "effective_batch_size": config["train_batch_size"] * accumulation,
+               "device": torch.cuda.get_device_name(device) if device.type == "cuda" else "cpu",
+               "timing_scope": "Optimizer loop including checkpoint writes; excludes shared VAE/text caching and evaluation.",
                "gpu_hours": seconds / 3600 if device.type == "cuda" else None,
                "peak_allocated_mib": max(prior_peak, torch.cuda.max_memory_allocated() / 2**20) if device.type == "cuda" else None}
     (output / "loss_history.json").write_text(json.dumps(history, indent=2))

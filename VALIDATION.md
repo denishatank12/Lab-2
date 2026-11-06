@@ -1,5 +1,37 @@
 # Notebook repair validation
 
+## Follow-up: uploaded runs checked on November 5
+
+The user's uploaded Part 1 notebook executed all 3 code cells, reported an RTX 4090
+and passed the supplied validator with 40 rows. It has no saved error outputs.
+This validates execution and CSV shape, not the full multimodal RAG rubric or
+answer correctness. The saved answers remain an extractive baseline.
+
+The uploaded Part 2 notebook executed only its setup cell, which failed with a
+missing SciPy shared-library file. None of its training or evaluation cells ran.
+There are no full Part 2 results to approve. The metadata warnings are consistent
+with a damaged shared environment; concurrent installation is plausible but not
+proven from the saved logs. Original uploaded notebooks were not edited.
+
+The follow-up uses an OS installation lock, a single dependency resolution,
+read-only reuse of healthy environments and fresh paths for damaged ones. It
+adds Part 2 metric tables, a clearly labeled PDF draft, real-rating aggregation,
+an opt-in private Hugging Face upload helper and an evidence checklist. The
+checklist does not pass absent human judgments or missing artifact uploads.
+
+Twelve offline regression tests passed, covering installation transaction/ready
+markers, lock recovery, rating aggregation, blinded packets and PDF numeric-table
+formatting. All 9 Part 2 notebook code cells also executed in explicitly labeled
+CPU smoke mode with zero saved errors. The pinned model revision was checked
+against the Hugging Face file listing: fp16 UNet/VAE/text-encoder/safety-checker
+weights and scheduler/feature-extractor configs are present. This was a metadata
+check, not a download or full inference/training test.
+
+See `validation/uploaded_run_audit.json` for hashes and execution counts. The
+regression tests include an interrupted installer lock, empty/incomplete rating
+files, duplicate ballots and left/right win-rate calculation. These fixture tests
+are not presented as human-evaluation findings.
+
 Validated locally on November 5, 2026, on macOS ARM64 with Python 3.12.6.
 This machine has no NVIDIA CUDA GPU. RTX 4050 and T4 full runs are not claimed.
 

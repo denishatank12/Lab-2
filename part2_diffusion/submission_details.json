@@ -1,0 +1,9 @@
+{
+  "student_name": "Denisha Ketan Tank",
+  "partner_name": null,
+  "team_number": null,
+  "hugging_face_namespace": null,
+  "human_ratings_status": "Pending: collect real judgments later; never generate ratings.",
+  "account_setup": "Create and verify your account at https://huggingface.co/join. The PDF does not require a particular username.",
+  "license_status": "The selected Naruto dataset has no explicit license field. Verify rights with the instructor before redistribution."
+}

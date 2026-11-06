@@ -14,6 +14,9 @@ def main():
     parser.add_argument("--require-cuda", action="store_true")
     args = parser.parse_args()
     import numpy as np
+    import scipy.stats
+    import scipy.linalg
+    from PIL import Image
     import torch
     import torchvision
     import diffusers
@@ -29,6 +32,8 @@ def main():
     root = Path(__file__).resolve().parents[1]
     info = {"commit": subprocess.run(["git", "-C", str(root), "rev-parse", "--short", "HEAD"],
                                     capture_output=True, text=True).stdout.strip(),
+            "working_tree_dirty": bool(subprocess.run(["git", "-C", str(root), "status", "--porcelain"],
+                                     capture_output=True, text=True).stdout.strip()),
             "python": platform.python_version(), "seed": 266, "executable": sys.executable,
             "versions": {p: importlib.metadata.version(p) for p in
                          ["torch", "torchvision", "diffusers", "transformers", "peft", "datasets", "huggingface-hub"]},

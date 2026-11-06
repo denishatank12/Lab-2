@@ -15,3 +15,12 @@ The corrected code still needs its full CUDA run on the student's machine.
 Both members must inspect, run and understand the code and complete the external
 and human-evaluation requirements. This repair is not a declaration that all
 parts of the graded lab are finished.
+
+The November 5 follow-up inspected the user's two executed notebooks. AI helped
+repair the failed shared-environment installation, add an installation lock and
+import-integrity checks, produce Part 2 report/audit code, validate real-rating
+input schemas, and prepare opt-in Hugging Face uploads. The supplied Part 1 run
+completed its 40-row validator on an RTX 4090. The supplied Part 2 run failed
+during installation and did not train. The generated PDF is labeled a draft,
+not a measured training report. Human ratings, team details and account setup
+were explicitly deferred by the user.

@@ -29,9 +29,30 @@ if ROOT is None:
         raise RuntimeError(f"{ROOT} is an older/incomplete checkout. Update it with git pull, then restart this notebook.")
 print("Notebook host:", platform.python_version(), "repository:", ROOT)
 print("Mode:", "SMOKE ONLY: no full training or model-backed evaluation" if SMOKE_ONLY else "FULL RUN")
+# Refresh a clean main checkout, but never overwrite local edits or reset a branch.
+if not SMOKE_ONLY and os.environ.get("LAB2_UPDATE_REPOSITORY", "1") == "1":
+    branch = subprocess.check_output(["git", "-C", str(ROOT), "branch", "--show-current"], text=True).strip()
+    dirty = subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain"], text=True).strip()
+    if branch == "main" and not dirty:
+        subprocess.run(["git", "-C", str(ROOT), "pull", "--ff-only"], check=True)
+    else:
+        print("Kept existing checkout: local edits or a non-main branch. No files were reset.")
+if "SETUP_SCHEMA = 2" not in (ROOT / "tools/setup_runtime.py").read_text(encoding="utf-8"):
+    # A freshly downloaded notebook must not silently execute the old broken installer.
+    previous_root = ROOT
+    ROOT = ROOT.with_name(ROOT.name + "-notebook-v2")
+    if not ROOT.exists():
+        subprocess.run(["git", "clone", "https://github.com/denishatank12/Lab-2.git", str(ROOT)], check=True)
+    if not (ROOT / "tools/setup_runtime.py").is_file() or "SETUP_SCHEMA = 2" not in (ROOT / "tools/setup_runtime.py").read_text(encoding="utf-8"):
+        raise RuntimeError(f"Update the checkout at {ROOT} before running. The original checkout was preserved.")
+    print("Using repaired code at", ROOT, "; the older checkout and its results remain at", previous_root)
 subprocess.run([sys.executable, str(ROOT / "tools/setup_runtime.py"),
                 "--device", "cpu" if SMOKE_ONLY else os.environ.get("LAB2_DEVICE", "auto")], check=True)
-PYTHON = Path(json.loads((ROOT / ".lab2_runtime.json").read_text())["python"])
+requested_device = "cpu" if SMOKE_ONLY else os.environ.get("LAB2_DEVICE", "auto")
+import shutil
+use_cuda = requested_device == "cuda" or (requested_device == "auto" and shutil.which("nvidia-smi") is not None)
+runtime_file = ROOT / (".lab2_runtime_cuda.json" if use_cuda else ".lab2_runtime_cpu.json")
+PYTHON = Path(json.loads(runtime_file.read_text())["python"])
 SEED = 266
 print("All remaining commands use:", PYTHON)
 
@@ -74,6 +95,8 @@ directory on a PC. First-time setup needs internet and several GB of free disk.
 Use a fresh kernel and Run All. The default is a full run. `LAB2_SMOKE_ONLY=1`
 is only for developer checks and is clearly printed; those outputs are not a
 completed GPU experiment. Keep your real executed copy after the full run.
+Run only one GPU training/generation notebook at a time. Setup is locked, but
+two concurrent large models can still exceed the GPU's memory.
 """
 write('part1_rag','Part1_RAG_Run.ipynb',[
 md('# Lab 2 Part 1: RAG runtime\n\n'+common+"\nThis remains the repository's extractive retrieval baseline, not a claim that all graded RAG features are finished."),
@@ -127,7 +150,49 @@ else:
     from IPython.display import Image, display
     for index in range(8):
         display(Image(filename=str(P2 / "outputs/generations" / f"comparison_{index:02d}.png")))'''),
-md('## Save your work\nKeep this executed notebook, both adapters and the outputs folder. Upload weights and images to your team Hugging Face account, not GitHub. Complete the 25 blinded pairs with at least three raters; the code does not invent their choices.')])
+md('## Measured comparison table and report\nThe report is generated from saved files. It stays clearly marked as a draft while human ratings, visual failure analysis or uploads are pending. It is a Part 2 section, not the final combined IEEE report for all three parts.'),
+code('''run_script("part2_diffusion/src/submission.py")
+run_script("part2_diffusion/src/report_pdf.py")
+from IPython.display import HTML, display
+import html
+table = json.loads((P2 / "outputs/training_table.json").read_text())
+columns = ["model", "rank", "trainable_parameters", "learning_rate", "steps", "batch_size",
+           "gradient_accumulation_steps", "peak_allocated_mib", "training_seconds", "gpu_hours", "final_loss"]
+if table:
+    display(HTML("<table><tr>" + "".join("<th>" + html.escape(c) + "</th>" for c in columns) + "</tr>" +
+        "".join("<tr>" + "".join("<td>" + html.escape(str(row.get(c, "not recorded"))) + "</td>" for c in columns) + "</tr>" for row in table) + "</table>"))
+else:
+    print("No full training measurements yet. Smoke-test losses are not submitted as SD 1.5 results.")
+print("Part 2 PDF:", P2 / "output/pdf/Part2_Findings.pdf")'''),
+md('## Human review, saved for later\nInspect the generated images, then copy `outputs/review_template.json` to `outputs/review.json`. Record the selected run and why, plus at least two failure modes with model, prompt index, seed, observation and explanation. This must describe real images.\n\nThe `outputs/human_run1` folder contains 25 blinded pairs. Keep the key away from raters. Two team members and at least one external person each judge every pair. Save their actual judgments to `ratings.json` as a JSON list. Each row has `rater_id`, `role` (`team_member` or `external`), `pair_id` (0-24), `domain_style` and `prompt_match` (each `A`, `B` or `tie`). If you select run2, run the next cell once to prepare its blinded set without retraining.'),
+code('''PREPARE_RUN2_HUMAN_PAIRS = False
+if PREPARE_RUN2_HUMAN_PAIRS and not SMOKE_ONLY:
+    run_script("part2_diffusion/src/evaluate.py", "--config", P2 / "config.yaml", "--final-run", "run2", "--human-only")
+else:
+    print("Human judgments remain pending. No ratings or failure observations were invented.")'''),
+md('## Hugging Face account and artifact upload\nCreate your own account at https://huggingface.co/join, verify the email and choose an available username. The PDF does not specify a username. Make a write-scoped token in account settings; never put it in a code cell or chat.\n\nWhen ready, set `UPLOAD_TO_HF=True`, enter your verified username, and confirm that the educational redistribution is permitted. Both adapters and all 120 generated images will go to private repositories by default. Give the instructor access. This does not upload original training images or rater identities. Leave this cell disabled until you are ready.'),
+code('''UPLOAD_TO_HF = False
+HF_NAMESPACE = ""  # Your verified username or team organization, not a guessed name.
+RIGHTS_REVIEWED = False
+if UPLOAD_TO_HF:
+    if SMOKE_ONLY or not HF_NAMESPACE or not RIGHTS_REVIEWED:
+        raise ValueError("Finish the full run, enter your real namespace and review redistribution rights first.")
+    from getpass import getpass
+    os.environ["HF_TOKEN"] = getpass("Hugging Face write token (hidden): ")
+    try:
+        run_script("part2_diffusion/src/submission.py", "--publish", "--namespace", HF_NAMESPACE,
+                   "--acknowledge-data-rights")
+    finally:
+        os.environ.pop("HF_TOKEN", None)
+else:
+    print("Hugging Face upload deferred. Signup, verified username and explicit rights review are still needed.")'''),
+md('## Final audit and refresh\nThis prints pending items honestly. Once ratings, review and uploads are added, rerun this cell to refresh the report without training again. Keep the executed notebook and outputs. The common lab submission also needs a combined IEEE report, team records, links and tags.'),
+code('''run_script("part2_diffusion/src/submission.py")
+run_script("part2_diffusion/src/report_pdf.py")
+audit = json.loads((P2 / "outputs/submission_audit.json").read_text())
+print("Part 2 evidence ready:", audit["ready"])
+print("Still pending:", audit["pending"])
+print("Saved PDF:", P2 / "output/pdf/Part2_Findings.pdf")''')])
 write('part3_agents','Part3_Agents_Run.ipynb',[
 md('# Lab 2 Part 3: image agents\n\n'+common+"\nRun Part 2 first for the domain-style adapter. This notebook uses a clearly marked synthetic image to check wiring. Replace `INPUT_IMAGE` with your chosen lab test images for the real evaluation; one synthetic input is not the required diverse test set."),
     code(GPU_BOOTSTRAP),

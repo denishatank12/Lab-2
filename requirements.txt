@@ -30,3 +30,4 @@ starlette==0.41.3
 ipykernel==6.29.5
 nbformat==5.10.4
 nbclient==0.10.2
+reportlab==4.2.5

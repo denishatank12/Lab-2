@@ -35,6 +35,13 @@ and preserves old trainer outputs in a named legacy backup folder. Inference
 uses CPU offload and keeps the diffusion safety checker enabled. There is no
 bitsandbytes or xformers dependency.
 
+The uploaded November 5 Part 1 run completed its 40-row schema validation on an
+RTX 4090. The uploaded Part 2 run failed in package setup before training. The
+installer now serializes setup and bypasses damaged environments. Part 2 also
+builds a measured comparison table, a clearly labeled PDF draft, real-rating
+aggregation, opt-in Hugging Face uploads and an evidence checklist. Team details
+and human ratings are saved as pending, as requested. See its README for steps.
+
 Part 3 now uses img2img with the input image, actual vision calls, a bounded
 critique loop, separate scenario/revision outputs, and explicit error states.
 The synthetic image in its notebook is a wiring example, not the final test set.

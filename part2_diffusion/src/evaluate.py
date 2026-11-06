@@ -4,13 +4,13 @@ import argparse
 import gc
 import json
 from pathlib import Path
-import random
 
 import numpy as np
 import torch
 from PIL import Image, ImageDraw
 from torchvision.transforms.functional import pil_to_tensor, resize
 import yaml
+from blinding import prepare_blind_pairs
 
 
 def load_rgb(path, size=299):
@@ -19,12 +19,10 @@ def load_rgb(path, size=299):
 
 
 def main():
-    from torchmetrics.image.kid import KernelInceptionDistance
-    from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
-    from transformers import CLIPModel, CLIPProcessor
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="config.yaml")
     parser.add_argument("--final-run", choices=["run1", "run2"], default="run1")
+    parser.add_argument("--human-only", action="store_true", help="Prepare a new blinding packet without recomputing metrics.")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     config = yaml.safe_load((root / args.config).read_text())
@@ -33,6 +31,12 @@ def main():
     rows = json.loads((generated / "manifest.json").read_text())
     assert len(rows) == 120 and len({(r["model"], r["prompt_index"], r["seed"]) for r in rows}) == 120
     assert all((generated / r["file"]).exists() for r in rows)
+    if args.human_only:
+        print("Prepared blinded pairs:", prepare_blind_pairs(output, rows, args.final_run, config["seed"]))
+        return
+    from torchmetrics.image.kid import KernelInceptionDistance
+    from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+    from transformers import CLIPModel, CLIPProcessor
     data = root / "data/processed"
     test = [json.loads(line) for line in (data / "test/metadata.jsonl").read_text().splitlines()]
     train = [json.loads(line) for line in (data / "train/metadata.jsonl").read_text().splitlines()]
@@ -61,6 +65,7 @@ def main():
     for parameter in clip.parameters():
         parameter.data = parameter.data.clone()
     image_features = {}
+    per_image = []
     with torch.inference_mode():
         for model_score in scores:
             selected = [r for r in rows if r["model"] == model_score["model"]]
@@ -72,6 +77,7 @@ def main():
                 result = clip(**inputs)
                 cosine = (result.image_embeds * result.text_embeds).sum().item()
                 alignments.append(max(0.0, cosine) * 100)
+                per_image.append({**row, "clip_score": max(0.0, cosine) * 100})
                 image_features[row["file"]] = result.image_embeds[0]
             model_score["clip_score_mean"] = float(np.mean(alignments))
         training_features = []
@@ -113,32 +119,16 @@ def main():
         for key, value in score.items():
             if isinstance(value, float) and not np.isfinite(value):
                 raise RuntimeError(f"Nonfinite {key}; evaluation is not complete.")
-    rng = random.Random(config["seed"])
-    human_dir = output / f'human_{args.final_run}'
-    human_dir.mkdir(exist_ok=True)
-    candidates = [(i, seed) for i in range(20) for seed in [0, 1]]
-    rng.shuffle(candidates)
-    blinded, key = [], []
-    for index, (prompt_index, seed) in enumerate(candidates[:25]):
-        left_final = bool(rng.getrandbits(1))
-        left = f"{args.final_run if left_final else 'base'}_{prompt_index:02d}_{seed}.png"
-        right = f"{'base' if left_final else args.final_run}_{prompt_index:02d}_{seed}.png"
-        canvas = Image.new("RGB", (1024, 544), "white")
-        ImageDraw.Draw(canvas).text((5, 5), "A (left) | B (right)", fill="black")
-        for x, filename in [(0, left), (512, right)]:
-            with Image.open(generated / filename) as im:
-                canvas.paste(im, (x, 32))
-        filename = f"blinded_pair_{index:02d}.png"
-        canvas.save(human_dir / filename)
-        blinded.append({"pair_id": index, "image": filename, "prompt": next(r["prompt"] for r in rows if r["prompt_index"] == prompt_index),
-                        "ratings": []})
-        key.append({"pair_id": index, "final_is_left": left_final})
-    template = human_dir / "human_evaluation_template.json"
-    if not template.exists():
-        template.write_text(json.dumps(blinded, indent=2))
-    (human_dir / "human_evaluation_key.json").write_text(json.dumps(key, indent=2))
+    human_dir = prepare_blind_pairs(output, rows, args.final_run, config["seed"])
+    (output / "clip_scores_per_image.json").write_text(json.dumps(per_image, indent=2))
+    candidates = sorted([r for r in per_image if r["model"] != "base" and r["category"] != "in_domain"],
+                        key=lambda r: r["clip_score"])[:8]
+    (output / "review_candidates.json").write_text(json.dumps({
+        "note": "Low alignment is a candidate to inspect, not a confirmed failure. Add real observations to review.json.",
+        "candidates": candidates}, indent=2))
     (output / "memorization.json").write_text(json.dumps(memorization, indent=2))
     result = {"generated_images": 120, "metrics": scores, "clip_model": clip_name,
+              "sampling": rows[0].get("sampling", {"steps": rows[0]["steps"], "scheduler": "legacy checkpoint default"}),
               "human_evaluation": "Pending: collect 25 pair judgments from at least three real raters.",
               'human_evaluation_folder':str(human_dir),
               "kid_note": "Only 20 in-domain generations per model; KID is noisy and may be negative."}

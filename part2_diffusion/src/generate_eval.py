@@ -1,5 +1,5 @@
 from __future__ import annotations
-import argparse, gc, hashlib, json
+import argparse, gc, hashlib, json, os
 from pathlib import Path
 import yaml
 
@@ -41,7 +41,7 @@ def main():
         print("Frozen 10 held-out captions, 5 out-of-domain and 5 compositional prompts.")
         return
     import torch
-    from diffusers import StableDiffusionPipeline
+    from diffusers import StableDiffusionPipeline, DDIMScheduler
     from PIL import Image, ImageDraw
     if not torch.cuda.is_available():
         raise RuntimeError("Full generation requires CUDA. The offline smoke test does not download SD 1.5.")
@@ -55,7 +55,9 @@ def main():
             raise FileNotFoundError(f"Missing {name} adapter. Base weights will NOT be mislabeled as a trained run.")
     adapter_hashes = {name: hashlib.sha256((folder/'pytorch_lora_weights.safetensors').read_bytes()).hexdigest()
                      for name,folder in models.items() if folder is not None}
-    signature = hashlib.sha256(json.dumps({"prompts": prompts, "steps": args.steps,
+    sampling = {"scheduler": "DDIMScheduler", "steps": args.steps, "guidance_scale": 7.5,
+                "eta": 0.0, "height": 512, "width": 512, "negative_prompt": ""}
+    signature = hashlib.sha256(json.dumps({"prompts": prompts, "sampling": sampling,
                               "base": config["base_model"], 'revision':config['base_revision'],
                               'adapter_sha256':adapter_hashes}, sort_keys=True).encode()).hexdigest()
     record = out / "manifest.json"
@@ -70,6 +72,7 @@ def main():
             continue
         pipe = StableDiffusionPipeline.from_pretrained(config["base_model"], torch_dtype=torch.float16,
                 revision=config['base_revision'],variant=config['variant'])
+        pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
         # Do not disable the checkpoint's NSFW checker. Offload components instead.
         if pipe.safety_checker is None:
             raise RuntimeError("A safety checker is required for this generation run.")
@@ -84,14 +87,19 @@ def main():
                 key = (name, index, seed)
                 if key in manifest and (out / manifest[key]["file"]).exists():
                     continue
-                result = pipe(item["prompt"], num_inference_steps=args.steps,
+                result = pipe(item["prompt"], num_inference_steps=args.steps, guidance_scale=7.5,
+                              eta=0.0, height=512, width=512, negative_prompt="",
                               generator=torch.Generator("cpu").manual_seed(seed))
                 filename = f"{name}_{index:02d}_{seed}.png"
                 result.images[0].save(out / filename)
                 manifest[key] = {"model": name, "prompt_index": index, **item, "seed": seed,
                                  "file": filename, "steps": args.steps, "signature": signature,
+                                 "sampling": sampling, "base_model": config["base_model"],
+                                 "base_revision": config["base_revision"],
                                  "nsfw_flagged": bool((result.nsfw_content_detected or [False])[0])}
-                record.write_text(json.dumps(list(manifest.values()), indent=2), encoding="utf-8")
+                temporary = record.with_suffix(".json.tmp")
+                temporary.write_text(json.dumps(list(manifest.values()), indent=2), encoding="utf-8")
+                os.replace(temporary, record)
                 print(f"Generated {name} prompt {index + 1}/20 seed {seed}", flush=True)
         del pipe
         gc.collect()

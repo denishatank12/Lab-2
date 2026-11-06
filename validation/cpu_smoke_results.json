@@ -1,20 +1,20 @@
 {
-  "time": "2026-11-05T12:49:43.325303-08:00",
+  "time": "2026-11-05T18:14:14.758206-08:00",
   "notebooks": [
     {
       "part": "part1_rag",
       "mode": "full extractive baseline, CPU dense retrieval",
       "executed_code_cells": 3,
       "error_outputs": 0,
-      "seconds": 23.85478791699279,
+      "seconds": 19.58342724997783,
       "gpu_training_verified": false
     },
     {
       "part": "part2_diffusion",
       "mode": "CPU smoke only",
-      "executed_code_cells": 5,
+      "executed_code_cells": 9,
       "error_outputs": 0,
-      "seconds": 7.804399375017965,
+      "seconds": 9.73878624997451,
       "gpu_training_verified": false
     },
     {
@@ -22,7 +22,7 @@
       "mode": "CPU smoke only",
       "executed_code_cells": 5,
       "error_outputs": 0,
-      "seconds": 4.27893508397392,
+      "seconds": 6.398266832984518,
       "gpu_training_verified": false
     }
   ],
@@ -65,24 +65,29 @@
     "part1_rag/src/rag_pipeline.py": "fea26b9ef3321200aa89a01e04e43134cac893e544b422c481bb653b0ad6fe9d",
     "part1_rag/src/smoke_test.py": "1b81f36ac6efafd6054cb2c52e71809159c1ffb227459e1fad3880ec5a09c1cf",
     "part2_diffusion/config.yaml": "3d841cbbf5bbcec10ea0c9b97c2bf271570837ac218c07d268347ba627731636",
-    "part2_diffusion/src/evaluate.py": "f2e3fd924018ac9a5497af10d8d5d85d9a4a03897070f1281eaaf5abc503ddb3",
-    "part2_diffusion/src/generate_eval.py": "71206bc27fc5e6d6568f8c4230feb1d76b3c6cde052ca9a1d37f9e4c0dd95f43",
+    "part2_diffusion/src/blinding.py": "41d98f0b9ad31b1c91e7ddfecc1f658d5bd3639566865addc4f7e5d6d142513b",
+    "part2_diffusion/src/evaluate.py": "b0cee3bb9b6ee21d5ee8c546d38d0141cc37b3b59bb2d440210c546bbf4547b7",
+    "part2_diffusion/src/generate_eval.py": "d5a192c015741d6b5bbbf54fbb01d7d047d10bf929abe70c69642a4b58787906",
     "part2_diffusion/src/prepare_data.py": "66f6d2a82d0dfa5735aa460b54f42ab087cbb3d965c7081b065117cfdf7a74b6",
+    "part2_diffusion/src/report_pdf.py": "4adb34c4deea38acda6d12a146888701ed975131235fc3423d77262ddbf2e0ea",
     "part2_diffusion/src/smoke_test.py": "7d8f3910f0294da606bd714be6f775431223db11db3d95261de66d6e257170e9",
-    "part2_diffusion/src/train_lora.py": "9d9e87924a5871132ad043f23f833e4bbb8d4726e5063615060b5c7ad7aa49ba",
+    "part2_diffusion/src/submission.py": "01a52ddc606b17c3c1b5b25d9e6053b594ce75b26a0196242061e6eaa5f0330b",
+    "part2_diffusion/src/train_lora.py": "bc4e7b50f128b85e08ac137292c37e109515dc15b7c7ae01af3087b0a87f190a",
     "part3_agents/src/agent_system.py": "7fbbebd351d9a4fd4d3a30c8f4b681f55430aac665a74128c8b9b7d76a0a3d0c",
     "part3_agents/src/app.py": "d04737d3cb809f377c0845cc3efd0fde7d0f51b76dbebdf7c5d0c729fdbecff4",
     "part3_agents/src/model_runtime.py": "d413f672ab5b39fc562a2a8ab9164a51a8c1de69ea30b8f15f628f4a1fa174a9",
     "part3_agents/src/run_red_team.py": "8e9c9322277bdc7a6534c694c382bfa7e86700426bf7658e14567eef27e27d80",
     "part3_agents/src/run_scenarios.py": "8990ee20eba83a5a420aca50888f180c56142632e2a9dfba677a8dcb97d640d9",
     "part3_agents/src/smoke_test.py": "09466ef3dd68d1287a2514f840f0eed33c5cec40f437ed12d7ead90c9e7f6fd7",
-    "requirements.txt": "677ee19c074a4d1dbc61ce1298746632ddd74cb3625a8cef86a2563bad295e37",
+    "requirements.txt": "12e5e0cc52f3f3b077afdd0fbbdeca5be19140b2437f76336a135d77df8fd7e1",
+    "tools/audit_executed_notebooks.py": "7655bb45d84ac53452673de19dd2dabc4e77f052773626fad28dbedb88f5787e",
     "tools/execute_smoke_notebooks.py": "cd24ce17e083941b3d6cf2d8c124dce6e256cba0d6dad90debb456ec01efd665",
     "tools/make_sample_image.py": "e3b8846c0f38679cf00034cae985b39fb70d799434b2ced324eef97dba41a36c",
-    "tools/preflight.py": "081d4d1db60681467f14bea23a1b82dfc51d295e59ca280099f80f25c7b2f6cf",
-    "tools/rebuild_notebooks.py": "deb68fefbcf5bc362e8743a5253a2f09943d36e515c610471092d259de62883e",
+    "tools/preflight.py": "5dd70fff98a080ae39461fa98d66dc7ab6cd91f92b5c6bb5990119a7e8bd3f82",
+    "tools/rebuild_notebooks.py": "2c99ad38aca65ed8a9688adeac4476b9cedbe07000a2e3b89eab87c0c2a02fde",
     "tools/save_validation.py": "c739b37efa4d060e0e17283bd836154cf8975fceda3f33db53dcf49fc602e2b0",
-    "tools/setup_runtime.py": "4bdfa4edb4d77f3e43c1ba7907e1c5d7583f3036b88c646f7772bc9f8175122d"
+    "tools/setup_runtime.py": "7d8c8874f156e8c998d1c974e7141b12440b13493895c20abcb377aff08102e2",
+    "tools/test_part2_submission.py": "63a4c7f84bf5d0ff495bf79cca6d973f7e0636b5bfb118a16cfb247e9b2cafc4"
   },
   "not_verified": [
     "Full Stable Diffusion training on RTX 4050 or T4",

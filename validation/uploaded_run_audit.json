@@ -1,0 +1,36 @@
+{
+  "notebooks": [
+    {
+      "file": "Part1_RAG_Run (1).ipynb",
+      "sha256": "00f4851ffb0af3463d343d3db9ebaca4b2443d912febae0575aec5e84f2068b2",
+      "code_cells": 3,
+      "executed_cells": 3,
+      "saved_errors": [],
+      "gpu_names": [
+        "NVIDIA GeForce RTX 4090"
+      ],
+      "validator_40_rows": true,
+      "environment_missing_scipy_file": false,
+      "interpretation": "Saved execution evidence only; successful execution and schema validation do not establish answer quality or grading completeness."
+    },
+    {
+      "file": "Part2_FineTune_Run (1).ipynb",
+      "sha256": "95d8ee4c857fe98d8ec160e7dab1792bc225561497c007b93e49174a582af18f",
+      "code_cells": 5,
+      "executed_cells": 1,
+      "saved_errors": [
+        {
+          "code_cell": 1,
+          "type": "CalledProcessError",
+          "message": "Command '['/opt/conda/bin/python', '/root/DATA266/Lab-2/tools/setup_runtime.py', '--device', 'cuda']' returned non-zero exit status 1."
+        }
+      ],
+      "gpu_names": [],
+      "validator_40_rows": false,
+      "environment_missing_scipy_file": true,
+      "interpretation": "Saved execution evidence only; successful execution and schema validation do not establish answer quality or grading completeness."
+    }
+  ],
+  "part2_conclusion": "The supplied Part 2 notebook failed in setup. No fine-tuning, generation or model-quality results were produced.",
+  "cause_limit": "The logs show missing package files and metadata in a shared environment. Concurrent installation is a plausible cause, not proven by the saved logs alone."
+}
