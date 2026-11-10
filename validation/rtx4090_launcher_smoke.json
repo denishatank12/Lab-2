@@ -1,0 +1,42 @@
+{
+  "scope": "CPU smoke only. Actual RTX 4090 model execution and quality evaluation were skipped.",
+  "saved_utc": "2026-11-10T02:38:00.046056+00:00",
+  "regression_tests_passed": 115,
+  "new_workflow_tests_passed": 19,
+  "launcher_seconds": 116.78634437499932,
+  "source_cells_sha256": "e75ae02a0cafe1d0d057e772628660924d645c9b9c22b40186279eda2b38f479",
+  "notebooks": [
+    {
+      "file": "output/validation/Lab2_RTX4090_CPU_Smoke.ipynb",
+      "executed_code_cells": 8,
+      "saved_errors": 0,
+      "completed": true,
+      "smoke_only": true,
+      "sha256": "308cd8cb4b421f05d4413a0e286a283a2f919bbacd052cc6b6ee57846cbd5522"
+    },
+    {
+      "file": "output/executed/part1_rag/Part1_RAG_Run.ipynb",
+      "executed_code_cells": 8,
+      "saved_errors": 0,
+      "completed": true,
+      "smoke_only": true,
+      "sha256": "4f1e1d86ee58cc2c1e8cdb29a94c13658a62572985817350608dbb16e1efe883"
+    },
+    {
+      "file": "output/executed/part3_agents/Part3_Agents_Run.ipynb",
+      "executed_code_cells": 10,
+      "saved_errors": 0,
+      "completed": true,
+      "smoke_only": true,
+      "sha256": "148c63054584ac507ca594c60f114df7b27f5d9c96b021a26b203013f670b899"
+    }
+  ],
+  "part2_original_evidence_check": {
+    "passed": true,
+    "generated_images": 120,
+    "training_repeated": false,
+    "run1_adapter_sha256": "ee6f2da9da89f40ab1009a46c192baefa7aa50f0c096b96a04f912e81c770e94",
+    "run2_adapter_sha256": "b83c99fc646f392c82149b9bd811c4ce57d1500e3d56e0fd8670e0991bcc8b52"
+  },
+  "submission_ready": false
+}

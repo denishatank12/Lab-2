@@ -15,7 +15,11 @@ def prepare(output):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     processed = ROOT / 'part2_diffusion/data/processed'
-    if not (processed / 'test/metadata.jsonl').is_file():
+    # Result ZIPs intentionally omit original image files. Metadata alone is
+    # not a completed dataset after moving the experiment to another machine.
+    sys.path.insert(0, str(ROOT / 'part2_diffusion/src'))
+    from prepare_data import prepared
+    if not prepared(processed):
         subprocess.run([sys.executable, str(ROOT / 'part2_diffusion/src/prepare_data.py'),
                         '--output-dir', str(processed)], check=True)
     rows = [json.loads(line) for line in (processed / 'test/metadata.jsonl').read_text().splitlines()]

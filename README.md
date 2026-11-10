@@ -6,6 +6,13 @@ Part 1 and Part 3 baselines with the missing model-backed components.
 
 ## Open these notebooks
 
+For the RTX 4090, use [Lab2_RTX4090_Run_All.ipynb](Lab2_RTX4090_Run_All.ipynb).
+It verifies the real GPU, reuses the completed Part 2 result folder or original
+ZIP, restores missing dataset images, preflights the models, then executes
+Parts 1 and 3 sequentially. It saves the executed notebooks and offers one
+combined result ZIP. Put the original Part 2 ZIP on that runtime before starting
+if its results folder is not already present. Training is not repeated.
+
 For the RTX 4050 overnight run, open [Lab2_Overnight_Run.ipynb](Lab2_Overnight_Run.ipynb).
 It preflights both real model paths before the long work, then runs Parts 1 and 3
 sequentially and autosaves their executed notebooks. It does not repeat Part 2
@@ -26,7 +33,7 @@ GPU work. See the rerun guide for the contents and download details.
 
 Read [RERUN_GUIDE.md](RERUN_GUIDE.md) before running. The setup creates an isolated,
 pinned environment. Run one notebook at a time in a fresh kernel. A first full
-run needs internet and about 25 GB of free disk. Private adapter download asks
+run needs internet and roughly 40 GB of free disk overall. Private adapter download asks
 for a token securely; do not put tokens in source code or notebook outputs.
 
 The lab specifies a single 16-GB GPU. The saved Part 2 run used a 24-GB RTX 4090.

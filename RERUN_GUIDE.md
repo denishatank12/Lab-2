@@ -1,5 +1,47 @@
 # What to run next
 
+## One notebook for the RTX 4090
+
+Open the latest [Lab2_RTX4090_Run_All.ipynb](Lab2_RTX4090_Run_All.ipynb).
+This is the entry point for the next run on your 4090. The individual Part 1
+and Part 3 notebooks are called automatically; do not start them alongside it.
+
+1. Connect the notebook to the RTX 4090 PC's local runtime, or open it in
+   Jupyter on that PC. Opening Colab does not connect it to the PC's GPU by itself.
+2. Keep the completed Part 2 results folder on this runtime. If it is absent,
+   copy your original `Part2_results_*.zip` here. The notebook checks Downloads,
+   the repository, `/content` and `/app`; otherwise set `PART2_RESULTS_ZIP` in
+   its first cell to the actual runtime path. A container cannot read an
+   unmounted Windows Downloads path.
+3. Close other GPU notebooks, connect power and disable sleep. Allow roughly
+   40 GB free disk for a cold installation and at least 8 GiB available host RAM.
+4. Run All with `LAB2_SMOKE_ONLY` unset. Setup uses a separate pinned Python
+   environment. The early GPU check rejects a CPU or another GPU rather than
+   silently running the expensive work there.
+5. Stay at the PC until both actual model preflights pass. The notebook then
+   runs the full Part 1 and Part 3 experiments in order and autosaves the
+   executed notebooks after every cell. It does not retrain Part 2.
+6. Keep the kernel connected through the final ZIP download, then send that
+   ZIP for review. If an earlier cell fails, run only the final export cell to
+   collect the saved evidence. Do not delete completed outputs or edit errors
+   out of an executed notebook.
+
+The Part 2 reuse check validates the two original adapter hashes, training
+settings, all 120 image combinations, image shapes, quality metrics and
+memorization figures. It can seed Part 3's adapter from the verified local
+export without asking for a Hub token. This is not a new Hub download or a
+claim that the instructor can access the private repositories.
+
+A result ZIP may contain dataset metadata but no source images. The revised
+preparation checks actual files and restores the original pinned dataset and
+split when needed. Downloading those missing images does not repeat training.
+
+The final computation check also inspects saved scenario errors and confirms
+that the real model paths were enabled. Successful computation is not the same
+as good answers or submission readiness. Real ratings, reference review, team
+details, permitted sharing, demo, external submissions and the rubric's GPU
+requirement remain separate. A 4090 run is not a 16-GB-card execution record.
+
 ## After the uploaded Part 1 citation error
 
 Download the current notebooks again. The latest ZIP showed a later failure:

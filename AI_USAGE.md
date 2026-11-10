@@ -88,3 +88,13 @@ completed its 40-row validator on an RTX 4090. The supplied Part 2 run failed
 during installation and did not train. The generated PDF is labeled a draft,
 not a measured training report. Human ratings, team details and account setup
 were explicitly deferred by the user.
+
+## RTX 4090 launcher
+
+AI assistance added a dedicated RTX 4090 entry point, verified reuse of the
+original Part 2 adapters and 120-image cohort, and repaired dataset restoration
+when imported metadata exists without its image files. The launcher runs Parts
+1 and 3 sequentially, autosaves their notebooks, checks for saved model errors,
+and exports the available evidence. It does not automatically repeat Part 2
+training, invent ratings or claim submission readiness from a completed script.
+The new regression fixtures are synthetic and are not experimental measurements.

@@ -1,5 +1,33 @@
 # Notebook repair validation
 
+## RTX 4090 launcher and original result restoration
+
+The dedicated `Lab2_RTX4090_Run_All.ipynb` was executed completely in explicit
+CPU smoke mode. All eight launcher code cells ran, the inner Part 1 notebook
+ran eight cells, and Part 3 ran ten cells. All three saved copies have zero
+notebook error outputs and completed autosave records. The launcher's seven
+test suites passed all 115 regression tests, including 19 new workflow tests.
+The integration run took 116.79 seconds on this Mac; this is not a GPU runtime
+estimate or a model-quality measurement.
+
+The actual original Part 2 evidence also passed its new reuse check: both
+uploaded adapter hashes, the original manifest, all 120 image combinations and
+512-by-512 RGB image files, saved training configurations, finite KID/CLIP/LPIPS
+metrics and memorization figures. Training and generation were not repeated.
+The selected adapter can be restored from that hash-verified local export;
+doing so does not verify current grader access to the private Hub repositories.
+
+Imported dataset metadata no longer bypasses checks for the original image
+files. Missing images trigger preparation of the same pinned dataset and split.
+The new regression tests exercise this path, fresh ZIP import, incorrect
+adapters, incomplete training, nonfinite metrics, missing/invalid images,
+resource guards, and normal-exit scripts whose saved traces contain errors.
+
+The real RTX 4090 profile and pretrained-model preflights were skipped in CPU
+smoke mode, as were full generation and model-quality evaluation. A completed
+developer smoke cannot pass the GPU completion check. Human review, team
+requirements and external submission steps remain outside this validation.
+
 ## ZIP follow-up and constrained generation
 
 The uploaded ZIP passed CRC verification and matched SHA-256
