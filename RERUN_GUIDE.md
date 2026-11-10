@@ -2,11 +2,19 @@
 
 ## After the uploaded Part 1 citation error
 
-Download the current notebooks again. Part 1 now validates citation types before
-checking their source IDs and retries malformed model fields up to three times.
-Part 3 uses the same bounded correction approach for its structured model calls.
-Unsupported sources and unsafe outputs are still rejected. A repeated model or
-runtime failure stays visible rather than being counted as a successful result.
+Download the current notebooks again. The latest ZIP showed a later failure:
+the model copied a paragraph into `text` instead of returning the required
+answer object. Decoding is now constrained to the required fields, allowed status
+values and actual retrieved source labels. Part 3 and the citation judge also
+use structured decoding. This controls format, not whether every answer is true.
+Unsupported sources and unsafe outputs are still rejected.
+
+Use the fresh Part 1 notebook, not the edited copy whose generation and evaluation
+cells print logs. Run All with a fresh kernel. If the old checkout contains local
+validator patches, setup preserves it and uses a clean sibling folder named
+`Lab-2-structured-v1`. Model downloads in the shared Hugging Face cache can still
+be reused. Changed source/protocol fingerprints intentionally do not reuse the
+three earlier answers as measurements of this new version.
 
 Run Parts 1 and 3 sequentially, preferably with the overnight launcher below.
 The uploaded Part 3 copy did not reach its GPU/model evaluation. Do not repeat

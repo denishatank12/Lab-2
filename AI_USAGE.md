@@ -1,5 +1,14 @@
 # AI assistance used for the runtime repair
 
+The ZIP follow-up found a copied paragraph under `text`, with the required answer
+fields missing. AI assistance implemented schema-constrained token decoding,
+restored the real notebook computation cells, preserved the original runtime
+patches without adopting their relaxed reference checks, and added 17 grammar,
+recovery and tiny-model integration tests. The decoding schemas contain field
+types and retrieved source IDs, not gold answers or question-specific values.
+These checks do not replace a real pretrained-model GPU evaluation or human
+judgments. Part 2 training was not repeated or relabeled.
+
 The November 9 repair traced the uploaded Part 1 failure to dictionary-valued
 citations, added strict field validation and bounded schema retries for Parts 1
 and 3, and added 16 regression tests. Both notebooks were rerun only in labeled

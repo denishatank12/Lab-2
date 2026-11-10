@@ -15,6 +15,7 @@ from rag_pipeline import HybridIndex, extract_passages, _tokens
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 from vlm_runtime import VisionLanguageModel, validated_json
+from response_schemas import rag_schema
 
 LABEL = r"(?:Figure|Table)\s+(?:[12A-C])-\d+(?:\s+\(corrected\))?"
 TEXT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -237,10 +238,14 @@ class Conversation:
                     for r in hits]
         payload = json.dumps(dict(question=question, session_facts=self.session_facts,
                                   prior_turns=self.history[-5:], evidence=evidence), ensure_ascii=False)
-        instruction = "Answer the authorized question using only this DATA:\n" + payload
+        instruction = ("Answer the authorized question using only the data. "
+                       "Return exactly status, answer, citations and figure_references. "
+                       "Answer directly in at most 100 words; do not copy a whole passage. "
+                       "Use only the source IDs and figure labels supplied in the evidence. DATA:\n" + payload)
         try:
             result = validated_json(self.model, instruction, validator=lambda raw: self.validate(raw, hits),
-                system=RULES, images=[r['image_path'] for r in image_records], max_new_tokens=512)
+                system=RULES, images=[r['image_path'] for r in image_records], max_new_tokens=1536,
+                schema=rag_schema(hits))
         except ValueError as exc:
             output = getattr(self.index, 'output', None)
             if output:

@@ -40,7 +40,7 @@ def atomic_json(path, value):
 
 
 def experiment_sources(part):
-    names = ['tools/vlm_runtime.py', 'tools/run_checkpoint.py', 'requirements.txt']
+    names = ['tools/vlm_runtime.py', 'tools/response_schemas.py', 'tools/run_checkpoint.py', 'requirements.txt']
     if part == 'part1_rag':
         names += ['part1_rag/src/multimodal.py', 'part1_rag/src/rag_pipeline.py',
                   'part1_rag/src/generate_submission.py', 'part1_rag/src/evaluate_rag.py']

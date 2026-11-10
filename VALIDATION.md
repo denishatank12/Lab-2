@@ -1,5 +1,42 @@
 # Notebook repair validation
 
+## ZIP follow-up and constrained generation
+
+The uploaded ZIP passed CRC verification and matched SHA-256
+`4a09bc57cceee4004ed4d482868505a7a535836ffdbc6d294c2aada6cd4b76cf`.
+Its diagnostic shows that the failing answer contained only a `text` field with
+a copied source paragraph. Status and citation fields were absent. The source
+snapshot also contains runtime validator patches that dropped unknown figure
+labels; those patches were not imported into the maintained code.
+
+Model generation now uses constrained JSON decoding with pinned
+`lm-format-enforcer==0.11.3` and `interegular==0.3.3`. Required fields and types
+are enforced while generating tokens. RAG statuses remain model choices from
+the five allowed values. Citation and figure choices come only from retrieved
+metadata, not an answer key. Empty figure lists are enforced with a literal
+empty-list parser, avoiding the library's zero-item-array edge case. A composed
+parser preserves the library's free-text optimization for Qwen's large vocabulary.
+The implementation follows the project's
+[Transformers integration](https://github.com/noamgat/lm-format-enforcer#basic-tutorial).
+
+Seventeen new tests passed for the grammar, exact source choices, required
+fields, empty lists, JSON escaping, preserved decoding optimization, notebook
+recovery and an actual image-conditioned generation using a tiny randomly
+initialized Qwen2-VL. Together with the prior suites, all 96 regression tests
+passed. An additional check used the official pinned pretrained Qwen tokenizer
+with a complete synthetic structured response and end-of-sequence handling.
+These are format/API tests, not pretrained-model answer-quality measurements.
+
+Both required Part 1 computation cells are restored: generation/CSV validation
+and the baseline-versus-final evaluation. They are not diagnostic-log printouts.
+If the old checkout has local runtime patches and lacks the schema support, the
+new first cell uses a clean sibling checkout without resetting the old files.
+Part 2's notebook, adapters and measured outputs remain unchanged.
+
+The latest full pretrained-model GPU run is still required. Constrained format
+does not establish factual correctness, independent human ratings or submission
+readiness. The three earlier answers are not reused under a changed protocol.
+
 ## November 9 model response repair
 
 The uploaded Part 1 run stopped in its real-model preflight because a citation

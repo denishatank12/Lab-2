@@ -1,19 +1,19 @@
 {
-  "time": "2026-11-09T17:22:30.380732-08:00",
+  "time": "2026-11-09T18:22:15.338922-08:00",
   "notebooks": [
     {
       "part": "part1_rag",
       "mode": "CPU smoke only; real VLM/generation/evaluation skipped",
       "executed_code_cells": 8,
       "saved_errors": 0,
-      "seconds": 26.035943333999967
+      "seconds": 27.73003529199923
     },
     {
       "part": "part3_agents",
       "mode": "CPU smoke only; real VLM/generation/evaluation skipped",
       "executed_code_cells": 10,
       "saved_errors": 0,
-      "seconds": 25.087304915999994
+      "seconds": 28.076290790999337
     }
   ]
 }

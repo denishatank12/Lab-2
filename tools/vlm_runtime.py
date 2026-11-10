@@ -63,6 +63,7 @@ def validated_json(model, instruction, *, validator, attempts=3, **kwargs):
                 raise ValueError("The response must be a JSON object.")
             return validator(raw)
         except ValueError as exc:
+            raw = getattr(exc, 'raw_response', raw)
             errors.append(str(exc))
     error = ValueError(f"Model response failed validation after {attempts} attempts: {errors[-1]}")
     error.raw_response = raw
@@ -78,11 +79,48 @@ def greedy_generation_config(config):
     return config
 
 
+def response_parser(schema):
+    from lmformatenforcer import JsonSchemaParser, StringParser, SequenceParser, CharacterLevelParserConfig
+    class FastSequence(SequenceParser):
+        def add_character(self, character):
+            result = super().add_character(character)
+            return FastSequence(result.parsers) if isinstance(result, SequenceParser) else result
+
+        def shortcut_key(self):
+            # A non-ended value owns the next character. Forward its public
+            # free-text shortcut instead of traversing 150k tokens per step.
+            if self.parsers and not self.parsers[0].can_end():
+                return self.parsers[0].shortcut_key()
+            return super().shortcut_key()
+
+    config = CharacterLevelParserConfig(force_json_field_order=True, max_consecutive_whitespaces=1)
+    if schema.get('type') == 'object' and schema.get('additionalProperties') is False:
+        # Compose public parsers: fixed keys, model-chosen typed values. This
+        # also lets an empty-array field bypass the library's maxItems=0 edge.
+        parts = [StringParser('{')]
+        for i, (name, value) in enumerate(schema['properties'].items()):
+            parts += [StringParser((',' if i else '') + json.dumps(name) + ':'), response_parser(value)]
+        return FastSequence(parts + [StringParser('}')])
+    if schema.get('type') == 'array' and schema.get('maxItems') == 0:
+        return StringParser('[]')
+    return JsonSchemaParser(schema, config=config)
+
+
+def schema_prefix(tokenizer_data, schema):
+    """Filter decoding tokens, not model facts, using the maintained HF integration.
+
+    API: https://github.com/noamgat/lm-format-enforcer#basic-tutorial
+    """
+    from lmformatenforcer.integrations.transformers import build_transformers_prefix_allowed_tokens_fn
+    return build_transformers_prefix_allowed_tokens_fn(tokenizer_data, response_parser(schema))
+
+
 class VisionLanguageModel:
     def __init__(self, seed=266, require_cuda=True):
         self.seed, self.require_cuda = seed, require_cuda
         self.model = self.processor = None
         self.profile = {}
+        self._schema_tokenizer_data = None
 
     def load(self):
         if self.model is not None:
@@ -107,7 +145,7 @@ class VisionLanguageModel:
             max_image_pixels=(512 if total and total<10*2**30 else 768)**2,
             actual_device_map={k:str(v) for k,v in getattr(self.model,'hf_device_map',{}).items()})
 
-    def ask(self, instruction, images=(), system=None, max_new_tokens=384):
+    def ask(self, instruction, images=(), system=None, max_new_tokens=384, schema=None):
         import torch
         from PIL import Image
         self.load()
@@ -127,9 +165,15 @@ class VisionLanguageModel:
         if opened:
             kwargs["images"] = opened
         inputs = self.processor(**kwargs).to(self.model.device)
+        constraints = {}
+        if schema is not None:
+            from lmformatenforcer.integrations.transformers import build_token_enforcer_tokenizer_data
+            if self._schema_tokenizer_data is None:
+                self._schema_tokenizer_data = build_token_enforcer_tokenizer_data(self.processor.tokenizer)
+            constraints['prefix_allowed_tokens_fn'] = schema_prefix(self._schema_tokenizer_data, schema)
         with torch.inference_mode():
             tokens = self.model.generate(**inputs, max_new_tokens=max_new_tokens,
-                generation_config=greedy_generation_config(self.model.generation_config))
+                generation_config=greedy_generation_config(self.model.generation_config), **constraints)
         result = self.processor.batch_decode(tokens[:, inputs.input_ids.shape[1]:],
                                              skip_special_tokens=True)[0]
         return result
@@ -137,8 +181,17 @@ class VisionLanguageModel:
     def json(self, instruction, images=(), **kwargs):
         raw = self.ask(instruction, images, **kwargs)
         try:
-            return parse_json(raw)
-        except ValueError:
+            result = json.loads(raw) if kwargs.get('schema') is not None else parse_json(raw)
+            if not isinstance(result, dict):
+                raise ValueError('A structured response must be a JSON object.')
+            return result
+        except ValueError as exc:
+            if kwargs.get('schema') is not None:
+                # Incomplete generation is evidence of failure, not an extractive fallback.
+                error = ValueError('Schema-constrained response was incomplete or invalid. '
+                                   'Keep the raw-output diagnostic; no answer was substituted.')
+                error.raw_response = raw
+                raise error from exc
             # A bounded format retry, never a fabricated answer or canned score.
             return parse_json(self.ask(instruction + "\nReturn a valid JSON object with no commentary or code fence.",
                                        images, **kwargs))

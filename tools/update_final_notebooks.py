@@ -11,6 +11,27 @@ tree=ast.parse((ROOT/'tools/rebuild_notebooks.py').read_text())
 BOOTSTRAP=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign)
                and any(isinstance(t,ast.Name) and t.id=='BOOTSTRAP' for t in n.targets))
 BOOTSTRAP=BOOTSTRAP.replace('os.environ.get("LAB2_DEVICE", "auto")','os.environ.get("LAB2_DEVICE", "cuda")')
+# A notebook-patched checkout must not silently keep running the old validator.
+# Preserve it and its results; use a clean sibling instead of resetting edits.
+SCHEMA_RECOVERY='''
+if not (ROOT / "tools/response_schemas.py").is_file():
+    old_root = ROOT
+    ROOT = ROOT.with_name(ROOT.name + "-structured-v1")
+    if not ROOT.exists():
+        subprocess.run(["git", "clone", "https://github.com/denishatank12/Lab-2.git", str(ROOT)], check=True)
+    if not (ROOT / "tools/response_schemas.py").is_file():
+        branch = subprocess.check_output(["git", "-C", str(ROOT), "branch", "--show-current"], text=True).strip()
+        dirty = subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain"], text=True).strip()
+        if branch == "main" and not dirty:
+            subprocess.run(["git", "-C", str(ROOT), "pull", "--ff-only"], check=True)
+    if not (ROOT / "tools/response_schemas.py").is_file():
+        raise RuntimeError(f"The safe sibling checkout at {ROOT} is outdated. Your original files at {old_root} were preserved.")
+    print("Using schema-constrained code at", ROOT)
+    print("The earlier checkout, local edits and results are unchanged at", old_root)
+'''
+setup_call='subprocess.run([sys.executable, str(ROOT / "tools/setup_runtime.py"),'
+assert setup_call in BOOTSTRAP
+BOOTSTRAP=BOOTSTRAP.replace(setup_call,SCHEMA_RECOVERY+'\n'+setup_call,1)
 BOOTSTRAP+='''
 # Permit first-time downloads during preflight, even after restarting this notebook.
 if not SMOKE_ONLY:
@@ -93,7 +114,7 @@ local GPU runtime running. Closing the local server or rebooting stops execution
     save('part1_rag','Part1_RAG_Run.ipynb',[
         md('# Part 1: multimodal, conversation-aware RAG\n\n'+common),code(BOOTSTRAP),
         md('## Check the implementation\nThese offline regression tests exercise real PDF extraction, Qdrant storage with temporary vectors, exact figure identity and isolated conversation state. Mock model outputs are test fixtures only.'),
-        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_structured_responses.py")\nrun_script("tools/test_overnight_resume.py")'),
+        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_structured_responses.py")\nrun_script("tools/test_constrained_decoding.py")\nrun_script("tools/test_overnight_resume.py")'),
         md('## Locate the read-only data\nOn Kaggle attach the supplied competition data. `QUESTIONS_PATH` supports the hidden set without code edits. No question-specific rules or answer lookup is used.'),
         code('''P1 = ROOT / "part1_rag"
 DATA = Path(os.environ.get("LAB2_DATA_DIR", str(P1 / "data"))).resolve()
@@ -113,7 +134,7 @@ else:
     run_script("tools/overnight_preflight.py", "--part", "part1_rag", "--data-dir", DATA)
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"'''),
-        md('## Ingest, retrieve and generate\nNumbered figures/tables retain exact labels, including the corrected version. Trusted text and CLIP image vectors are stored in local Qdrant. Appendix C is quarantined, never used as answer evidence. Each conversation starts with independent memory; user assumptions never modify the source PDFs or database. Malformed model fields receive up to three schema-correction attempts. Unprovided citations are still rejected, and persistent failures retain a diagnostic instead of becoming invented answers.'),
+        md('## Ingest, retrieve and generate\nNumbered figures/tables retain exact labels, including the corrected version. Trusted text and CLIP image vectors are stored in local Qdrant. Appendix C is quarantined, never used as answer evidence. Each conversation starts with independent memory; user assumptions never modify the source PDFs or database. Decoding is constrained to the required JSON fields, valid status values and the actual retrieved source labels. This prevents format hallucinations, not factual mistakes. Persistent failures remain visible and retain a diagnostic; answers are never filled from a lookup table.'),
         code('''if SMOKE_ONLY:
     print("SKIPPED: full VLM answers and competition submission. Unit-test vectors are not evaluation embeddings.")
 else:
@@ -149,7 +170,7 @@ run_script("tools/export_lab_results.py", "--part", "part1_rag")''')])
         md('# Part 3: image agents with measured evaluation\n\n'+common+'\nYour Part 2 training is reused, not repeated. Private adapter download asks for a read token securely before the expensive stages. Never put the token in this notebook or chat.'),
         code(BOOTSTRAP),
         md('## Offline regression tests\nNo mocked output is counted as task success. The full model-backed tests below are separate.'),
-        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_structured_responses.py")\nrun_script("tools/test_overnight_resume.py")\nrun_script("part3_agents/src/smoke_test.py")'),
+        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_structured_responses.py")\nrun_script("tools/test_constrained_decoding.py")\nrun_script("tools/test_overnight_resume.py")\nrun_script("part3_agents/src/smoke_test.py")'),
         md('## Real inputs and the pinned Part 2 Hub adapter\nThree actual held-out Naruto images are copied locally; synthetic instruction overlays and broken files are explicitly safety fixtures. This is a narrow anime-domain test set, not proof of broad photographic performance. Input hashes are saved. The adapter is fetched from its verified Hugging Face commit, not silently replaced by local/base weights.'),
         code('''P3 = ROOT / "part3_agents"
 RUN_DIR = P3 / "outputs/v2" / ("smoke" if SMOKE_ONLY else "runs") / time.strftime("%Y%m%d_%H%M%S")
