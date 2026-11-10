@@ -6,6 +6,15 @@ Part 1 and Part 3 baselines with the missing model-backed components.
 
 ## Open these notebooks
 
+For **opening just one file in Colab**, use
+[Lab2_Colab_Standalone.ipynb](Lab2_Colab_Standalone.ipynb).
+It contains its helper code, creates its internal files automatically and
+downloads the course inputs. No clone, separate Python uploads or result ZIP
+is needed. Choose a GPU runtime and Run All. A hidden Hugging Face read-token
+prompt restores your original private Part 2 adapters and 120 images. Those
+results stay labeled as original RTX 4090 measurements. The corrected Part 1
+and Part 3 experiments then run on the GPU actually assigned to this notebook.
+
 For the RTX 4090, use [Lab2_RTX4090_Run_All.ipynb](Lab2_RTX4090_Run_All.ipynb).
 It verifies the real GPU, reuses the completed Part 2 result folder or original
 ZIP, restores missing dataset images, preflights the models, then executes

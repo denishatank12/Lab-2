@@ -1,0 +1,28 @@
+{
+  "scope": "Empty-folder CPU smoke, not a full authenticated Colab GPU run.",
+  "standalone_bundle_sha256": "2b8b34323790255247a43f78d25e25b9c857ef59c5cdf24c808b55704404a839",
+  "source_cells_sha256": "6f4025fab6dbec1bbfa9388042f3c78b774722697d7b426bf4fd1d39a81cd161",
+  "executed_notebook_sha256": "6e12dcaf566b2ee13380a5785ea3fef03f64e740d600c4e4b76d53a94fd36033",
+  "starting_folder_empty": true,
+  "repository_checkout_required": false,
+  "user_python_files_required": false,
+  "user_results_zip_required": false,
+  "embedded_files_verified": 87,
+  "real_course_inputs_downloaded_and_hash_verified": 6,
+  "launcher_seconds": 92.7582100840009,
+  "embedded_regression_tests_passed": 115,
+  "standalone_regression_tests_passed": 13,
+  "notebooks": [
+    {"part": "standalone launcher", "executed_code_cells": 8, "saved_errors": 0},
+    {"part": "part1_rag", "executed_code_cells": 8, "saved_errors": 0},
+    {"part": "part2 original-evidence display", "executed_code_cells": 3, "saved_errors": 0},
+    {"part": "part3_agents", "executed_code_cells": 10, "saved_errors": 0}
+  ],
+  "cpu_interpreter": "Existing pinned CPU environment, explicitly reused for this developer test.",
+  "new_package_installation_verified": false,
+  "private_hub_download_verified_in_this_test": false,
+  "actual_browser_download_verified": false,
+  "cuda_inference_verified": false,
+  "model_quality_evaluated": false,
+  "submission_ready": false
+}

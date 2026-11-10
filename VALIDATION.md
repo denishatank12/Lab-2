@@ -1,5 +1,35 @@
 # Notebook repair validation
 
+## Standalone Colab clean folder check
+
+`Lab2_Colab_Standalone.ipynb` contains its executable helper source. It was
+executed from an empty temporary working folder with no repository checkout,
+Python helper files or result ZIP supplied there. The final pass unpacked and
+verified 87 embedded source/provenance files, fetched all six real course input
+files from their pinned revision, and matched every input SHA-256.
+
+All eight launcher code cells executed with zero notebook errors. The saved
+Part 1, Part 3 and restored-evidence Part 2 notebooks executed eight, ten and
+three code cells respectively, also with zero saved errors. The seven embedded
+regression suites passed 115 tests. Thirteen additional standalone tests passed
+for clean-folder extraction, corrupt/unsafe inputs, source independence,
+resumable verified downloads, synthetic Hub recovery, preserved local edits and
+the Python 3.12 bootstrap fallback. No fixture is a model-quality result.
+
+The final clean-folder execution took 92.76 seconds in CPU smoke mode, reusing
+the existing pinned CPU interpreter through an explicit test-only override.
+It did not test a new online package installation, authenticated private Hub
+downloads, a real browser ZIP transfer, CUDA inference or pretrained-model
+quality. Those stages remain gated by the real Colab preflights. The combined
+ZIP was created and passed integrity verification; its missing GPU artifacts
+were listed rather than invented.
+
+The full notebook restores the original Part 2 experiment from pinned private
+Hub commits and saved records. Original adapter/image hashes, training settings,
+metrics and archive provenance are retained. Restored timings are not called a
+new T4 training run or evidence of 16-GB training compatibility. No token is
+embedded or published, and real ratings/external requirements stay pending.
+
 ## RTX 4090 launcher and original result restoration
 
 The dedicated `Lab2_RTX4090_Run_All.ipynb` was executed completely in explicit

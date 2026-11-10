@@ -1,5 +1,14 @@
 # AI assistance used for the runtime repair
 
+The standalone Colab revision embeds the helper source so only one notebook
+needs opening. AI assistance added integrity-checked extraction, automatic
+course-input downloads, recovery of the original private Hub artifacts and an
+isolated installer fallback for newer kernels or missing `ensurepip`. Saved
+Part 2 measurements retain their original RTX 4090 provenance; they are not
+invented new Colab timings or human ratings. Synthetic recovery fixtures and
+CPU-only clean-folder tests are labeled developer checks. No new full GPU run
+or grader access is claimed by those tests.
+
 The ZIP follow-up found a copied paragraph under `text`, with the required answer
 fields missing. AI assistance implemented schema-constrained token decoding,
 restored the real notebook computation cells, preserved the original runtime

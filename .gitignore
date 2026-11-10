@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 .venv/
 .bootstrap/
+.bootstrap-tools/
 .lab2-python312/
 .lab2_runtime.json
 .lab2_runtime_*.json

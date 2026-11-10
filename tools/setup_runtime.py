@@ -91,14 +91,23 @@ assert not int(sys.argv[2]) or torch.cuda.is_available()
 
 def create_environment(folder):
     if (3, 10) <= sys.version_info[:2] <= (3, 12):
-        venv.EnvBuilder(with_pip=True).create(folder)
-    else:
-        bootstrap = ROOT / ".bootstrap"
-        if not python_in(bootstrap).exists():
-            venv.EnvBuilder(with_pip=True).create(bootstrap)
-        subprocess.run([str(python_in(bootstrap)), "-m", "pip", "install", "uv==0.5.31"], check=True)
-        subprocess.run([str(python_in(bootstrap)), "-m", "uv", "venv", "--python", "3.12",
-                        "--seed", str(folder)], check=True)
+        try:
+            venv.EnvBuilder(with_pip=True).create(folder)
+            return folder
+        except (OSError, subprocess.SubprocessError):
+            print("The host cannot seed a normal venv. Preserving that partial folder and using an isolated Python 3.12 bootstrap.", flush=True)
+    # Some Colab/Debian hosts lack ensurepip; newer kernels can also be 3.13.
+    # Install only the uv bootstrap into a private target, not the live kernel.
+    bootstrap = ROOT / ".bootstrap-tools" / "uv-0.5.31"
+    bootstrap.mkdir(parents=True, exist_ok=True)
+    subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "--target", str(bootstrap),
+                    "uv==0.5.31"], check=True)
+    environment = folder.with_name(folder.name + "-uv")
+    if environment.exists():
+        raise FileExistsError(f"Bootstrap target {environment} already exists and was preserved. Restart setup to select a fresh isolated folder.")
+    subprocess.run([sys.executable, "-m", "uv", "venv", "--python", "3.12", "--seed", str(environment)],
+                   env=dict(os.environ, PYTHONPATH=str(bootstrap)), check=True)
+    return environment
 
 
 def setup(cuda):
@@ -124,7 +133,9 @@ def setup(cuda):
         base.mkdir(exist_ok=True)
         # Console scripts embed absolute paths, so do not rename a populated venv.
         environment = Path(tempfile.mkdtemp(prefix=("cuda-" if cuda else "cpu-") + digest[:10] + "-", dir=base))
-        create_environment(environment)
+        created = create_environment(environment)
+        if created is not None:
+            environment = created
         interpreter = python_in(environment)
         env = dict(os.environ, PIP_DISABLE_PIP_VERSION_CHECK="1", PIP_PROGRESS_BAR="off")
         subprocess.run([str(interpreter), "-m", "pip", "install", "pip==24.3.1"], check=True, env=env)

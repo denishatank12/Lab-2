@@ -67,8 +67,12 @@ def export_all(repository=ROOT):
         if path.is_file() and not path.is_symlink():
             members[name or path.relative_to(repository).as_posix()]=path
     for name in ['README.md','RERUN_GUIDE.md','AI_USAGE.md','CONTRIBUTIONS.md','links.txt',
-                 'requirements.txt','team_review.json','Lab2_Overnight_Run.ipynb','Lab2_RTX4090_Run_All.ipynb']:
+                 'requirements.txt','team_review.json','Lab2_Overnight_Run.ipynb','Lab2_RTX4090_Run_All.ipynb',
+                 'Lab2_Colab_Standalone.ipynb','STANDALONE_MANIFEST.json']:
         add(repository/name)
+    for path in (repository/'standalone_evidence').rglob('*'):
+        if allowed_result(path,path.relative_to(repository/'standalone_evidence')) and path.suffix in {'.json','.jsonl'}:
+            add(path)
     for path in (repository/'tools').glob('*.py'):
         add(path)
     notebook_status={}

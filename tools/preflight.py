@@ -30,10 +30,19 @@ def main():
     np.random.seed(266)
     torch.manual_seed(266)
     root = Path(__file__).resolve().parents[1]
-    info = {"commit": subprocess.run(["git", "-C", str(root), "rev-parse", "--short", "HEAD"],
-                                    capture_output=True, text=True).stdout.strip(),
-            "working_tree_dirty": bool(subprocess.run(["git", "-C", str(root), "status", "--porcelain"],
-                                     capture_output=True, text=True).stdout.strip()),
+    standalone = root / "STANDALONE_MANIFEST.json"
+    if standalone.is_file():
+        provenance = json.loads(standalone.read_text())
+        commit = provenance["source_commit"]
+        dirty = provenance["source_dirty_at_build"]
+        source_scope = "Embedded source base commit; STANDALONE_MANIFEST.json records exact file hashes. No git checkout is required."
+    else:
+        commit = subprocess.run(["git", "-C", str(root), "rev-parse", "--short", "HEAD"],
+                                capture_output=True, text=True).stdout.strip()
+        dirty = bool(subprocess.run(["git", "-C", str(root), "status", "--porcelain"],
+                                  capture_output=True, text=True).stdout.strip())
+        source_scope = "Git checkout identity"
+    info = {"commit": commit, "source_scope": source_scope, "working_tree_dirty": dirty,
             "python": platform.python_version(), "seed": 266, "executable": sys.executable,
             "versions": {p: importlib.metadata.version(p) for p in
                          ["torch", "torchvision", "diffusers", "transformers", "peft", "datasets", "huggingface-hub"]},

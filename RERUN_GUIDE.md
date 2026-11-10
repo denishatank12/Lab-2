@@ -1,5 +1,46 @@
 # What to run next
 
+## Open only the standalone Colab notebook
+
+Use [Lab2_Colab_Standalone.ipynb](Lab2_Colab_Standalone.ipynb) when you have no
+repository folder or Python files on the runtime. The RTX 4090 launcher is for
+an existing project checkout; it is not the one-file Colab entry point.
+
+1. Open the standalone notebook in Colab. Choose Runtime, Change runtime type,
+   then GPU. T4 is the course's nominal 16-GB option. Hosted Colab does not use
+   the RTX 4090 in your PC unless you explicitly connect a local runtime.
+2. Run All. Embedded helper code is verified and created inside the runtime.
+   The course inputs download automatically from a pinned revision with hash
+   checks. No Python source is fetched from GitHub or uploaded by you.
+3. Supply a Hugging Face read token in the hidden prompt, or a Colab secret
+   named `HF_TOKEN`. It must read your two private Part 2 models and image
+   dataset. Never put it in a code cell or send it in chat.
+4. Keep the runtime connected and wait until both real GPU model preflights
+   pass. Part 1 and Part 3 then run sequentially. Their executed notebooks save
+   after each cell, and unchanged completed items resume while the runtime
+   files still exist. Colab can disconnect or expire; these local checkpoints
+   do not survive deletion of that runtime.
+5. Download the final combined ZIP and save your Colab notebook with outputs.
+   If a cell fails, run only the final ZIP cell to collect partial evidence.
+   Its missing-file list is not replaced with made-up results.
+
+Allow roughly 40 GB of disk for a cold setup and at least 8 GiB available host
+RAM. The isolated installer supports the newer Colab kernel by bootstrapping
+Python 3.12 when needed. Missing `ensurepip` does not require you to repair the
+running Colab environment or supply scripts manually.
+
+The token restores your actual original Part 2 files from pinned Hub commits.
+Adapter and image bytes are checked against their original hashes. Previously
+measured metrics and loss histories retain the supplied archive's provenance;
+only their display panels are recreated. Training is not repeated and old
+4090 timings are not called new T4 measurements. Part 2 training on the required
+16-GB setup therefore still needs separate evidence or instructor approval.
+
+Real human ratings, both members' reference review, team information, permitted
+sharing, grader access, the demo and external submissions are still separate.
+A complete developer smoke test does not establish pretrained-model quality or
+submission readiness.
+
 ## One notebook for the RTX 4090
 
 Open the latest [Lab2_RTX4090_Run_All.ipynb](Lab2_RTX4090_Run_All.ipynb).

@@ -39,7 +39,10 @@ def collect():
         github=json.loads(result.stdout)
     except (OSError,subprocess.SubprocessError,ValueError):
         github={}
-    tags=subprocess.run(['git','tag','--list'],cwd=ROOT,capture_output=True,text=True).stdout.splitlines()
+    # A standalone Colab bundle is intentionally not a git checkout. Lack of
+    # submission tags remains pending, without a misleading fatal git message.
+    tags=(subprocess.run(['git','tag','--list'],cwd=ROOT,capture_output=True,text=True).stdout.splitlines()
+          if (ROOT/'.git').exists() else [])
     repo_name=f"data266-lab2-team{details.get('team_number')}" if details.get('team_number') else None
     checks={
         'part1_model_evaluation_available': bool(p1_evaluation.get('results')),
