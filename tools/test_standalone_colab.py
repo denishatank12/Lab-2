@@ -67,7 +67,7 @@ class BundleTests(unittest.TestCase):
 
     def test_actual_notebook_is_self_contained_and_has_no_clone_setup(self):
         import nbformat
-        n = nbformat.read(ROOT / 'Lab2_Colab_Standalone.ipynb', as_version=4)
+        n = nbformat.read(ROOT / 'part1_rag/notebooks/Lab2_Colab_Standalone.ipynb', as_version=4)
         nbformat.validate(n)
         codes = [c.source for c in n.cells if c.cell_type == 'code']
         first = codes[0]

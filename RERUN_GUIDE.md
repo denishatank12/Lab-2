@@ -2,7 +2,7 @@
 
 ## Open only the standalone Colab notebook
 
-Use [Lab2_Colab_Standalone.ipynb](Lab2_Colab_Standalone.ipynb) when you have no
+Use [Lab2_Colab_Standalone.ipynb](part1_rag/notebooks/Lab2_Colab_Standalone.ipynb) when you have no
 repository folder or Python files on the runtime. The RTX 4090 launcher is for
 an existing project checkout; it is not the one-file Colab entry point.
 

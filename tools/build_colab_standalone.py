@@ -314,7 +314,7 @@ print("The final cell below downloads your saved results; it does not submit the
     for index, cell in enumerate(n.cells):
         if cell.cell_type == 'code':
             compile(cell.source, f'standalone-cell-{index}', 'exec')
-    path = ROOT / 'Lab2_Colab_Standalone.ipynb'
+    path = ROOT / 'part1_rag/notebooks/Lab2_Colab_Standalone.ipynb'
     nb.write(n, path)
     print('Created', path, 'bytes:', path.stat().st_size, 'embedded source files:', len(manifest['files']))
     return path

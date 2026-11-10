@@ -90,6 +90,8 @@ def export_all(repository=ROOT):
         for path in (root/'notebooks').glob('*.ipynb'):
             selected=selected_notebook(repository,part,path)
             add(selected,f'{part}/notebooks/{path.name}')
+            if path.name == 'Lab2_Colab_Standalone.ipynb':
+                continue  # The combined launcher is not the Part 1 experiment record.
             try:
                 value=json.loads(selected.read_text())
                 notebook_status[part]=dict(selected_file=str(selected.relative_to(repository)),

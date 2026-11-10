@@ -2,6 +2,10 @@
 
 ## Revised implementation
 
+For a standalone Colab run with no separate Python uploads, open
+[Lab2_Colab_Standalone.ipynb](notebooks/Lab2_Colab_Standalone.ipynb).
+It runs Parts 1 and 3 and restores the original Part 2 results.
+
 Use `notebooks/Part1_RAG_Run.ipynb`. The revised full path now implements Qdrant
 text/image indexing, exact figure/table extraction, CLIP search, BM25 fusion,
 Qwen2-VL JSON answers and per-conversation memory. Run the new notebook on the

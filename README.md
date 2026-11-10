@@ -7,7 +7,7 @@ Part 1 and Part 3 baselines with the missing model-backed components.
 ## Open these notebooks
 
 For **opening just one file in Colab**, use
-[Lab2_Colab_Standalone.ipynb](Lab2_Colab_Standalone.ipynb).
+[Lab2_Colab_Standalone.ipynb](part1_rag/notebooks/Lab2_Colab_Standalone.ipynb).
 It contains its helper code, creates its internal files automatically and
 downloads the course inputs. No clone, separate Python uploads or result ZIP
 is needed. Choose a GPU runtime and Run All. A hidden Hugging Face read-token
