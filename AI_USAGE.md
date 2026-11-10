@@ -1,5 +1,11 @@
 # AI assistance used for the runtime repair
 
+The November 9 repair traced the uploaded Part 1 failure to dictionary-valued
+citations, added strict field validation and bounded schema retries for Parts 1
+and 3, and added 16 regression tests. Both notebooks were rerun only in labeled
+CPU smoke mode. The original Part 2 GPU notebook, adapters and measurements were
+preserved. No real ratings or successful GPU evaluations were manufactured.
+
 AI assistance added a combined evidence ZIP and a notebook-channel download
 button. Packaging tests use temporary synthetic files. The frontend test mocks
 the Colab comms API; it is not a claim that a real browser download or GPU run

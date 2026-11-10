@@ -14,7 +14,7 @@ from rag_pipeline import HybridIndex, extract_passages, _tokens
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
-from vlm_runtime import VisionLanguageModel
+from vlm_runtime import VisionLanguageModel, validated_json
 
 LABEL = r"(?:Figure|Table)\s+(?:[12A-C])-\d+(?:\s+\(corrected\))?"
 TEXT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -214,6 +214,7 @@ Read only the exact named chart's vintage/year/base. B-5 and B-5 (corrected) are
 Return JSON: answer (maximum 120 words), status (answered/not_found/conflict/false_premise/session_override),
 citations (list drawn ONLY from the supplied source citations), figure_references (exact supplied labels,
 empty list if no figure/table supports the answer). Cite every factual claim. Do not cite mere irrelevant hits.
+Both lists contain JSON strings only, never objects or nested lists. The answer and status are strings.
 Optional session_facts is a list of user-provided assumptions to remember; never infer new assumptions.
 """
 
@@ -237,21 +238,17 @@ class Conversation:
         payload = json.dumps(dict(question=question, session_facts=self.session_facts,
                                   prior_turns=self.history[-5:], evidence=evidence), ensure_ascii=False)
         instruction = "Answer the authorized question using only this DATA:\n" + payload
-        for attempt in range(2):
-            try:
-                raw = self.model.json(instruction, system=RULES,
-                    images=[r['image_path'] for r in image_records], max_new_tokens=512)
-                result = self.validate(raw,hits)
-                break
-            except ValueError as exc:
-                if attempt:
-                    output = getattr(self.index,'output',None)
-                    if output:
-                        from run_checkpoint import atomic_json
-                        atomic_json(Path(output)/'last_answer_validation_error.json',
-                            dict(question=question,error=str(exc),raw=locals().get('raw'),retrieved=hits))
-                    raise
-                instruction += '\nYour prior response failed the output schema: ' + str(exc) + '\nReturn a corrected JSON answer, not a fabricated source or truncated text.'
+        try:
+            result = validated_json(self.model, instruction, validator=lambda raw: self.validate(raw, hits),
+                system=RULES, images=[r['image_path'] for r in image_records], max_new_tokens=512)
+        except ValueError as exc:
+            output = getattr(self.index, 'output', None)
+            if output:
+                from run_checkpoint import atomic_json
+                atomic_json(Path(output) / 'last_answer_validation_error.json',
+                    dict(question=question, error=str(exc), raw=getattr(exc, 'raw_response', None),
+                         validation_errors=getattr(exc, 'validation_errors', []), retrieved=hits))
+            raise
         self.history.append(dict(user=question, assistant=result))
         if re.search(r"assum|for this (?:chat|session)|change|use .*instead", question, re.I):
             self.session_facts.append(question)
@@ -259,15 +256,23 @@ class Conversation:
 
     @staticmethod
     def validate(raw,hits):
-        if raw.get("status") not in {"answered", "not_found", "conflict", "false_premise", "session_override"}:
+        if not isinstance(raw, dict):
+            raise ValueError("The answer must be a JSON object.")
+        if not isinstance(raw.get("status"), str) or raw["status"] not in {"answered", "not_found", "conflict", "false_premise", "session_override"}:
             raise ValueError("Invalid model answer status; inspect the saved diagnostic, do not fabricate a replacement.")
         allowed = {r["citation"] for r in hits} | {f"{r['doc_id']}:p{r['page']}" for r in hits}
         refs = {r.get("figure_id") for r in hits if r.get("figure_id")}
-        if not isinstance(raw.get("citations"), list) or any(c not in allowed for c in raw["citations"]):
-            raise ValueError("The answer cited a source it was not given.")
-        if not isinstance(raw.get("figure_references"), list) or any(f not in refs for f in raw["figure_references"]):
-            raise ValueError("The answer referenced an unprovided figure.")
-        answer = str(raw.get("answer", "")).strip()
+        if not isinstance(raw.get("citations"), list) or any(not isinstance(c, str) for c in raw["citations"]):
+            raise ValueError("citations must be a list of strings, not objects or nested lists.")
+        if any(c not in allowed for c in raw["citations"]):
+            raise ValueError("Use only supplied citation strings: " + json.dumps(sorted(allowed)))
+        if not isinstance(raw.get("figure_references"), list) or any(not isinstance(f, str) for f in raw["figure_references"]):
+            raise ValueError("figure_references must be a list of strings, not objects or nested lists.")
+        if any(f not in refs for f in raw["figure_references"]):
+            raise ValueError("Use only supplied figure labels: " + json.dumps(sorted(refs)))
+        if not isinstance(raw.get("answer"), str):
+            raise ValueError("answer must be a string, not an object, number or list.")
+        answer = raw["answer"].strip()
         if not answer or len(answer.split()) > 120:
             raise ValueError("Answer is empty or exceeds the 120-word requirement.")
         result = {k: raw[k] for k in ["answer", "status", "citations", "figure_references"]}

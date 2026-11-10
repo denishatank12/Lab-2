@@ -1,30 +1,19 @@
 {
-  "time": "2026-11-06T11:26:59.751251-08:00",
+  "time": "2026-11-09T17:22:30.380732-08:00",
   "notebooks": [
     {
       "part": "part1_rag",
       "mode": "CPU smoke only; real VLM/generation/evaluation skipped",
-      "executed_code_cells": 7,
+      "executed_code_cells": 8,
       "saved_errors": 0,
-      "seconds": 21.588648499979172
+      "seconds": 26.035943333999967
     },
     {
       "part": "part3_agents",
       "mode": "CPU smoke only; real VLM/generation/evaluation skipped",
-      "executed_code_cells": 9,
+      "executed_code_cells": 10,
       "saved_errors": 0,
-      "seconds": 22.400508374965284
-    },
-    {
-      "part": "part2_diffusion",
-      "mode": "Original GPU results preserved; CPU refresh only",
-      "saved_errors": 0
-    },
-    {
-      "part": "sequential overnight launcher",
-      "mode": "CPU smoke only; actual GPU preflights skipped",
-      "executed_code_cells": 3,
-      "saved_errors": 0
+      "seconds": 25.087304915999994
     }
   ]
 }

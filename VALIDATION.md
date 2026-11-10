@@ -1,5 +1,36 @@
 # Notebook repair validation
 
+## November 9 model response repair
+
+The uploaded Part 1 run stopped in its real-model preflight because a citation
+was a JSON object, not a string. The validator attempted a set lookup on that
+object, producing `TypeError: unhashable type: 'dict'` before its correction
+retry could run. Status, citation, figure and answer fields now receive explicit
+type checks before use. A shared three-attempt schema retry also covers Part 3
+vision, prompt rewriting and critique. Persistent invalid responses retain a
+diagnostic and remain failures; they are not converted into invented answers.
+Greedy generation uses neutral sampling settings rather than incompatible
+sampling defaults inherited from the model checkpoint.
+
+All 79 offline regression tests passed, including 16 new structured-response
+tests. The corrected Part 1 notebook executed eight code cells and Part 3
+executed ten code cells in explicitly labeled CPU smoke mode, with zero saved
+errors. Full pretrained-model GPU inference was skipped and is not certified by
+these tests. Each notebook now ends with the combined result ZIP/download cell.
+Smoke mode does not rebuild the measured submission report.
+
+The uploaded files identify an RTX 4090. Part 1 stopped at preflight; Part 3 has
+only two completed execution-count fields and no completed model evaluation.
+They are not finished GPU experiments. Their original downloaded files were
+left unchanged. Run the repaired Parts 1 and 3 sequentially on the target GPU.
+
+Part 2's canonical notebook and original adapter bytes are unchanged. Both
+1,200-step runs, all 120 valid 512-by-512 image files, the exact prompt/seed/model
+combinations and their shared sampling settings were checked again. Both adapter
+hashes match the upload registry. Real ratings, team information, permitted
+sharing and grader access remain pending. The original RTX 4090 measurements do
+not by themselves establish the required single-16-GB-GPU compatibility.
+
 ## Combined ZIP and download cell
 
 Nine packaging/download tests passed: per-file hashes and ZIP integrity,

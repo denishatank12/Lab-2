@@ -67,6 +67,7 @@ def save(part,name,cells):
         backup.mkdir(parents=True,exist_ok=True)
         shutil.copy2(path,backup/name)
     notebook=nb.v4.new_notebook(cells=cells)
+    add_download_section(notebook)
     notebook.metadata={'kernelspec':{'name':'python3','language':'python','display_name':'Python 3'},
                        'language_info':{'name':'python'},'validation_scope':'Revised implementation; needs a fresh full GPU run. CPU smoke outputs are not evaluation results.'}
     nb.validate(notebook)
@@ -92,7 +93,7 @@ local GPU runtime running. Closing the local server or rebooting stops execution
     save('part1_rag','Part1_RAG_Run.ipynb',[
         md('# Part 1: multimodal, conversation-aware RAG\n\n'+common),code(BOOTSTRAP),
         md('## Check the implementation\nThese offline regression tests exercise real PDF extraction, Qdrant storage with temporary vectors, exact figure identity and isolated conversation state. Mock model outputs are test fixtures only.'),
-        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_overnight_resume.py")'),
+        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_structured_responses.py")\nrun_script("tools/test_overnight_resume.py")'),
         md('## Locate the read-only data\nOn Kaggle attach the supplied competition data. `QUESTIONS_PATH` supports the hidden set without code edits. No question-specific rules or answer lookup is used.'),
         code('''P1 = ROOT / "part1_rag"
 DATA = Path(os.environ.get("LAB2_DATA_DIR", str(P1 / "data"))).resolve()
@@ -112,7 +113,7 @@ else:
     run_script("tools/overnight_preflight.py", "--part", "part1_rag", "--data-dir", DATA)
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"'''),
-        md('## Ingest, retrieve and generate\nNumbered figures/tables retain exact labels, including the corrected version. Trusted text and CLIP image vectors are stored in local Qdrant. Appendix C is quarantined, never used as answer evidence. Each conversation starts with independent memory; user assumptions never modify the source PDFs or database.'),
+        md('## Ingest, retrieve and generate\nNumbered figures/tables retain exact labels, including the corrected version. Trusted text and CLIP image vectors are stored in local Qdrant. Appendix C is quarantined, never used as answer evidence. Each conversation starts with independent memory; user assumptions never modify the source PDFs or database. Malformed model fields receive up to three schema-correction attempts. Unprovided citations are still rejected, and persistent failures retain a diagnostic instead of becoming invented answers.'),
         code('''if SMOKE_ONLY:
     print("SKIPPED: full VLM answers and competition submission. Unit-test vectors are not evaluation embeddings.")
 else:
@@ -139,13 +140,16 @@ if not SMOKE_ONLY and (evaluation_folder / "evaluation.json").is_file():
     run_script("part1_rag/src/evaluate_rag.py", "--refresh-review", "--output", evaluation_folder,
                "--golden", os.environ.get("LAB2_GOLDEN_PATH", str(P1 / "eval/golden_candidate.json")))
 run_script("tools/final_submission_audit.py")
-run_script("tools/build_combined_report.py")
+if not SMOKE_ONLY:
+    run_script("tools/build_combined_report.py")
+else:
+    print("SKIPPED: rebuilding the submission report from a developer smoke run.")
 run_script("tools/export_lab_results.py", "--part", "part1_rag")''')])
     save('part3_agents','Part3_Agents_Run.ipynb',[
         md('# Part 3: image agents with measured evaluation\n\n'+common+'\nYour Part 2 training is reused, not repeated. Private adapter download asks for a read token securely before the expensive stages. Never put the token in this notebook or chat.'),
         code(BOOTSTRAP),
         md('## Offline regression tests\nNo mocked output is counted as task success. The full model-backed tests below are separate.'),
-        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_overnight_resume.py")\nrun_script("part3_agents/src/smoke_test.py")'),
+        code('run_script("tools/test_lab_completion.py")\nrun_script("tools/test_structured_responses.py")\nrun_script("tools/test_overnight_resume.py")\nrun_script("part3_agents/src/smoke_test.py")'),
         md('## Real inputs and the pinned Part 2 Hub adapter\nThree actual held-out Naruto images are copied locally; synthetic instruction overlays and broken files are explicitly safety fixtures. This is a narrow anime-domain test set, not proof of broad photographic performance. Input hashes are saved. The adapter is fetched from its verified Hugging Face commit, not silently replaced by local/base weights.'),
         code('''P3 = ROOT / "part3_agents"
 RUN_DIR = P3 / "outputs/v2" / ("smoke" if SMOKE_ONLY else "runs") / time.strftime("%Y%m%d_%H%M%S")
@@ -218,7 +222,10 @@ else:
 if not SMOKE_ONLY:
     run_script("part3_agents/src/evaluate_agents.py", "--folder", RUN_DIR)
 run_script("tools/final_submission_audit.py")
-run_script("tools/build_combined_report.py")
+if not SMOKE_ONLY:
+    run_script("tools/build_combined_report.py")
+else:
+    print("SKIPPED: rebuilding the submission report from a developer smoke run.")
 run_script("tools/export_lab_results.py", "--part", "part3_agents")'''),
         md('## Optional upload action after reviewing results\nThe generated images belong on Hugging Face, not in Git history. This action stays disabled until you review the actual outputs and permitted sharing. Enter a write token securely, never in source code. Only final safe outputs and their metadata are uploaded privately; arrange grader access separately.'),
         code('''UPLOAD_PART3_IMAGES = False

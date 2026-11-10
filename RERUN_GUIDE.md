@@ -1,5 +1,18 @@
 # What to run next
 
+## After the uploaded Part 1 citation error
+
+Download the current notebooks again. Part 1 now validates citation types before
+checking their source IDs and retries malformed model fields up to three times.
+Part 3 uses the same bounded correction approach for its structured model calls.
+Unsupported sources and unsafe outputs are still rejected. A repeated model or
+runtime failure stays visible rather than being counted as a successful result.
+
+Run Parts 1 and 3 sequentially, preferably with the overnight launcher below.
+The uploaded Part 3 copy did not reach its GPU/model evaluation. Do not repeat
+Part 2 training for this repair: its two trained adapters and generated images
+are already saved. Finish its real-rating and access checks separately.
+
 ## One overnight launch on the RTX 4050
 
 Use the latest `Lab2_Overnight_Run.ipynb` from GitHub. Do not start an old downloaded

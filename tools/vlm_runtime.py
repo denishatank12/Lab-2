@@ -6,6 +6,7 @@ from pathlib import Path
 import random
 import unicodedata
 import re
+from copy import deepcopy
 
 MODEL = "Qwen/Qwen2-VL-2B-Instruct"
 REVISION = "895c3a49bc3fa70a340399125c650a463535e71c"
@@ -45,6 +46,36 @@ def parse_json(text):
         except ValueError:
             pass
     raise ValueError("The model did not return a JSON object. Its raw output is not treated as a result.")
+
+
+def validated_json(model, instruction, *, validator, attempts=3, **kwargs):
+    """Retry malformed model fields without inventing answers or weakening validation."""
+    if not isinstance(attempts, int) or isinstance(attempts, bool) or not 1 <= attempts <= 3:
+        raise ValueError("Use between one and three structured-response attempts.")
+    errors, raw = [], None
+    for attempt in range(attempts):
+        repair = ("\nYour previous response failed validation: " + errors[-1]
+                  + "\nReturn a corrected JSON object with exactly the requested field types. "
+                  "Do not invent evidence, citations or observations.") if errors else ""
+        try:
+            raw = model.json(instruction + repair, **kwargs)
+            if not isinstance(raw, dict):
+                raise ValueError("The response must be a JSON object.")
+            return validator(raw)
+        except ValueError as exc:
+            errors.append(str(exc))
+    error = ValueError(f"Model response failed validation after {attempts} attempts: {errors[-1]}")
+    error.raw_response = raw
+    error.validation_errors = errors
+    raise error
+
+
+def greedy_generation_config(config):
+    """Neutralize checkpoint sampling defaults for deterministic greedy decoding."""
+    config = deepcopy(config)
+    config.do_sample = False
+    config.temperature, config.top_p, config.top_k = 1.0, 1.0, 50
+    return config
 
 
 class VisionLanguageModel:
@@ -97,7 +128,8 @@ class VisionLanguageModel:
             kwargs["images"] = opened
         inputs = self.processor(**kwargs).to(self.model.device)
         with torch.inference_mode():
-            tokens = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+            tokens = self.model.generate(**inputs, max_new_tokens=max_new_tokens,
+                generation_config=greedy_generation_config(self.model.generation_config))
         result = self.processor.batch_decode(tokens[:, inputs.input_ids.shape[1]:],
                                              skip_special_tokens=True)[0]
         return result

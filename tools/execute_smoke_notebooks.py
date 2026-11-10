@@ -22,7 +22,7 @@ def execute(notebook):
     return notebook
 
 
-def main():
+def main(parts_only=False):
     os.environ['LAB2_SMOKE_ONLY']='1'
     os.environ['LAB2_DEVICE']='cpu'
     records=[]
@@ -37,6 +37,11 @@ def main():
         nbformat.write(notebook,path)
         records.append(dict(part=part,mode='CPU smoke only; real VLM/generation/evaluation skipped',
             executed_code_cells=len(code),saved_errors=0,seconds=time.perf_counter()-started))
+    if parts_only:
+        output=ROOT/'validation/revised_notebook_smoke.json'
+        output.write_text(json.dumps(dict(time=dt.datetime.now().astimezone().isoformat(),notebooks=records),indent=2))
+        print(output.read_text())
+        return
     path=ROOT/'part2_diffusion/notebooks/Part2_FineTune_Run.ipynb'
     original=nbformat.read(path,as_version=4)
     before=json.loads(nbformat.writes(original))['cells'][:-1]
@@ -68,4 +73,8 @@ def run_script(relative,*arguments):
 
 
 if __name__=='__main__':
-    main()
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--parts-only',action='store_true',
+        help='Test revised Parts 1 and 3 only, without changing Part 2 evidence or rebuilding PDFs.')
+    main(parts_only=parser.parse_args().parts_only)
