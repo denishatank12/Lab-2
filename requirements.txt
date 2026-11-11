@@ -1,5 +1,7 @@
 # Install torch using tools/setup_runtime.py to select the correct CUDA wheel.
 numpy==1.26.4
+matplotlib==3.9.2
+contourpy==1.3.0
 torch==2.5.1
 torchvision==0.20.1
 transformers==4.46.2

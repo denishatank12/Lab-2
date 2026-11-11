@@ -1,0 +1,43 @@
+{
+  "scope": "Repair for the second live Colab startup failure. Kernel startup was exercised in the actual connected T4 session; full pretrained-model GPU execution was not performed.",
+  "reported_error": "System IPython extensions attempted to import google.colab inside the isolated Python environment.",
+  "previous_launcher_reproduced_live_extension_failure_locally": true,
+  "system_config_files_bypassed_not_errors_suppressed": true,
+  "system_config_file_execution_marker_remained_absent": true,
+  "system_config_success_and_real_cell_failure_regressions_passed": 2,
+  "embedded_regression_tests_passed": 119,
+  "standalone_packaging_tests_passed": 14,
+  "pinned_cpu_environment_health_check_passed": true,
+  "pip_check_passed": true,
+  "standalone_notebook_sha256": "bb7b5cac138b55a61b15d60bc5b7b8ebd53eae714d527e74c6dfb5149414afb4",
+  "standalone_bundle_sha256": "da7a0af5a91c15bededc8ba6ce6d4ac7a14e19b92b47a23140c19f117e5e64f8",
+  "executed_cpu_smoke_sha256": "4c6afa20c2960c61d47e8d34f64f9ae7ea7708da2a77052108f1fd4c3be1ac3f",
+  "source_cells_sha256": "306fa77975903b04c9cbe18918dfe218588ed4ea5c561a288ef9dad4456d0f9b",
+  "fresh_folder_cpu_smoke": {
+    "completed": true,
+    "executed_code_cells": 9,
+    "saved_errors": 0,
+    "seconds": 223.96226612500004,
+    "real_standard_kernel_preflight_and_inline_plot_passed": true,
+    "existing_pinned_cpu_interpreter_reused": true,
+    "private_hub_restoration_skipped": true,
+    "gpu_model_preflights_skipped": true
+  },
+  "live_colab_diagnostic": {
+    "runtime_observed": "Tesla T4",
+    "isolated_kernel_startup_passed": true,
+    "standard_ipython_kernel_class_asserted": true,
+    "no_google_colab_module_in_child_asserted": true,
+    "diagnostic_subprocess_exit_code": 0,
+    "observed_output": "COLAB SYSTEM-CONFIG ISOLATION PASSED",
+    "existing_older_isolated_interpreter_used": true,
+    "new_dependency_installation_verified_on_colab": false,
+    "inline_plot_verified_on_colab": false,
+    "tokens_used_or_model_training_started": false,
+    "screenshot_local_path": "output/validation/Colab_Kernel_Startup_Passed.png",
+    "screenshot_sha256": "dffb0d863f23e115f6f8134c9cea7ba8a52cd1f34aa5731a9c4cd94ceb23cba2"
+  },
+  "full_t4_model_execution_verified": false,
+  "part2_training_repeated": false,
+  "submission_ready": false
+}

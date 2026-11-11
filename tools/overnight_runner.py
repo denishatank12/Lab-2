@@ -18,6 +18,34 @@ sys.path.insert(0,str(ROOT/'tools'))
 from run_checkpoint import atomic_json,digest
 
 
+# IPython searches system-level /etc/ipython even with a fresh IPYTHONDIR and
+# JUPYTER_NO_CONFIG. Do not execute those host files in the separate environment.
+# Only configuration discovery is replaced; standard cell execution, extensions
+# explicitly loaded by a cell, error propagation and inline plots still work.
+KERNEL_BOOTSTRAP = '''from ipykernel.kernelapp import IPKernelApp
+from ipykernel.ipkernel import IPythonKernel
+from traitlets.config import Config
+
+class LabKernelApp(IPKernelApp):
+    def init_config_files(self):
+        self.config_file_paths = [self.profile_dir.location]
+        self.config_files = []
+
+    def load_config_file(self, *args, **kwargs):
+        # Configuration comes only from the explicit values below and CLI.
+        # No user, virtualenv or system configuration Python is executed.
+        return None
+
+config = Config()
+config.IPKernelApp.kernel_class = IPythonKernel
+config.InteractiveShellApp.extensions = []
+config.InteractiveShellApp.extra_extensions = []
+config.InteractiveShellApp.exec_lines = []
+config.InteractiveShellApp.exec_files = []
+LabKernelApp.launch_instance(config=config)
+'''
+
+
 @contextmanager
 def standard_kernel():
     """Isolate child kernels from Colab's host-only Jupyter/IPython settings."""
@@ -25,14 +53,15 @@ def standard_kernel():
         environment=os.environ.copy()
         environment['JUPYTER_NO_CONFIG']='1'
         environment['IPYTHONDIR']=profile
+        environment['MPLBACKEND']='module://matplotlib_inline.backend_inline'
+        environment['MPLCONFIGDIR']=str(Path(profile)/'matplotlib')
         for name in ['JUPYTER_CONFIG_PATH','JUPYTER_CONFIG_DIR','IPYTHON_PROFILE',
-                     'IPYTHONSTARTUP','PYTHONSTARTUP']:
+                     'IPYTHONSTARTUP','PYTHONSTARTUP','PYTHONPATH','PYTHONHOME','MATPLOTLIBRC']:
             environment.pop(name,None)
         manager=KernelManager(kernel_name='python3')
         # Reuse only Jupyter's discovery mechanism, never a host kernelspec's
         # Colab launcher, environment overrides or custom provisioner.
-        manager.kernel_spec.argv=[sys.executable,'-m','ipykernel_launcher',
-            '--IPKernelApp.kernel_class=ipykernel.ipkernel.IPythonKernel',
+        manager.kernel_spec.argv=[sys.executable,'-I','-c',KERNEL_BOOTSTRAP,
             '-f','{connection_file}']
         manager.kernel_spec.env={}
         manager.kernel_spec.metadata={}

@@ -81,9 +81,13 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(data).hexdigest(), values['BUNDLE_SHA256'])
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             names = archive.namelist()
-            for name in ['tools/standalone_colab.py', 'tools/setup_runtime.py', 'tools/response_schemas.py',
+            for name in ['tools/standalone_colab.py', 'tools/setup_runtime.py', 'tools/response_schemas.py', 'tools/kernel_preflight.py',
                          'part1_rag/src/generate_submission.py', 'part3_agents/src/model_runtime.py']:
                 self.assertIn(name, names)
+            runner=archive.read('tools/overnight_runner.py').decode()
+            self.assertIn('class LabKernelApp(IPKernelApp):',runner)
+            self.assertIn('def load_config_file(self, *args, **kwargs):',runner)
+            self.assertIn("[sys.executable,'-I','-c',KERNEL_BOOTSTRAP",runner)
             self.assertFalse(any(Path(name).suffix in ['.safetensors', '.pt', '.pdf', '.png'] for name in names))
             manifest = json.loads(archive.read('STANDALONE_MANIFEST.json'))
             self.assertTrue(all(not r['path'].endswith('.py') for r in manifest['resources']))
@@ -98,25 +102,22 @@ class BundleTests(unittest.TestCase):
 
     def test_recovery_cell_runs_before_tests_without_removing_saved_files(self):
         import nbformat
-        import os
         n = nbformat.read(ROOT / 'part1_rag/notebooks/Lab2_Colab_Standalone.ipynb', as_version=4)
         codes = [c.source for c in n.cells if c.cell_type == 'code']
-        recovery = next(i for i, source in enumerate(codes) if 'standard-ipython-' in source)
+        recovery = next(i for i, source in enumerate(codes) if 'run_script("tools/kernel_preflight.py")' in source)
         checks = next(i for i, source in enumerate(codes) if 'for name in ["test_lab_completion.py"' in source)
         self.assertLess(recovery, checks)
-        with tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {}):
+        with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             saved = root / 'saved_result.json'
             saved.write_text('{"preserved": true}')
-            namespace = {'ROOT': root}
+            calls=[]
+            namespace = {'ROOT': root, 'run_script': lambda *args: calls.append(args)}
             with redirect_stdout(io.StringIO()):
                 exec(compile(codes[recovery], 'recovery-cell', 'exec'), namespace)
-                first_profile = os.environ['IPYTHONDIR']
                 exec(compile(codes[recovery], 'recovery-cell', 'exec'), namespace)
-            self.assertEqual(os.environ['JUPYTER_NO_CONFIG'], '1')
-            self.assertTrue(Path(first_profile).is_dir())
-            config = Path(os.environ['IPYTHONDIR']) / 'profile_default/ipython_kernel_config.py'
-            self.assertIn("'ipykernel.ipkernel.IPythonKernel'", config.read_text())
+            self.assertEqual(calls,[('tools/kernel_preflight.py',)]*2)
+            self.assertNotIn('os.environ',codes[recovery])
             self.assertEqual(saved.read_text(), '{"preserved": true}')
 
 

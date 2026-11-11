@@ -186,6 +186,77 @@ class SubmissionResumeTest(unittest.TestCase):
 
 
 class AutosaveTests(unittest.TestCase):
+    def run_system_colab_extension_fixture(self, failing=False):
+        """Inject the system IPython path Colab uses, without editing /etc."""
+        import nbformat
+        from jupyter_client import KernelManager
+        from overnight_runner import execute_saved
+        with tempfile.TemporaryDirectory() as temporary:
+            folder=Path(temporary)
+            system=folder/'system-ipython';system.mkdir()
+            marker=folder/'HOST_CONFIG_WAS_LOADED'
+            config=(f"from pathlib import Path\nPath({str(marker)!r}).write_text('HOST CONFIG EXECUTED')\n"
+                "c = get_config()\n"
+                "c.IPKernelApp.kernel_class = 'google.colab._kernel.Kernel'\n"
+                "c.InteractiveShellApp.extensions = ['google.colab']\n"
+                "c.InteractiveShellApp.extra_extensions = ['google.colab._import_hooks']\n"
+                "c.InteractiveShellApp.matplotlib = 'inline'\n"
+                "c.InteractiveShellApp.reraise_ipython_extension_failures = True\n")
+            (system/'ipython_config.py').write_text(config)
+            source=folder/'fixture.ipynb';target=folder/'executed.ipynb'
+            cells=[nbformat.v4.new_code_cell(
+                "import os, sys\nfrom IPython import get_ipython\n"
+                "assert type(get_ipython().kernel).__module__ == 'ipykernel.ipkernel'\n"
+                "assert not any(k.startswith('google.colab') for k in sys.modules)\n"
+                "assert os.environ['CUDA_VISIBLE_DEVICES'] == '0'\n"
+                "assert os.environ['HF_TOKEN'] == 'SYNTHETIC_TOKEN_NOT_A_CREDENTIAL'\n"
+                "import matplotlib.pyplot as plt\n"
+                "plt.plot([0, 1], [0, 1]); plt.show(); plt.close('all')\n"
+                "print('SYSTEM CONFIG ISOLATION FIXTURE')")]
+            if failing:
+                cells.append(nbformat.v4.new_code_cell("raise RuntimeError('SIMULATED CELL FAILURE')"))
+            nbformat.write(nbformat.v4.new_notebook(cells=cells),source)
+            original_format=KernelManager.format_kernel_cmd
+            injection=("import IPython.core.application as _host_app; "
+                f"_host_app.ENV_CONFIG_DIRS[:] = [{str(system)!r}]; "
+                f"_host_app.SYSTEM_CONFIG_DIRS[:] = [{str(system)!r}]; ")
+            def inject_system_path(manager,extra_arguments=None):
+                command=original_format(manager,extra_arguments=extra_arguments)
+                if '-c' in command:
+                    index=command.index('-c')+1
+                    command[index]=injection+'\n'+command[index]
+                else:
+                    index=command.index('-m')
+                    self.assertEqual(command[index+1],'ipykernel_launcher')
+                    command=command[:index]+['-c',injection+
+                        "import runpy; runpy.run_module('ipykernel_launcher', run_name='__main__')"]+command[index+2:]
+                return command
+            environment=dict(MPLBACKEND='module://google.colab._matplotlib',
+                CUDA_VISIBLE_DEVICES='0',HF_TOKEN='SYNTHETIC_TOKEN_NOT_A_CREDENTIAL')
+            with patch.dict(os.environ,environment), patch.object(KernelManager,'format_kernel_cmd',inject_system_path):
+                with redirect_stdout(io.StringIO()):
+                    if failing:
+                        with self.assertRaisesRegex(Exception,'SIMULATED CELL FAILURE'):
+                            execute_saved(source,target,folder)
+                    else:
+                        execute_saved(source,target,folder)
+                for key,value in environment.items():
+                    self.assertEqual(os.environ[key],value)
+            saved=nbformat.read(target,as_version=4)
+            self.assertFalse(marker.exists(),'System configuration must not be read, not merely hidden.')
+            self.assertEqual((system/'ipython_config.py').read_text(),config)
+            self.assertEqual(saved.metadata['overnight_execution']['completed'],not failing)
+            self.assertTrue(any('SYSTEM CONFIG ISOLATION FIXTURE' in o.get('text','') for o in saved.cells[0].outputs))
+            self.assertTrue(any('image/png' in o.get('data',{}) for o in saved.cells[0].outputs))
+            if failing:
+                self.assertTrue(any(o.output_type=='error' for o in saved.cells[1].outputs))
+
+    def test_system_colab_extensions_and_backend_cannot_break_child_kernel(self):
+        self.run_system_colab_extension_fixture()
+
+    def test_system_colab_extensions_do_not_hide_real_cell_failure(self):
+        self.run_system_colab_extension_fixture(failing=True)
+
     def run_colab_config_fixture(self, failing=False):
         """Real child process, with the missing host-only Colab kernel configured."""
         import nbformat
