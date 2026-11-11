@@ -1,0 +1,31 @@
+{
+  "scope": "Colab host-configuration regression reproduced and repaired locally. CPU checks are not full pretrained-model T4 execution.",
+  "reported_error": "google.colab._kernel.Kernel could not be imported; child kernel died before kernel_info",
+  "old_launcher_reproduced_reported_error": true,
+  "fixed_launcher_host_config_regressions_passed": 2,
+  "original_13_resume_tests_passed_with_environment_recovery": true,
+  "old_launcher_success_and_failure_autosave_tests_passed_with_clean_profile_recovery": true,
+  "embedded_regression_tests_passed": 117,
+  "standalone_packaging_tests_passed": 13,
+  "standalone_notebook_sha256": "7ae98ee4feffd179fa3504c872f382a798226ea6f1e3b8b8a66fb69e8551047f",
+  "standalone_bundle_sha256": "eae69e27f316bf137670951f2a09539cbc60e563fbc33f0fc511aa0e62c98ceb",
+  "executed_cpu_smoke_sha256": "2cc78804bd66194bd18805b269b2d5d028585ba0465242ed18789c4fb18d7ddc",
+  "source_cells_sha256": "0cd1fac21e96f739512bfc9a91bd752d634b96bca76dd4613e446eb7766f3def",
+  "empty_folder_standalone_cpu_smoke": {
+    "completed": true,
+    "executed_code_cells": 8,
+    "saved_errors": 0,
+    "seconds": 105.09951579200015,
+    "existing_pinned_cpu_interpreter_reused": true,
+    "new_package_installation_verified": false,
+    "original_part2_private_restoration_skipped": true,
+    "gpu_model_preflights_skipped": true,
+    "full_model_quality_evaluated": false,
+    "browser_download_verified": false
+  },
+  "host_config_files_modified_by_corrected_launcher": false,
+  "parent_environment_modified_by_corrected_launcher": false,
+  "part2_training_repeated": false,
+  "actual_colab_t4_run_verified": false,
+  "submission_ready": false
+}

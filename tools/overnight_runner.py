@@ -1,9 +1,12 @@
 """Execute Parts 1 and 3 sequentially and save notebook outputs after every cell."""
 import argparse
+import atexit
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
 import sys
+import tempfile
 import time
 
 import nbformat
@@ -13,6 +16,32 @@ from jupyter_client import KernelManager
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
 from run_checkpoint import atomic_json,digest
+
+
+@contextmanager
+def standard_kernel():
+    """Isolate child kernels from Colab's host-only Jupyter/IPython settings."""
+    with tempfile.TemporaryDirectory(prefix='lab2-child-kernel-') as profile:
+        environment=os.environ.copy()
+        environment['JUPYTER_NO_CONFIG']='1'
+        environment['IPYTHONDIR']=profile
+        for name in ['JUPYTER_CONFIG_PATH','JUPYTER_CONFIG_DIR','IPYTHON_PROFILE',
+                     'IPYTHONSTARTUP','PYTHONSTARTUP']:
+            environment.pop(name,None)
+        manager=KernelManager(kernel_name='python3')
+        # Reuse only Jupyter's discovery mechanism, never a host kernelspec's
+        # Colab launcher, environment overrides or custom provisioner.
+        manager.kernel_spec.argv=[sys.executable,'-m','ipykernel_launcher',
+            '--IPKernelApp.kernel_class=ipykernel.ipkernel.IPythonKernel',
+            '-f','{connection_file}']
+        manager.kernel_spec.env={}
+        manager.kernel_spec.metadata={}
+        try:
+            yield manager,environment
+        finally:
+            if manager.has_kernel:
+                manager.shutdown_kernel(now=True)
+            manager.cleanup_resources()
 
 
 def execute_saved(source,target,working_dir=ROOT):
@@ -32,22 +61,21 @@ def execute_saved(source,target,working_dir=ROOT):
     def progress(cell,cell_index,**kwargs):
         if cell.cell_type=='code':
             print(source.name,'cell',cell_index+1,'of',len(notebook.cells),flush=True)
-    manager=KernelManager(kernel_name='python3')
-    manager.kernel_spec.argv=[sys.executable,'-m','ipykernel_launcher','-f','{connection_file}']
     save()
     started=time.perf_counter()
-    client=NotebookClient(notebook,km=manager,timeout=None,allow_errors=False,
-        resources={'metadata':{'path':str(working_dir)}},on_cell_start=progress,on_cell_executed=save)
-    try:
-        client.execute()
-        notebook.metadata['overnight_execution'].update(completed=True,seconds=time.perf_counter()-started)
-    finally:
-        save()
-        if client.kc is not None:
-            client.kc.stop_channels()
-        if manager.has_kernel:
-            manager.shutdown_kernel(now=True)
-        manager.cleanup_resources()
+    with standard_kernel() as (manager,environment):
+        client=NotebookClient(notebook,km=manager,timeout=None,allow_errors=False,
+            resources={'metadata':{'path':str(working_dir)}},on_cell_start=progress,on_cell_executed=save)
+        try:
+            client.execute(env=environment,cleanup_kc=True)
+            notebook.metadata['overnight_execution'].update(completed=True,seconds=time.perf_counter()-started)
+        finally:
+            # nbclient can register this before startup fails. Do not leave a
+            # second cleanup callback after our manager has already been closed.
+            atexit.unregister(client._cleanup_kernel)
+            if client.kc is not None:
+                client.kc.stop_channels()
+            save()
     print('Saved fully executed notebook:',target,flush=True)
     return target
 

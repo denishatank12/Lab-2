@@ -5,20 +5,24 @@ import json
 import os
 import sys
 import time
+import atexit
 import nbformat
 from nbclient import NotebookClient
-from jupyter_client import KernelManager
+from overnight_runner import standard_kernel
 
 ROOT=Path(__file__).resolve().parents[1]
 
 
 def execute(notebook):
-    manager=KernelManager(kernel_name='python3')
-    manager.kernel_spec.argv=[sys.executable,'-m','ipykernel_launcher','-f','{connection_file}']
     def progress(cell,cell_index,**kwargs):
         if cell.cell_type=='code':print('Executing cell',cell_index+1,flush=True)
-    NotebookClient(notebook,km=manager,timeout=1800,allow_errors=False,
-        resources={'metadata':{'path':str(ROOT)}},on_cell_start=progress).execute()
+    with standard_kernel() as (manager,environment):
+        client=NotebookClient(notebook,km=manager,timeout=1800,allow_errors=False,
+            resources={'metadata':{'path':str(ROOT)}},on_cell_start=progress)
+        try:
+            client.execute(env=environment,cleanup_kc=True)
+        finally:
+            atexit.unregister(client._cleanup_kernel)
     return notebook
 
 

@@ -3,6 +3,7 @@ from contextlib import redirect_stdout
 import csv
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -185,6 +186,53 @@ class SubmissionResumeTest(unittest.TestCase):
 
 
 class AutosaveTests(unittest.TestCase):
+    def run_colab_config_fixture(self, failing=False):
+        """Real child process, with the missing host-only Colab kernel configured."""
+        import nbformat
+        from overnight_runner import execute_saved
+        with tempfile.TemporaryDirectory() as temporary:
+            folder=Path(temporary)
+            host=folder/'host-config';host.mkdir()
+            profile=folder/'host-ipython/profile_default';profile.mkdir(parents=True)
+            config="c = get_config()\nc.IPKernelApp.kernel_class = 'google.colab._kernel.Kernel'\n"
+            (host/'jupyter_config.py').write_text(config)
+            (profile/'ipython_kernel_config.py').write_text(config)
+            source=folder/'fixture.ipynb';target=folder/'executed.ipynb'
+            cells=[nbformat.v4.new_code_cell(
+                "import os, sys\nfrom IPython import get_ipython\n"
+                "assert type(get_ipython().kernel).__module__ == 'ipykernel.ipkernel'\n"
+                "assert os.environ['CUDA_VISIBLE_DEVICES'] == '0'\n"
+                "assert os.environ['HF_TOKEN'] == 'SYNTHETIC_TOKEN_NOT_A_CREDENTIAL'\n"
+                "print('STANDARD KERNEL FIXTURE:', sys.executable)")]
+            if failing:
+                cells.append(nbformat.v4.new_code_cell("raise RuntimeError('SIMULATED CELL FAILURE')"))
+            nbformat.write(nbformat.v4.new_notebook(cells=cells),source)
+            environment=dict(JUPYTER_CONFIG_DIR=str(host),JUPYTER_CONFIG_PATH=str(host),
+                JUPYTER_NO_CONFIG='',IPYTHONDIR=str(profile.parent),
+                CUDA_VISIBLE_DEVICES='0',HF_TOKEN='SYNTHETIC_TOKEN_NOT_A_CREDENTIAL')
+            with patch.dict(os.environ,environment):
+                with redirect_stdout(io.StringIO()):
+                    if failing:
+                        with self.assertRaisesRegex(Exception,'SIMULATED CELL FAILURE'):
+                            execute_saved(source,target,folder)
+                    else:
+                        execute_saved(source,target,folder)
+                for key,value in environment.items():
+                    self.assertEqual(os.environ[key],value)
+            saved=nbformat.read(target,as_version=4)
+            self.assertEqual(saved.metadata['overnight_execution']['completed'],not failing)
+            self.assertIn('STANDARD KERNEL FIXTURE:',saved.cells[0].outputs[0].text)
+            if failing:
+                self.assertTrue(any(o.output_type=='error' for o in saved.cells[1].outputs))
+            self.assertEqual((host/'jupyter_config.py').read_text(),config)
+            self.assertEqual((profile/'ipython_kernel_config.py').read_text(),config)
+
+    def test_colab_host_config_cannot_break_standard_child_kernel(self):
+        self.run_colab_config_fixture()
+
+    def test_colab_host_config_still_preserves_real_cell_errors(self):
+        self.run_colab_config_fixture(failing=True)
+
     def test_real_notebook_kernel_saves_completed_outputs(self):
         import nbformat
         from overnight_runner import execute_saved
