@@ -79,7 +79,7 @@ def greedy_generation_config(config):
     return config
 
 
-def response_parser(schema):
+def response_parser(schema, alphabet=None):
     from lmformatenforcer import JsonSchemaParser, StringParser, SequenceParser, CharacterLevelParserConfig
     class FastSequence(SequenceParser):
         def add_character(self, character):
@@ -94,12 +94,17 @@ def response_parser(schema):
             return super().shortcut_key()
 
     config = CharacterLevelParserConfig(force_json_field_order=True, max_consecutive_whitespaces=1)
+    if alphabet is not None:
+        # LMFE configures only its root parser with the tokenizer alphabet.
+        # Our composed object parser must supply it to every value parser at
+        # construction, including the context used for string minimum lengths.
+        config.alphabet = alphabet
     if schema.get('type') == 'object' and schema.get('additionalProperties') is False:
         # Compose public parsers: fixed keys, model-chosen typed values. This
         # also lets an empty-array field bypass the library's maxItems=0 edge.
         parts = [StringParser('{')]
         for i, (name, value) in enumerate(schema['properties'].items()):
-            parts += [StringParser((',' if i else '') + json.dumps(name) + ':'), response_parser(value)]
+            parts += [StringParser((',' if i else '') + json.dumps(name) + ':'), response_parser(value, alphabet=alphabet)]
         return FastSequence(parts + [StringParser('}')])
     if schema.get('type') == 'array' and schema.get('maxItems') == 0:
         return StringParser('[]')
@@ -112,7 +117,21 @@ def schema_prefix(tokenizer_data, schema):
     API: https://github.com/noamgat/lm-format-enforcer#basic-tutorial
     """
     from lmformatenforcer.integrations.transformers import build_transformers_prefix_allowed_tokens_fn
-    return build_transformers_prefix_allowed_tokens_fn(tokenizer_data, response_parser(schema))
+    prefix = build_transformers_prefix_allowed_tokens_fn(tokenizer_data,
+        response_parser(schema, alphabet=tokenizer_data.tokenizer_alphabet))
+    prompt_length = None
+    def allowed_tokens(batch_id, sent):
+        nonlocal prompt_length
+        if prompt_length is None:
+            prompt_length = len(sent)
+        result = prefix(batch_id, sent)
+        if not result:
+            error = ValueError('The schema decoder has no valid continuation. '
+                               'The generated prefix is retained for diagnosis; no answer was substituted.')
+            error.raw_response = tokenizer_data.decoder(sent.tolist()[prompt_length:])
+            raise error
+        return result
+    return allowed_tokens
 
 
 class VisionLanguageModel:

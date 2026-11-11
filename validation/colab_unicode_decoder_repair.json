@@ -1,0 +1,43 @@
+{
+  "scope": "Repair of the observed Part 1 constrained-decoder failure at question 11. This is not certification of a completed lab submission.",
+  "date_utc": "2026-11-11",
+  "observed_failure": "An en dash in a generated 1980– date range left an empty parser continuation and exhausted all three model validation attempts.",
+  "root_cause": "The composed schema parser did not propagate the actual tokenizer alphabet into nested JsonSchemaParser instances at construction. Their free-text shortcut could admit Unicode that their ASCII-configured character parsers subsequently rejected.",
+  "repair": "Pass the tokenizer alphabet recursively at parser construction. Keep strict field types, status choices, source restrictions and the efficient free-text shortcut. Preserve only the generated suffix for any subsequent decoding diagnostic; do not substitute an answer.",
+  "decoder_regression_tests_passed_locally": 19,
+  "decoder_regression_tests_passed_on_connected_colab_runtime": 19,
+  "embedded_regression_tests_passed_in_fresh_cpu_smoke": 121,
+  "standalone_packaging_tests_passed": 14,
+  "unicode_cases": ["1980–2010", "China’s growth", "café", "中国经济", "JSON quotes and backslashes", "nested citation-judge reasons"],
+  "actual_cached_qwen_tokenizer_tested_without_downloading_weights": true,
+  "standalone_notebook_sha256": "2510d2c08a529303b8e40c2d0a51ceb1ee65e20b840dc50dad330e732a3c2be6",
+  "standalone_bundle_sha256": "766866097e4e4f38f48be5a8b37a92327b94cd5067392b0a8bdca7f83641faa0",
+  "source_hashes": {
+    "tools/vlm_runtime.py": "43b3191e39ddeb4683270f2158e2beb96eff412103a5437f6141a0d4f196331f",
+    "tools/test_constrained_decoding.py": "533b1cb2ce35a16bcd7f798033aae4c5f641643f94788a2f5ecbe688c311f3bb"
+  },
+  "fresh_folder_cpu_smoke": {
+    "completed": true,
+    "seconds": 365.2059363339995,
+    "executed_code_cells": 9,
+    "saved_errors": 0,
+    "source_cells_sha256": "61f445dafdb6bd0ada0d5ec902a62b62e8de01dc643021ecf9596ce71ec752a8",
+    "executed_notebook_sha256": "77d3603f701ea2911b773f4501f220bd73f9a5b27ae5731d57fa305a7b45ea51",
+    "combined_results_zip_created": true,
+    "gpu_model_execution_and_private_artifact_restoration_skipped": true
+  },
+  "live_colab_repair": {
+    "gpu": "Tesla T4",
+    "gpu_uuid": "GPU-760340cf-ac8e-804b-4a8d-883421cc2379",
+    "original_sources_and_manifest_backed_up": true,
+    "manifest_records_changed_source_hashes_and_runtime_patch_provenance": true,
+    "completed_results_and_checkpoints_preserved": true,
+    "part1_real_model_preflight_with_repaired_source_passed": true,
+    "original_full_workflow_resumed_and_reached_part1_generation": true,
+    "full_repaired_gpu_run_finished_at_recording_time": false,
+    "part2_training_repeated": false,
+    "screenshot_path": "output/validation/Colab_Unicode_Decoder_Passed.png",
+    "screenshot_sha256": "5dba802a3b3da6444060ae21375ef8765094d68af0cf4119512654640156a5ae"
+  },
+  "submission_ready": false
+}

@@ -12,7 +12,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'part1_rag/src')]
 from response_schemas import rag_schema, VISION_SCHEMA, CRITIQUE_SCHEMA, citation_judge_schema
-from vlm_runtime import VisionLanguageModel, response_parser
+from vlm_runtime import VisionLanguageModel, response_parser, schema_prefix
 from multimodal import Conversation
 
 HITS = [dict(citation='DOC1:Figure 1-1', doc_id='DOC1', page=1, figure_id='Figure 1-1')]
@@ -30,6 +30,28 @@ def accepts(schema, value):
 
 
 class SchemaTests(unittest.TestCase):
+    def test_unicode_string_tokens_never_create_empty_continuation(self):
+        """The tokenizer can emit Unicode even though LMFE defaults to ASCII."""
+        import torch
+        from lmformatenforcer.tokenenforcer import TokenEnforcerTokenizerData
+        alphabet=list(dict.fromkeys([chr(i) for i in range(32,127)]+list('–’é中国经济')))
+        ids={ch:i for i,ch in enumerate(alphabet)}
+        eos=len(alphabet)
+        data=TokenEnforcerTokenizerData([(i,ch,False) for ch,i in ids.items()],
+            lambda tokens: ''.join(alphabet[i] for i in tokens if i!=eos),eos,False,eos+1)
+        for answer in ['1980–2010', 'China’s growth', 'café', '中国经济', 'An escaped "quote".']:
+            with self.subTest(answer=answer):
+                prefix=schema_prefix(data,rag_schema(HITS))
+                generated=[eos]
+                allowed=prefix(0,torch.tensor(generated))
+                value=json.dumps(dict(ANSWER,answer=answer),ensure_ascii=False,separators=(',',':'))
+                for character in value:
+                    self.assertIn(ids[character],allowed,repr(character))
+                    generated.append(ids[character])
+                    allowed=prefix(0,torch.tensor(generated))
+                    self.assertTrue(allowed,'Empty continuation after '+data.decoder(generated))
+                self.assertIn(eos,allowed)
+
     def test_free_text_shortcut_is_kept_for_large_qwen_vocabulary(self):
         parser = response_parser(rag_schema(HITS))
         for ch in '{"status":"answered","answer":"':
@@ -183,6 +205,48 @@ class TinyActualVisionGenerationTest(unittest.TestCase):
             answer = model.json('Fixture only.', images=[path], schema=schema, max_new_tokens=256)
         self.assertEqual(answer['answer'], 'Synthetic format fixture.')
         Conversation.validate(answer, HITS)
+
+
+class CachedQwenTokenizerTests(unittest.TestCase):
+    def test_actual_qwen_unicode_tokens_and_nested_schema(self):
+        """No weights or network: use the real tokenizer only when cached."""
+        import torch
+        from transformers import AutoTokenizer
+        from lmformatenforcer.integrations.transformers import build_token_enforcer_tokenizer_data
+        from vlm_runtime import MODEL,REVISION
+        try:
+            tokenizer=AutoTokenizer.from_pretrained(MODEL,revision=REVISION,local_files_only=True)
+        except OSError:
+            self.skipTest('Qwen tokenizer is not cached; offline checks do not download models.')
+        data=build_token_enforcer_tokenizer_data(tokenizer)
+        cases=[(rag_schema(HITS),dict(ANSWER,answer=value)) for value in
+               ['Growth over 1980–2010.', 'China’s growth', 'café', '中国经济',
+                'A "quoted" figure and a \\ path.']]
+        cases.append((citation_judge_schema(['DOC1:p1']),
+            {'judgments':{'DOC1:p1':{'supported':True,'reason':'A 1980–2010 chart.'}}}))
+        for schema,value in cases:
+            with self.subTest(value=value):
+                prefix=schema_prefix(data,schema)
+                tokens=[tokenizer.eos_token_id]
+                allowed=prefix(0,torch.tensor(tokens))
+                rendered=json.dumps(value,ensure_ascii=False,separators=(',',':'))
+                # The free-text shortcut intentionally excludes tokens spanning
+                # a closing quote and the next key. Use legal quote-boundary
+                # tokenization, while keeping actual Unicode word tokens intact.
+                pieces=rendered.split('"')
+                encoded=[]
+                for index,piece in enumerate(pieces):
+                    if index:
+                        encoded.extend(tokenizer.encode('"',add_special_tokens=False))
+                    encoded.extend(tokenizer.encode(piece,add_special_tokens=False))
+                self.assertEqual(tokenizer.decode(encoded),rendered)
+                for token in encoded:
+                    self.assertTrue(token in allowed,
+                        f'Disallowed token {token}: {tokenizer.decode([token])!r}; '
+                        f'prefix={tokenizer.decode(tokens[1:])!r}')
+                    tokens.append(token)
+                    allowed=prefix(0,torch.tensor(tokens))
+                self.assertIn(tokenizer.eos_token_id,allowed)
 
 
 if __name__ == '__main__':
