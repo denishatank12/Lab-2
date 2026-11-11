@@ -1,0 +1,20 @@
+{
+  "scope": "Updated standalone notebook with a visible pre-test recovery cell. Fresh-folder CPU smoke, not full T4 model execution.",
+  "standalone_notebook_sha256": "58164ea329c6c80bd7d078c545901f74daa4cad3543b92a42e7b27a21940a0f9",
+  "standalone_bundle_sha256": "ec197f635d9baebd883a9e8a7edebbdb3326e2e9392d954aa8a7b5f4970cded9",
+  "executed_notebook_sha256": "f21570987273792ab790d44c5b53102018b8478985a9a59651b4f6292064251c",
+  "source_cells_sha256": "8f69a7e03cc27d58b741ebcc2158e3d110c6bec35d15b48c4bbc8299ad36bd4d",
+  "executed_code_cells": 9,
+  "saved_errors": 0,
+  "seconds": 87.17834166700004,
+  "embedded_regression_tests_passed": 117,
+  "standalone_packaging_tests_passed": 14,
+  "recovery_cell_precedes_regression_checks": true,
+  "recovery_cell_repeat_preserves_saved_files": true,
+  "existing_pinned_cpu_interpreter_reused": true,
+  "new_package_installation_verified": false,
+  "private_hub_restoration_verified_in_this_smoke": false,
+  "full_t4_model_execution_verified": false,
+  "part2_training_repeated": false,
+  "submission_ready": false
+}

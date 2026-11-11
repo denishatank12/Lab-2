@@ -96,6 +96,29 @@ class BundleTests(unittest.TestCase):
         for source in codes:
             compile(source, 'standalone-cell', 'exec')
 
+    def test_recovery_cell_runs_before_tests_without_removing_saved_files(self):
+        import nbformat
+        import os
+        n = nbformat.read(ROOT / 'part1_rag/notebooks/Lab2_Colab_Standalone.ipynb', as_version=4)
+        codes = [c.source for c in n.cells if c.cell_type == 'code']
+        recovery = next(i for i, source in enumerate(codes) if 'standard-ipython-' in source)
+        checks = next(i for i, source in enumerate(codes) if 'for name in ["test_lab_completion.py"' in source)
+        self.assertLess(recovery, checks)
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {}):
+            root = Path(temporary)
+            saved = root / 'saved_result.json'
+            saved.write_text('{"preserved": true}')
+            namespace = {'ROOT': root}
+            with redirect_stdout(io.StringIO()):
+                exec(compile(codes[recovery], 'recovery-cell', 'exec'), namespace)
+                first_profile = os.environ['IPYTHONDIR']
+                exec(compile(codes[recovery], 'recovery-cell', 'exec'), namespace)
+            self.assertEqual(os.environ['JUPYTER_NO_CONFIG'], '1')
+            self.assertTrue(Path(first_profile).is_dir())
+            config = Path(os.environ['IPYTHONDIR']) / 'profile_default/ipython_kernel_config.py'
+            self.assertIn("'ipykernel.ipkernel.IPythonKernel'", config.read_text())
+            self.assertEqual(saved.read_text(), '{"preserved": true}')
+
 
 class ResourceTests(unittest.TestCase):
     def test_data_download_is_verified_and_resumed(self):

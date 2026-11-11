@@ -234,6 +234,26 @@ DATA = ROOT / "part1_rag/data"
 os.environ["LAB2_DATA_DIR"] = str(DATA)
 os.environ.setdefault("QUESTIONS_PATH", str(DATA / "Questions.csv"))
 print("Inputs ready:", DATA)'''),
+        md('''## Prepare standard Python kernels
+
+This cell prevents Colab's host-only kernel configuration from leaking into the isolated Python environment. It runs before the notebook execution tests. It does not restart this notebook, reinstall packages, remove saved results or repeat Part 2 training.'''),
+        code('''import os
+import tempfile
+from pathlib import Path
+
+profile_parent = ROOT / "runtime_checks"
+profile_parent.mkdir(parents=True, exist_ok=True)
+repair = Path(tempfile.mkdtemp(prefix="standard-ipython-", dir=profile_parent))
+profile = repair / "profile_default"
+profile.mkdir()
+(profile / "ipython_kernel_config.py").write_text(
+    "c = get_config()\\n"
+    "c.IPKernelApp.kernel_class = 'ipykernel.ipkernel.IPythonKernel'\\n",
+    encoding="utf-8",
+)
+os.environ["JUPYTER_NO_CONFIG"] = "1"
+os.environ["IPYTHONDIR"] = str(repair)
+print("Standard Python kernel settings ready. Continue with the checks below.")'''),
         md('''## Run the offline regression checks
 
 These temporary fixtures check structure, data handling, checkpoints and export. They are not pretrained-model quality scores. The actual model preflights follow later.'''),
