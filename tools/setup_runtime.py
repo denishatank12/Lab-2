@@ -98,7 +98,7 @@ def create_environment(folder):
             print("The host cannot seed a normal venv. Preserving that partial folder and using an isolated Python 3.12 bootstrap.", flush=True)
     # Some Colab/Debian hosts lack ensurepip; newer kernels can also be 3.13.
     # Install only the uv bootstrap into a private target, not the live kernel.
-    bootstrap = ROOT / ".bootstrap-tools" / "uv-0.5.31"
+    bootstrap = Path(os.environ.get("LAB2_BOOTSTRAP_DIR", str(ROOT / ".bootstrap-tools"))) / "uv-0.5.31"
     bootstrap.mkdir(parents=True, exist_ok=True)
     subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "--target", str(bootstrap),
                     "uv==0.5.31"], check=True)
@@ -129,8 +129,8 @@ def setup(cuda):
         if free_gib < minimum_gib:
             raise RuntimeError(f"A clean runtime needs at least {minimum_gib} GiB free; found {free_gib:.1f}. "
                                "Free disk space first. Existing environments and results were not deleted.")
-        base = ROOT / ".lab2-envs"
-        base.mkdir(exist_ok=True)
+        base = Path(os.environ.get("LAB2_ENV_DIR", str(ROOT / ".lab2-envs")))
+        base.mkdir(parents=True, exist_ok=True)
         # Console scripts embed absolute paths, so do not rename a populated venv.
         environment = Path(tempfile.mkdtemp(prefix=("cuda-" if cuda else "cpu-") + digest[:10] + "-", dir=base))
         created = create_environment(environment)

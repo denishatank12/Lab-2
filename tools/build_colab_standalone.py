@@ -181,7 +181,9 @@ def bundle():
     return output.getvalue(), manifest
 
 
-def build():
+def build(platform='colab'):
+    if platform not in {'colab', 'kaggle'}:
+        raise ValueError('Choose colab or kaggle.')
     from update_final_notebooks import add_download_section
 
     payload, manifest = bundle()
@@ -194,6 +196,11 @@ def build():
 import base64, hashlib, io, json, os, stat, subprocess, sys, zipfile
 
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY", "0") == "1"
+'''
+    if platform == 'kaggle':
+        bootstrap += '\n' + (ROOT / 'tools/kaggle_runtime.py').read_text() + '\n'
+        bootstrap += 'print("Kaggle setup:", configure_runtime(smoke_only=SMOKE_ONLY))\n'
+    bootstrap += '''
 if not SMOKE_ONLY:
     try:
         visible_gpu = subprocess.check_output(["nvidia-smi", "-L"], text=True, timeout=15)
@@ -201,6 +208,9 @@ if not SMOKE_ONLY:
         raise RuntimeError("Select Runtime > Change runtime type > GPU, then reconnect and Run All. A CPU runtime cannot run this experiment.") from error
     print(visible_gpu.strip())
 '''
+    if platform == 'kaggle':
+        bootstrap = bootstrap.replace('Select Runtime > Change runtime type > GPU, then reconnect and Run All.',
+            'In Kaggle Session options select a GPU accelerator, turn Internet on, then run again.')
     bootstrap += '\n# All helper source is embedded below. No repository or .py upload is needed.\n'
     bootstrap += 'BUNDLE_SHA256 = ' + repr(digest) + '\n'
     bootstrap += 'BUNDLE_BASE64 = (\n' + '\n'.join('    ' + repr(s) for s in textwrap.wrap(encoded, 120)) + '\n)\n'
@@ -214,6 +224,9 @@ print("Embedded code verified:", BUNDLE_SHA256)
 print("Source base commit:", json.loads((ROOT / "STANDALONE_MANIFEST.json").read_text())["source_commit"])
 '''
     bootstrap += '\n' + SETUP
+    if platform == 'kaggle':
+        bootstrap = bootstrap.replace('default_parent = Path("/content") if Path("/content").is_dir() else Path.cwd()',
+            'default_parent = Path("/kaggle/working") if Path("/kaggle/working").is_dir() else Path.cwd()')
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
     n = nb.v4.new_notebook(cells=[
         md('''# Lab 2 standalone Colab run
@@ -302,6 +315,56 @@ run_script("tools/final_submission_audit.py")
 print("Computation record:", ROOT / "runtime_checks/standalone_completion.json")
 print("The final cell below downloads your saved results; it does not submit them.")''')])
     add_download_section(n)
+    if platform == 'kaggle':
+        n.cells[7].source += '\nrun_script("tools/test_kaggle_standalone.py")'
+        n.cells[0].source = '''# Lab 2 standalone Kaggle run
+
+Import only this notebook. No Python files or repository checkout are needed. All executable source, including the Unicode decoder fix, is embedded and hash-checked. Course inputs and pretrained model files download automatically.
+
+Before running:
+1. Set a GPU accelerator in Session options (T4 x2 if available) and turn Internet on. The code uses one GPU, not combined VRAM.
+2. In Add-ons > Secrets, create HF_TOKEN with your Hugging Face read token and enable it for this notebook. It must read both private adapters and the generated-image dataset. Never put the token in a cell or share it.
+3. Keep this notebook and its outputs private because they contain restored private model artifacts and course work.
+4. Use Save Version > Save & Run All for a fresh background run. It is a new execution, not a way to attach to an already-running Colab session.
+
+The notebook runs Parts 1 and 3. Part 2 restores your original completed RTX 4090 adapters, 120 images and measured results; it does not repeat training or claim that the original training happened on Kaggle or on a 16-GB GPU. Human ratings, team review, permissions and final external submissions remain separate.
+
+Results, traces and executed notebooks stay under /kaggle/working. Large base-model caches and the isolated Python environment stay under /kaggle/temp so they are not saved as notebook outputs. A cold run needs about 40 GB of available disk overall and at least 8 GiB of host RAM. Kaggle runtime and quota limits still apply. Check that BOTH REAL GPU PREFLIGHTS PASSED appears before leaving the run.
+
+At the end, download the Lab2_All_Results ZIP from Kaggle's Output panel and the notebook with its outputs. No Colab download service or localhost link is used. Checkpoints resume only while the same working files and matching hardware/source identity remain available; a new Kaggle session does not automatically import old Colab results.'''
+        token_start = n.cells[9].source.index('    temporary_token = False')
+        token_end = n.cells[9].source.index('    try:\n        run_script("tools/standalone_colab.py", "check-hub-access")')
+        n.cells[9].source = n.cells[9].source[:token_start] + '''    temporary_token = False
+    if not os.environ.get("HF_TOKEN"):
+        raise RuntimeError("Enable the HF_TOKEN Kaggle secret, then rerun the first setup cell. No interactive login is used.")
+''' + n.cells[9].source[token_end:]
+        for cell in n.cells:
+            if cell.cell_type == 'markdown':
+                cell.source = cell.source.replace("Colab's system", "the host's system")
+            elif cell.cell_type == 'code':
+                cell.source = cell.source.replace('No Colab GPU readiness is certified.', 'No Kaggle GPU readiness is certified.')
+        n.cells[-2].source = '''## Save and download all available results
+
+This export-only cell creates one ZIP with saved outputs for Parts 1, 2 and 3, executed notebooks, reports, adapters, images, source/configuration and logs. Missing evidence is listed in BUNDLE_MANIFEST.json, never invented. Download the timestamped Lab2_All_Results ZIP from Kaggle's Output panel. If a run fails, run this final cell on its own to keep partial evidence; no model work repeats. Save the completed notebook version with outputs, and do not make private artifacts public.'''
+        n.cells[-1].source = '''from pathlib import Path
+import os, sys, subprocess, json, importlib.util
+
+if "ROOT" not in globals():
+    parent = Path(os.environ.get("LAB2_STANDALONE_PARENT", "/kaggle/working"))
+    explicit = os.environ.get("LAB2_STANDALONE_ROOT")
+    candidates = [Path(explicit)] if explicit else sorted(parent.glob("Lab2_Standalone_*"))
+    candidates = [p for p in candidates if (p / "tools/export_lab_results.py").is_file()]
+    if len(candidates) != 1:
+        raise RuntimeError("Set LAB2_STANDALONE_ROOT to the existing run folder. Saved results were not changed.")
+    ROOT = candidates[0].resolve()
+subprocess.run([sys.executable, str(ROOT / "tools/export_lab_results.py"), "--all"], cwd=ROOT, check=True)
+bundle = json.loads((ROOT / "output/exports/latest_all_results.json").read_text())
+spec = importlib.util.spec_from_file_location("lab2_kaggle_export", ROOT / "tools/kaggle_runtime.py")
+delivery = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(delivery)
+working = ROOT.parent if globals().get("SMOKE_ONLY", False) else Path("/kaggle/working")
+delivery.publish_zip(bundle["archive"], working=working, display_link=not globals().get("SMOKE_ONLY", False))
+print("Upload that ZIP in our chat after the run. This cell does not submit the lab.")'''
     # A kernel restart may lose ROOT while its /content files still exist.
     # The export-only cell must still locate this exact bundle without setup.
     n.cells[-1].source = n.cells[-1].source.replace(
@@ -314,15 +377,22 @@ print("The final cell below downloads your saved results; it does not submit the
         'language_info': {'name': 'python'}, 'colab': {'provenance': [], 'gpuType': 'T4'}, 'accelerator': 'GPU',
         'standalone_bundle_sha256': digest, 'source_commit': manifest['source_commit'],
         'validation_scope': 'All source is embedded. Full pretrained-model GPU execution still requires the actual Colab run.'}
+    if platform == 'kaggle':
+        n.metadata.pop('colab')
+        n.metadata['kaggle'] = {'isInternetEnabled': True, 'isGpuEnabled': True}
+        n.metadata['validation_scope'] = 'Self-contained Kaggle port. Local CPU smoke is not a completed Kaggle GPU run.'
     nb.validate(n)
     for index, cell in enumerate(n.cells):
         if cell.cell_type == 'code':
             compile(cell.source, f'standalone-cell-{index}', 'exec')
-    path = ROOT / 'part1_rag/notebooks/Lab2_Colab_Standalone.ipynb'
+    path = ROOT / 'part1_rag/notebooks' / ('Lab2_Kaggle_Standalone.ipynb' if platform == 'kaggle' else 'Lab2_Colab_Standalone.ipynb')
     nb.write(n, path)
     print('Created', path, 'bytes:', path.stat().st_size, 'embedded source files:', len(manifest['files']))
     return path
 
 
 if __name__ == '__main__':
-    build()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--platform', choices=['colab', 'kaggle'], default='colab')
+    build(parser.parse_args().platform)

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-12",
+  "scope": "Self-contained Kaggle notebook portability and CPU smoke checks. This is not a completed Kaggle GPU experiment.",
+  "notebook": "part1_rag/notebooks/Lab2_Kaggle_Standalone.ipynb",
+  "notebook_sha256": "8085ef13f79dbe8e162e0ee6d5e1cc87b68f8f1cc17f390618099dda3a895d1e",
+  "embedded_bundle_sha256": "39e209be388579aeeca7dc63f8cde3d3402f297c3bf7a997de23a0c3e664ea25",
+  "executable_helper_files_embedded": 90,
+  "individual_python_file_uploads_required": false,
+  "portability_packaging_and_export_unit_tests_passed": 33,
+  "fresh_folder_cpu_smoke": {
+    "completed": true,
+    "executed_code_cells": 9,
+    "saved_errors": 0,
+    "seconds": 361.71183104200463,
+    "source_cells_sha256": "71063209267d7223e3237359912ddadb0f7fec721457150cc8d285af038c034e",
+    "executed_notebook_sha256": "da2d055d7d7bc7f8a117328acd6abb903d8855399b2b40e2341fabc90dc06cf0",
+    "final_zip_created": true,
+    "zip_contents_integrity_checked": true,
+    "output_panel_copy_sha256_checked": true,
+    "private_hub_downloads_and_model_quality_measurements_skipped": true
+  },
+  "kaggle_specific_checks": {
+    "missing_secret_fails_before_downloads_without_interactive_input": true,
+    "token_retrieved_from_HF_TOKEN_secret_or_existing_environment": true,
+    "credential_values_embedded_in_source": false,
+    "one_visible_gpu_selected_even_on_t4_x2": true,
+    "model_caches_and_isolated_environment_outside_saved_outputs": true,
+    "results_and_notebooks_under_kaggle_working": true,
+    "final_zip_uses_output_panel_not_colab_javascript": true,
+    "conflicting_existing_zip_preserved": true,
+    "unicode_decoder_fix_retained": true
+  },
+  "existing_downloaded_colab_notebook_modified": false,
+  "user_saved_colab_commit_preserved": "80c897b",
+  "part2_scope": "Restore original measured RTX 4090 adapters, images and records; no new Part 2 training or 16-GB training claim.",
+  "actual_kaggle_gpu_run_verified": false,
+  "full_lab_submission_ready": false
+}
