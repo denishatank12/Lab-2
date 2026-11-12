@@ -162,7 +162,8 @@ class InstallerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             target = root / 'new-runtime'; target.mkdir()
-            with patch.object(setup_runtime, 'ROOT', root), patch.object(setup_runtime.sys, 'version_info', (3, 13, 0)), \
+            with patch.dict(setup_runtime.os.environ, {'LAB2_BOOTSTRAP_DIR': str(root / '.bootstrap-tools')}), \
+                 patch.object(setup_runtime, 'ROOT', root), patch.object(setup_runtime.sys, 'version_info', (3, 13, 0)), \
                  patch.object(setup_runtime.subprocess, 'run') as run, patch.object(setup_runtime.venv, 'EnvBuilder') as builder:
                 created = setup_runtime.create_environment(target)
             builder.assert_not_called()

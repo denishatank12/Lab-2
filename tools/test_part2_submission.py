@@ -2,6 +2,7 @@
 from contextlib import redirect_stdout
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -234,6 +235,15 @@ class TestHumanJudgments(unittest.TestCase):
 
 
 class TestRuntimeSafety(unittest.TestCase):
+    def setUp(self):
+        # Installer fixtures must never inherit or write to the real Kaggle
+        # environment/cache locations. Only this test process is changed.
+        environment = patch.dict(os.environ)
+        environment.start()
+        self.addCleanup(environment.stop)
+        for name in ['LAB2_ENV_DIR', 'LAB2_BOOTSTRAP_DIR']:
+            os.environ.pop(name, None)
+
     def test_setup_is_one_install_transaction_and_marks_only_success(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

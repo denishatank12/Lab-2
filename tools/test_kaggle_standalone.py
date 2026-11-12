@@ -75,6 +75,20 @@ class ConfigurationTests(unittest.TestCase):
                 setup_runtime.create_environment(root / 'venv')
             self.assertEqual(run.call_args_list[1].kwargs['env']['PYTHONPATH'], str(bootstrap / 'uv-0.5.31'))
 
+    def test_installer_fixture_isolated_from_inherited_kaggle_paths(self):
+        from test_part2_submission import TestRuntimeSafety
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            live = {'LAB2_ENV_DIR': str(root / 'real-environments'),
+                    'LAB2_BOOTSTRAP_DIR': str(root / 'real-bootstrap')}
+            with patch.dict(os.environ, live), redirect_stdout(io.StringIO()):
+                result = unittest.TestResult()
+                TestRuntimeSafety('test_setup_is_one_install_transaction_and_marks_only_success').run(result)
+                self.assertTrue(result.wasSuccessful(), str(result.errors + result.failures))
+                for name, value in live.items():
+                    self.assertEqual(os.environ[name], value)
+                    self.assertFalse(Path(value).exists())
+
 
 class DeliveryTests(unittest.TestCase):
     def fixture(self, root):

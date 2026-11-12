@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-12",
+  "scope": "Repair and local reproduction of a Kaggle-specific installer test-fixture failure. No full Kaggle GPU completion claim.",
+  "reported_outer_error": "test_part2_submission.py stopped with exit 1",
+  "reproduced_inner_error": "Installed runtime failed its integrity check and was not selected for use.",
+  "root_cause": "The synthetic installer test inherited LAB2_ENV_DIR from Kaggle while its mocked health predicate only accepted paths containing .lab2-envs. A valid external environment location therefore caused the fixture, not actual model training, to fail.",
+  "repair": "Isolate installer unit-test environment overrides from the live runtime, restore the inherited values afterward, and add a regression asserting that real external cache paths remain untouched.",
+  "updated_tests_with_inherited_kaggle_overrides": {
+    "tests_passed": 73,
+    "suites": ["test_part2_submission", "test_standalone_colab", "test_kaggle_standalone", "test_result_download", "test_rtx4090_workflow"],
+    "additional_rebuilt_artifact_and_packaging_checks_passed": 25
+  },
+  "legacy_bundle_recovery_cell": {
+    "bundle_prefix": "39e209be388579ae",
+    "all_eight_test_suites_finished_successfully": true,
+    "tests_run": 131,
+    "tests_passed": 130,
+    "tests_skipped": 1,
+    "skip_reason": "The uploaded-notebook artifact test is intentionally external to its embedded runtime source bundle.",
+    "failed_part2_suite_tests_passed": 20,
+    "parent_notebook_environment_preserved": true,
+    "real_environment_cache_locations_untouched": true,
+    "model_training_or_generation_repeated": false,
+    "recovery": "Only the unit-test subprocesses omit LAB2_ENV_DIR and LAB2_BOOTSTRAP_DIR. No package reinstall or runtime restart is required in the existing connected session."
+  },
+  "rebuilt_notebook_sha256": "fa26ca1f0f4c0b8c08ad8462d4bbb614ac625b71f2e3a3107513ec7e71a05fcc",
+  "rebuilt_bundle_sha256": "20dc9139997bfc00c3a34c0cc40eee176c838dc8d922495a522ebb65f178ded2",
+  "actual_kaggle_gpu_run_verified": false,
+  "full_lab_submission_ready": false
+}
