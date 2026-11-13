@@ -1,0 +1,26 @@
+{
+  "scope": "Real CPU retrieval models and PDF grid ingestion. No new VLM score or GPU claim.",
+  "seconds": 19.942831666005077,
+  "rows": [
+    {
+      "query": "Read Table A-3.",
+      "citations": [
+        "DOC2:Table A-3",
+        "DOC2:p5",
+        "DOC1:p36",
+        "DOC1:p14",
+        "DOC1:p12"
+      ]
+    },
+    {
+      "query": "Read Figure B-4.",
+      "citations": [
+        "DOC3:Figure B-4",
+        "DOC3:p6",
+        "DOC3:p3",
+        "DOC3:p2",
+        "DOC3:p5"
+      ]
+    }
+  ]
+}

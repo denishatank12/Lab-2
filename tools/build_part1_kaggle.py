@@ -19,14 +19,17 @@ def experiment():
     return nb.v4.new_notebook(cells=[
         md('''# Part 1: Multimodal economics RAG
 
-This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Explicit figure labels are matched exactly. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. Candidate references and real human ratings still need team review.'''),
+This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Both use the same Qwen2-VL-7B model in NF4, with the visual encoder kept in float16. Tables keep their row/column structure, and explicit figure labels are matched exactly. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. Candidate references and real human ratings still need team review.'''),
         code('''from pathlib import Path
 import os, sys, json, csv, time, subprocess, hashlib, shutil
 ROOT = Path(os.environ["LAB2_STANDALONE_ROOT"])
 sys.path[:0] = [str(ROOT / "tools"), str(ROOT / "part1_rag/src")]
 from part1_kaggle import find_questions
 from run_checkpoint import atomic_json, runtime_identity
+from rag_model import MODEL, REVISION
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY") == "1"
+os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
+os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
 DATA = ROOT / "part1_rag/data"
 P1 = ROOT / "part1_rag"
 OUTPUT = P1 / "outputs/v2"
@@ -35,7 +38,8 @@ QUESTIONS = find_questions(DATA)
 shutil.copy2(QUESTIONS, OUTPUT / "questions_used.csv")
 atomic_json(OUTPUT / "run_inputs.json", dict(questions_path=str(QUESTIONS),
     questions_sha256=hashlib.sha256(QUESTIONS.read_bytes()).hexdigest(), hardware=runtime_identity(),
-    seed=266, smoke_only=SMOKE_ONLY, protocol="hybrid-rerank-v1"))
+    seed=266, smoke_only=SMOKE_ONLY, protocol="table-grid-natural-json-7b-v2",
+    answering_model=MODEL, model_revision=REVISION, language_weights="NF4", vision_weights="float16"))
 print("Actual hardware and inputs:", (OUTPUT / "run_inputs.json").read_text())
 
 def run_script(relative, *arguments):
@@ -55,6 +59,7 @@ def run_script(relative, *arguments):
 
 These tests use fictional evidence and tiny random weights where needed. Passing them is not a model-quality score. They check that a new chart/year does not inherit an old one, malformed JSON stays an error, and no unsupported citation is accepted.'''),
         code('''run_script("tools/test_part1_retrieval.py")
+run_script("tools/test_part1_quality.py")
 run_script("tools/test_constrained_decoding.py", "SchemaTests", "TinyActualVisionGenerationTest", "CachedQwenTokenizerTests")
 run_script("part1_rag/src/smoke_test.py")'''),
         md('''## Exercise the actual GPU path
@@ -121,16 +126,27 @@ def build():
         'tools/run_checkpoint.py', 'tools/vlm_runtime.py', 'tools/response_schemas.py', 'tools/review_measurements.py',
         'tools/standalone_colab.py', 'tools/overnight_runner.py', 'tools/export_lab_results.py',
         'tools/kaggle_runtime.py', 'tools/part1_kaggle.py', 'tools/test_part1_retrieval.py',
-        'tools/test_constrained_decoding.py', 'part1_rag/eval/golden_candidate.json']
+        'tools/test_constrained_decoding.py', 'tools/rag_model.py', 'tools/test_part1_quality.py',
+        'part1_rag/eval/golden_candidate.json']
     files = {name: (ROOT / name).read_bytes() for name in names}
+    files['requirements.txt'] += b'\nbitsandbytes==0.44.1\n'
+    resources = []
+    # PDFs are data, not source. Verified downloads keep the actual notebook
+    # below Kaggle's 1-MB source limit without changing a single course value.
+    data_commit = 'c889354f3df2358157e725d1b3d11d741f24ef3b'
     for folder in ['part1_rag/src', 'part1_rag/data']:
         for path in (ROOT / folder).iterdir():
             if path.is_file() and path.suffix in {'.py', '.pdf', '.csv', '.json'}:
-                files[path.relative_to(ROOT).as_posix()] = path.read_bytes()
+                name = path.relative_to(ROOT).as_posix()
+                if path.suffix == '.pdf':
+                    resources.append(dict(path=name, sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                        url=f'https://raw.githubusercontent.com/denishatank12/Lab-2/{data_commit}/{name}'))
+                else:
+                    files[name] = path.read_bytes()
     files['part1_rag/notebooks/Part1_Kaggle_Experiment.ipynb'] = nb.writes(experiment()).encode()
     commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
-    manifest = dict(source_commit=commit, source_dirty_at_build=dirty, scope='Part 1 only', resources=[],
+    manifest = dict(source_commit=commit, source_dirty_at_build=dirty, scope='Part 1 only', resources=resources,
         files={name: hashlib.sha256(data).hexdigest() for name, data in files.items()})
     payload = io.BytesIO()
     with zipfile.ZipFile(payload, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as bundle:
@@ -163,16 +179,20 @@ SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY", "0") == "1"
     bootstrap += '''parent = Path(os.environ.get("LAB2_STANDALONE_PARENT", "/kaggle/working"))
 ROOT = unpack(base64.b64decode(BUNDLE_BASE64), BUNDLE_SHA256, parent)
 os.environ["LAB2_STANDALONE_ROOT"] = str(ROOT)
-print("Verified source and course data:", BUNDLE_SHA256)
+print("Verified embedded source:", BUNDLE_SHA256)
 '''
     bootstrap += SETUP
+    bootstrap += '''\nrun_script("tools/standalone_colab.py", "resources")
+os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
+os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
+'''
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
     notebook = nb.v4.new_notebook(cells=[
-        md('''# Lab 2 Part 1: Final Kaggle run
+        md('''# Lab 2 Part 1: Revised Kaggle run
 
-This notebook is self-contained. Import this one file into Kaggle and run it with a GPU accelerator and Internet enabled. It embeds the source and course PDFs, creates its helper files automatically and uses an isolated pinned Python environment. No repository clone, extra Python upload or Hugging Face token is required for Part 1's public models.
+Import this one file into Kaggle and run it with a nominal 16-GB GPU and Internet enabled. All executable source is embedded; course PDFs download from pinned URLs with SHA-256 checks. The notebook creates its helper files automatically and uses an isolated pinned Python environment. No repository clone, extra Python upload or Hugging Face token is required for the public models. Its source is checked to stay below Kaggle's 1-MB saving limit.
 
-The revised system adds cross-encoder reranking and cleaner follow-up retrieval. It preserves exact chart labels, source citations, read-only documents and conversation-local assumptions. A higher leaderboard score is not guaranteed; use the real measured results after this run. No competition reference answers or question-specific lookup rules are used by the answering pipeline.
+This revision fixes incomplete table crops and row/column extraction, avoids attaching unrelated charts to text questions, preserves exact named images and uses natural JSON with strict validation rather than forcing every field token. Both baseline and final use Qwen2-VL-7B in NF4 with float16 vision. No competition reference answers or question-specific lookup rules are used by the answering pipeline. A higher leaderboard score is not guaranteed; compare the new measured results with your prior 0.419 run.
 
 Only Part 1 runs here. Existing Part 2 results and Part 3 are not changed or rerun. On T4 x2 it uses one GPU, not pooled VRAM. The course requires the Part 1 inference notebook to finish within 90 minutes; elapsed time is recorded below, but download speed, hardware and quotas can affect it.
 
@@ -199,11 +219,12 @@ else:
     print(metrics["limitations"])
     completion = json.loads((ROOT / "runtime_checks/part1_completion.json").read_text())
     print("Experiment elapsed minutes:", round(completion["seconds"] / 60, 2))
+    print("Upload THIS new CSV, not the previous 0.419 file:", completion.get("competition_csv"))
     print("Within 90-minute experiment budget:", completion["seconds"] <= 5400)
     print("This timing excludes the first setup/install cell. Save Version's runtime is the whole-run timing.")'''),
         md('''## Download the CSV, executed notebook and evidence
 
-In Kaggle's Output panel download submission.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The ZIP includes the executed experiment, answer traces, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
+In Kaggle's Output panel download submission_part1_v2.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. Do not accidentally resubmit the old 0.419 CSV. The ZIP includes the executed experiment, answer traces, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
 
 The completed run still needs real human ratings, team reference review, report/team records, a final tag and the actual Kaggle/Canvas submission. A green computation check does not stand in for those items.'''),
         code('''from pathlib import Path
@@ -226,6 +247,8 @@ print("Download the Lab2_Part1_Results ZIP from Output > /kaggle/working.")'''.r
     nb.validate(notebook)
     path = ROOT / 'part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb'
     nb.write(notebook, path)
+    if path.stat().st_size >= 950_000:
+        raise ValueError('Notebook source exceeds the safety margin for Kaggle saving. Do not publish this artifact.')
     print('Created', path, 'embedded files:', len(files), 'bytes:', path.stat().st_size)
     return path
 

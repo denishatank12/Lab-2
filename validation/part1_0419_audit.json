@@ -1,0 +1,34 @@
+{
+  "scope": "Audit of the original completed user-provided T4 results, not measurements from the revised model.",
+  "input_archive": "Lab2_Part1_Results_20261113T225926Z_537185708.zip",
+  "archive_sha256": "93dab5db7afe7db8d34f908e7328853e76a1dc2504a6908dffabe00b2ca9af36",
+  "public_score_reported_by_user": 0.419,
+  "original_internal_correct_out_of_25": 9,
+  "original_retrieval_recall_at_5": 0.7291666666666666,
+  "observed_defects": {
+    "golden_answers_with_status_answered": 25,
+    "golden_answers_at_least_590_characters": 16,
+    "golden_answers_with_duplicate_citations": 3,
+    "table_crop_mistaken_for_introductory_paragraph": "DOC2:Table A-3",
+    "unrelated_chart_images_sent_to_text_questions": true,
+    "kaggle_refused_saving_oversized_notebook_source": true
+  },
+  "revisions": [
+    "Detect table grids and preserve headers, rows and merged group labels from the actual PDFs.",
+    "Match named chart images exactly and do not attach unrelated charts to text questions.",
+    "Preserve complete page context and revision notices without including the low-trust appendix.",
+    "Natural JSON followed by strict structural/source validation, rather than token-constraining the first answer.",
+    "Reject repetitive completions and deduplicate otherwise valid citation/reference lists.",
+    "Use the same pinned Qwen2-VL-7B NF4 model for dense-baseline and final-system evaluation.",
+    "Keep visual encoder and language output head in float16.",
+    "Keep notebook source under 950000 bytes by hash-checking pinned PDF downloads.",
+    "Give the revised competition CSV an explicit v2 name to avoid uploading the old run."
+  ],
+  "boundaries": [
+    "No competition answers or question-ID lookup rules were added.",
+    "Original questions and golden references were not changed.",
+    "Original uploaded results were not modified.",
+    "The new GPU quality score, memory peak and total duration require an actual new Kaggle run.",
+    "Human ratings and team/reference review remain pending."
+  ]
+}

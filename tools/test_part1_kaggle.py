@@ -71,7 +71,8 @@ class Part1RuntimeTests(unittest.TestCase):
 
     def test_final_notebook_embeds_all_sources_and_course_inputs(self):
         import nbformat
-        notebook = nbformat.read(ROOT / 'part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb', 4)
+        path = ROOT / 'part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb'
+        notebook = nbformat.read(path, 4)
         nbformat.validate(notebook)
         codes = [c.source for c in notebook.cells if c.cell_type == 'code']
         for source in codes:
@@ -87,7 +88,9 @@ class Part1RuntimeTests(unittest.TestCase):
             for name, expected in manifest['files'].items():
                 self.assertEqual(hashlib.sha256(bundle.read(name)).hexdigest(), expected)
             self.assertFalse(any(name.startswith('part2_diffusion/') for name in bundle.namelist()))
-            self.assertEqual(len([name for name in bundle.namelist() if name.endswith('.pdf')]), 3)
+            self.assertFalse(any(name.endswith('.pdf') for name in bundle.namelist()))
+            self.assertEqual(len([r for r in manifest['resources'] if r['path'].endswith('.pdf')]), 3)
+            self.assertLess(path.stat().st_size, 950_000)
             child = json.loads(bundle.read('part1_rag/notebooks/Part1_Kaggle_Experiment.ipynb'))
             sources = [''.join(c['source']) if isinstance(c['source'], list) else c['source'] for c in child['cells']]
             for source in sources:

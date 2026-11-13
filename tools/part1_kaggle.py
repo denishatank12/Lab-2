@@ -100,12 +100,13 @@ def run(root=ROOT, smoke=False):
             record['computational_checks_passed'] = all(record['checks'].values())
             if not record['computational_checks_passed']:
                 raise RuntimeError('Part 1 computation checks failed. Partial evidence was retained.')
-            destination = root.parent / 'submission.csv'
+            destination = root.parent / 'submission_part1_v2.csv'
             if destination.exists() and destination.read_bytes() != (output / 'submission.csv').read_bytes():
-                destination = root.parent / ('submission_' + root.name.removeprefix('Lab2_Standalone_') + '.csv')
+                destination = root.parent / ('submission_part1_v2_' + root.name.removeprefix('Lab2_Standalone_') + '.csv')
             if destination.exists() and destination.read_bytes() != (output / 'submission.csv').read_bytes():
                 raise FileExistsError('A different submission exists at the destination and was preserved.')
             shutil.copy2(output / 'submission.csv', destination)
+            record['competition_csv'] = str(destination)
             print('VALIDATED KAGGLE CSV:', destination, flush=True)
         print('Part 1 finished. Human review and the external competition submission remain separate.', flush=True)
     except Exception as exc:
