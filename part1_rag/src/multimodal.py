@@ -22,10 +22,68 @@ TEXT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 TEXT_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 CLIP_MODEL = "openai/clip-vit-base-patch32"
 CLIP_REVISION = "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"
+RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+RERANK_REVISION = "233902d25c440f23af6f7d6e94d2946bac0bee0a"
 
 
 def labels(text):
-    return list(dict.fromkeys(re.sub(r"\s+", " ", m.group()) for m in re.finditer(LABEL, text, re.I)))
+    # Users may type a Unicode dash or omit the space. Return the DB's exact spelling.
+    text = re.sub(r"[\u2010-\u2015\u2212]", "-", text)
+    pattern = r"\b(Figure|Table)\s*([12A-C])-\s*(\d+)(\s*\(corrected\))?(?!\d)"
+    found = []
+    for match in re.finditer(pattern, text, re.I):
+        kind, chapter, number, corrected = match.groups()
+        label = f"{kind.title()} {chapter.upper()}-{number}" + (" (corrected)" if corrected else "")
+        if label not in found:
+            found.append(label)
+    return found
+
+
+def retrieval_query(question, history):
+    """Resolve elliptical follow-ups without polluting every search with old charts."""
+    if not history or not re.search(r"\b(it|its|they|them|those|that|same|instead|above)\b|"
+                                   r"^\s*(and\b|what about\b|how about\b|then\b)", question, re.I):
+        return question
+    topic = history[-1]["user"]
+    if labels(question):
+        topic = re.sub(r"\b(?:Figure|Table)\s*[12A-C][\-\u2010-\u2015\u2212]\s*\d+(?:\s*\(corrected\))?",
+                       "", topic, flags=re.I)
+    if re.search(r"\b(?:19|20)\d{2}\b", question):
+        topic = re.sub(r"\b(?:19|20)\d{2}\b", "", topic)
+    return question + "\nPrevious conversation topic: " + topic
+
+
+def rerank_records(query, candidates, ranker):
+    """A pretrained query/passage judge, never an answer key or a question lookup."""
+    if not candidates:
+        return []
+    pairs = [(query, " ".join([r["doc_id"], r.get("figure_id", ""),
+                               r.get("caption", ""), r["text"]])) for r in candidates]
+    scores = np.asarray(ranker.predict(pairs, batch_size=16, show_progress_bar=False)).reshape(-1)
+    if len(scores) != len(candidates) or not np.isfinite(scores).all():
+        raise ValueError("The reranker returned invalid scores; no BM25-only result was substituted.")
+    return [candidates[i] for i in np.argsort(-scores, kind="stable")]
+
+
+def select_evidence(ordered, exact, k):
+    """Keep named objects first, then diverse evidence rather than duplicate crops."""
+    selected, seen = [], set()
+    for record in exact + ordered:
+        key = (record["citation"], record["text"])
+        if key in seen:
+            continue
+        seen.add(key)
+        # A text crop and a text chunk can duplicate most of the same page.
+        words = set(_tokens(record["text"]))
+        duplicate = any(r["doc_id"] == record["doc_id"] and r["page"] == record["page"]
+            and len(words & set(_tokens(r["text"]))) / max(1, len(words | set(_tokens(r["text"])))) > .85
+            for r in selected)
+        if duplicate and record not in exact:
+            continue
+        selected.append(record)
+        if len(selected) == k:
+            break
+    return selected
 
 
 def ingest(data, output):
@@ -114,13 +172,16 @@ def ingest(data, output):
 
 
 class MultimodalIndex:
-    def __init__(self, data, output, embedder=None, clip=None, processor=None):
+    def __init__(self, data, output, embedder=None, clip=None, processor=None,
+                 reranker=None, enable_rerank=None):
         from qdrant_client import QdrantClient, models
         self.output = Path(output)
         self.output.mkdir(parents=True, exist_ok=True)
         self.ingestion = ingest(data, self.output)
         self.records = self.ingestion["passages"] + self.ingestion["objects"]
         self.objects = self.ingestion["objects"]
+        self.enable_rerank = (embedder is None) if enable_rerank is None else enable_rerank
+        self.reranker = reranker
         if embedder is None:
             from sentence_transformers import SentenceTransformer
             embedder = SentenceTransformer(TEXT_MODEL, revision=TEXT_REVISION, device="cpu")
@@ -170,7 +231,24 @@ class MultimodalIndex:
             self.clip = CLIPModel.from_pretrained(CLIP_MODEL, revision=CLIP_REVISION).cpu().eval()
             self.processor = CLIPProcessor.from_pretrained(CLIP_MODEL, revision=CLIP_REVISION)
 
+    def load_reranker(self):
+        if self.reranker is None:
+            from sentence_transformers import CrossEncoder
+            # CPU keeps its weights and activations out of the VLM's GPU budget.
+            self.reranker = CrossEncoder(RERANK_MODEL, revision=RERANK_REVISION,
+                device="cpu", max_length=512, trust_remote_code=False,
+                automodel_args={"attn_implementation": "eager"})
+            # Materialize owned CPU buffers. The mmap-backed safetensors view
+            # produced NaNs/SIGBUS in a real local CPU forward; cloning those
+            # exact weights fixed it without changing their values or precision.
+            self.reranker.model.load_state_dict(
+                {name: value.clone() for name, value in self.reranker.model.state_dict().items()}, assign=True)
+            self.reranker.model.eval()
+            print("Loaded pinned CPU cross-encoder reranker.", flush=True)
+
     def search(self, query, k=5, dense_only=False):
+        if not isinstance(k, int) or isinstance(k, bool) or k < 1:
+            raise ValueError("k must be a positive integer.")
         q = self.embedder.encode([query], normalize_embeddings=True, show_progress_bar=False)[0]
         dense = self.db.search("text", query_vector=q.tolist(), limit=max(k * 4, 20))
         lists = [[r.payload for r in dense]]
@@ -195,10 +273,13 @@ class MultimodalIndex:
                 records[key] = record
                 ranked[key] = ranked.get(key, 0) + 1 / (60 + rank)
         ordered = [records[key] for key in sorted(ranked, key=ranked.get, reverse=True)]
-        requested = {x.casefold() for x in labels(query)}
-        exact = [r for r in self.objects if r["figure_id"].casefold() in requested]
+        requested = labels(query)
+        exact = [r for label in requested for r in self.objects if r["figure_id"].casefold() == label.casefold()]
         if not dense_only:
-            ordered = exact + [r for r in ordered if r not in exact]
+            if self.enable_rerank:
+                self.load_reranker()
+                ordered = rerank_records(query, ordered[:40], self.reranker)
+            return select_evidence(ordered, exact, k)
         return ordered[:k]
 
 
@@ -217,6 +298,12 @@ citations (list drawn ONLY from the supplied source citations), figure_reference
 empty list if no figure/table supports the answer). Cite every factual claim. Do not cite mere irrelevant hits.
 Both lists contain JSON strings only, never objects or nested lists. The answer and status are strings.
 Optional session_facts is a list of user-provided assumptions to remember; never infer new assumptions.
+The supplied sources are search candidates, not automatically supporting evidence. Select the exact
+country, year, variable, table row/column, unit and vintage before reporting a number. For changes,
+distinguish percentage points from percent change. Do not copy a nearby year's value.
+Use prior turns only to resolve references and explicit assumptions, not as independent source evidence.
+For a named chart, report its exact label in figure_references. Include an additional chart only if used.
+An unsupported forward-looking estimate is not_found, not an invented extrapolation.
 """
 
 
@@ -231,7 +318,7 @@ class Conversation:
         if re.search(r"permanent\w*|overwrite.{0,30}(document|knowledge)|modify.{0,20}(pdf|base)", question, re.I):
             return dict(answer="I cannot change the read-only documents. I can keep an explicit assumption within this conversation only.",
                         status="false_premise", citations=[], figure_references=[])
-        query = " ".join([*[t["user"] for t in self.history[-2:]], question])
+        query = retrieval_query(question, self.history)
         self.last_hits = hits = self.index.search(query, dense_only=self.dense_only)
         image_records = [r for r in hits if r.get("image_path")][:2]
         evidence = [{k: r[k] for k in ["citation", "doc_id", "page", "trust_level", "figure_id", "text"]}

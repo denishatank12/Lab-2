@@ -1,0 +1,26 @@
+{
+  "scope": "Real cached retrieval models on CPU, not VLM answers or a Kaggle score",
+  "seconds": 20.09885245899204,
+  "rows": [
+    {
+      "query": "Explain how nominal output differs from real output.",
+      "citations": [
+        "DOC1:p20",
+        "DOC1:p19",
+        "DOC1:p33",
+        "DOC1:p19",
+        "DOC1:p26"
+      ]
+    },
+    {
+      "query": "Read Figure A-5 and identify its base date.",
+      "citations": [
+        "DOC2:Figure A-5",
+        "DOC2:p5",
+        "DOC2:p7",
+        "DOC3:p6",
+        "DOC2:p1"
+      ]
+    }
+  ]
+}

@@ -6,7 +6,8 @@ import shutil
 import zipfile
 
 
-def configure_runtime(working=None, scratch=None, environ=None, secret_loader=None, smoke_only=False):
+def configure_runtime(working=None, scratch=None, environ=None, secret_loader=None, smoke_only=False,
+                      require_private_artifacts=True):
     """Configure before ML imports. Never prompt for a token during a batch run."""
     if smoke_only:
         return {"mode": "CPU smoke only; no Kaggle GPU execution is certified"}
@@ -18,7 +19,7 @@ def configure_runtime(working=None, scratch=None, environ=None, secret_loader=No
     if scratch == working or working in scratch.parents:
         raise ValueError("Large caches and environments must be outside Kaggle's saved output directory.")
     token = environ.get("HF_TOKEN", "").strip()
-    if not token:
+    if not token and require_private_artifacts:
         try:
             if secret_loader is None:
                 from kaggle_secrets import UserSecretsClient
@@ -27,10 +28,11 @@ def configure_runtime(working=None, scratch=None, environ=None, secret_loader=No
         except Exception:
             raise RuntimeError("In Kaggle, open Add-ons > Secrets, add HF_TOKEN with your Hugging Face read token, "
                                "enable it for this notebook, then rerun. Never paste the token into a cell.") from None
-    if not token:
+    if not token and require_private_artifacts:
         raise RuntimeError("The HF_TOKEN secret is empty. Set a read token with access to your private Part 2 artifacts.")
     scratch.mkdir(parents=True, exist_ok=True)
-    environ["HF_TOKEN"] = token
+    if token:
+        environ["HF_TOKEN"] = token
     # A T4 x2 runtime still uses one card. Two devices are not one 32-GB GPU.
     visible = environ.get("CUDA_VISIBLE_DEVICES", "0") or "0"
     environ["CUDA_VISIBLE_DEVICES"] = visible.split(",")[0]
@@ -51,7 +53,7 @@ def configure_runtime(working=None, scratch=None, environ=None, secret_loader=No
     environ["LAB2_STANDALONE_PARENT"] = str(working)
     # Return paths and hardware selection, never the secret.
     return {"working": str(working), "temporary_cache": str(scratch),
-            "visible_gpu": environ["CUDA_VISIBLE_DEVICES"], "secret_loaded": True}
+            "visible_gpu": environ["CUDA_VISIBLE_DEVICES"], "secret_loaded": bool(token)}
 
 
 def publish_zip(archive, working=None, display_link=True):

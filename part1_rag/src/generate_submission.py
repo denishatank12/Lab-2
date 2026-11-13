@@ -12,6 +12,19 @@ from pathlib import Path
 from rag_pipeline import build_index
 
 
+def conversation_turns(rows):
+    """Use supplied turn numbers, or stable CSV order if there is no turn column."""
+    if not rows or all('turn' not in row for row in rows):
+        return rows
+    try:
+        numbers = [int(row['turn']) for row in rows]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError('Conversation turn numbers must be present and numeric when supplied.') from exc
+    if len(set(numbers)) != len(numbers):
+        raise ValueError('Duplicate turn numbers in a conversation; refusing to guess their order.')
+    return [row for _, row in sorted(zip(numbers, rows), key=lambda pair: pair[0])]
+
+
 def _status(question: str, hits: list[dict]) -> str:
     q = question.lower()
     if any(x in q for x in ("ignore previous", "system prompt", "follow these instructions")):
@@ -68,7 +81,7 @@ def main() -> None:
                 if conversations:
                     chat.model = next(iter(conversations.values())).model
                 conversations[conv_id] = chat
-                for row in sorted(turns, key=lambda r: int(r["turn"])):
+                for row in conversation_turns(turns):
                     item_key = dict(id=row['id'], prior_turns=digest(chat.history), session_facts=digest(chat.session_facts))
                     previous = checkpoint.get(item_key)
                     if previous is not None:
