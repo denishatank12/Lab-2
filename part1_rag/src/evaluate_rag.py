@@ -130,12 +130,14 @@ def evaluate(data, output, golden):
                 if saved_answer is not None:
                     answer,seconds=saved_answer['answer'],saved_answer['seconds']
                     chat.restore(saved_answer['history'],saved_answer['session_facts'],saved_answer['retrieved'])
+                    chat.last_audit = saved_answer.get('evidence_review')
                 else:
                     started = time.perf_counter()
                     answer = chat.answer(item["question"])
                     seconds = time.perf_counter() - started
                     checkpoint.put(answer_key,dict(answer=answer,seconds=seconds,history=chat.history,
-                        session_facts=chat.session_facts,retrieved=chat.last_hits))
+                        session_facts=chat.session_facts,retrieved=chat.last_hits,
+                        evidence_review=getattr(chat, 'last_audit', None)))
                 retrieved = {r["citation"] for r in chat.last_hits} | {f"{r['doc_id']}:p{r['page']}" for r in chat.last_hits}
                 recall = (sum(s in retrieved for s in item["sources"]) / len(item["sources"])) if item["sources"] else None
                 judgments = []
@@ -146,6 +148,7 @@ def evaluate(data, output, golden):
                 rows.append(dict(id=item["id"], question=item["question"], reference=item, answer=answer,
                     candidate_numeric_status_correct=numeric_status_check(answer, item),
                     retrieval_recall_at_5=recall, citation_judgments=judgments,
+                    evidence_review=getattr(chat, 'last_audit', None),
                     seconds=seconds, retrieved=chat.last_hits))
                 checkpoint.put(key,dict(row=rows[-1],history=chat.history,session_facts=chat.session_facts))
                 atomic_json(output / f"{name}_answers.json", rows)

@@ -75,6 +75,12 @@ class TestRealIngestionAndDatabase(unittest.TestCase):
         self.assertEqual(len(originals),1)
         self.assertNotEqual(result[0]['image_path'],originals[0]['image_path'])
 
+    def test_named_old_table_keeps_the_source_revision_notice(self):
+        result = self.index.search('Read Table 1-2.')
+        self.assertEqual(result[0]['figure_id'], 'Table 1-2')
+        self.assertTrue(any(r.get('record_kind') == 'revision_notice' and
+                            r['doc_id'] == 'DOC2' and r['page'] == 3 for r in result))
+
     def test_metadata_persisted_in_actual_vector_database(self):
         records,_=self.index.db.scroll('figures',limit=100)
         self.assertEqual(len(records),35)

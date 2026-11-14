@@ -50,7 +50,8 @@ def labels(text):
 
 def retrieval_query(question, history):
     """Resolve elliptical follow-ups without polluting every search with old charts."""
-    if not history or not re.search(r"\b(it|its|they|them|those|that|same|instead|above)\b|"
+    if not history or not re.search(r"\b(it|its|they|them|those|that|same|instead|above|unchanged)\b|"
+                                   r"\b(?:our|my|the|chat|new|earlier|previous)\s+assumption\b|"
                                    r"^\s*(and\b|what about\b|how about\b|then\b)", question, re.I):
         return question
     topic = history[-1]["user"]
@@ -72,6 +73,96 @@ def rerank_records(query, candidates, ranker):
     if len(scores) != len(candidates) or not np.isfinite(scores).all():
         raise ValueError("The reranker returned invalid scores; no BM25-only result was substituted.")
     return [candidates[i] for i in np.argsort(-scores, kind="stable")]
+
+
+def record_key(record):
+    # Rows share a long caption prefix. Truncating to 80 characters collapsed
+    # different countries/rows into whichever record happened to be seen last.
+    return record['citation'] + ':' + hashlib.sha256(record['text'].encode()).hexdigest()
+
+
+def fuse_reranked(reranked, dense, fused):
+    """A cross-encoder is another signal, not permission to erase dense hits."""
+    records, scores = {}, {}
+    for weight, ranked in [(0.5, reranked), (0.3, dense), (0.2, fused)]:
+        for rank, record in enumerate(ranked, 1):
+            key = record_key(record)
+            records[key] = record
+            scores[key] = scores.get(key, 0) + weight / (20 + rank)
+    return [records[key] for key in sorted(scores, key=scores.get, reverse=True)]
+
+
+def structured_table_evidence(ordered, objects, query):
+    """Replace a flattened page hit with its actual matching table when useful.
+
+    The original page remains available as context and as a valid citation. This
+    is a source-layout relationship, not a mapping from questions to answers.
+    """
+    terms = set(_tokens(query)) - {'table', 'figure', 'document', 'the', 'and', 'for', 'with', 'from'}
+    tables = {}
+    for item in objects:
+        if item.get('table_grid'):
+            tables.setdefault((item['doc_id'], item['page']), []).append(item)
+    result = []
+    for record in ordered:
+        if not record.get('figure_id'):
+            candidates = tables.get((record['doc_id'], record['page']), [])
+            if candidates:
+                def overlap(item):
+                    return len(terms & set(_tokens(item.get('caption', '') + ' ' +
+                        ' '.join(table_search_rows(item['table_grid'])))))
+                table = max(candidates, key=overlap)
+                if overlap(table) >= 2:
+                    record = table
+        result.append(record)
+    return result
+
+
+def document_aliases(documents):
+    """Derive unambiguous short source names from the supplied manifest."""
+    aliases = {doc_id: [doc_id] for doc_id in documents}
+    first_words = Counter()
+    prefixes = {}
+    for doc_id, metadata in documents.items():
+        title = metadata.get('title', '')
+        prefix = title.split(':', 1)[0]
+        if ':' in title and len(prefix.split()) <= 5:
+            prefixes[doc_id] = prefix
+            first_words[prefix.split()[0].casefold()] += 1
+    for doc_id, prefix in prefixes.items():
+        aliases[doc_id].append(prefix)
+        first = prefix.split()[0]
+        if len(first) > 5 and first_words[first.casefold()] == 1:
+            aliases[doc_id].append(first)
+    return aliases
+
+
+def content_query(query, documents):
+    """Do not let repeated document titles outrank the substantive topic."""
+    result = query
+    for names in document_aliases(documents).values():
+        for name in names:
+            result = re.sub(r'\b' + re.escape(name) + r'\b', ' ', result, flags=re.I)
+    return re.sub(r'\s+', ' ', result).strip() or query
+
+
+def mentioned_documents(query, documents):
+    result = []
+    for doc_id, names in document_aliases(documents).items():
+        if any(re.search(r'\b' + re.escape(name) + r'\b', query, re.I) for name in names):
+            result.append(doc_id)
+    return result
+
+
+def source_memory(index, citations, query):
+    """Re-open real KB records cited in this chat; never index assistant facts."""
+    candidates = list(getattr(index, 'objects', [])) + list(getattr(index, 'records', []))
+    result = []
+    for citation in list(dict.fromkeys(citations))[:2]:
+        original = next((r for r in candidates if r['citation'] == citation and r['trust_level'] != 'low'), None)
+        if original is not None:
+            result.append(original)
+    return structured_table_evidence(result, getattr(index, 'objects', []), query)
 
 
 def select_evidence(ordered, exact, k):
@@ -118,6 +209,7 @@ def ingest(data, output):
     assets.mkdir(parents=True, exist_ok=True)
     records = []
     table_rows = []
+    notices = []
     page_context = {}
     excluded = []
     for doc in manifest["documents"]:
@@ -130,6 +222,13 @@ def ingest(data, output):
                 blocks = page.get_text("blocks")
                 if trust != 'low':
                     page_context[f"{doc['doc_id']}:p{page_no}"] = page.get_text('text', sort=True)
+                    for block in blocks:
+                        text = block[4].strip()
+                        if re.search(r'\b(?:revision notice|erratum|correction to)\b', text, re.I) and len(text) >= 60:
+                            notices.append(dict(doc_id=doc['doc_id'], page=page_no, text=text,
+                                trust_level=trust, figure_id='', image_path='',
+                                citation=f"{doc['doc_id']}:p{page_no}", record_kind='revision_notice',
+                                related_objects=labels(text)))
                 tables = page.find_tables().tables
                 images = [rect for image in page.get_images() for rect in page.get_image_rects(image[0])
                           if rect.width > 100 and rect.height > 80]
@@ -203,8 +302,12 @@ def ingest(data, output):
     passages = [dict(**asdict(p), figure_id="", citation=p.citation, image_path="")
                 for p in extract_passages(data)]
     trusted_rows = [r for r in table_rows if r['trust_level'] != 'low']
-    result = dict(schema_version=4,source_sha256=fingerprint, passages=passages + trusted_rows, objects=records,
+    documents = {doc['doc_id']: {key: doc[key] for key in
+        ['title', 'trust_level', 'data_vintage', 'published'] if key in doc}
+        for doc in manifest['documents']}
+    result = dict(schema_version=5,source_sha256=fingerprint, passages=passages + trusted_rows + notices, objects=records,
                   page_context=page_context,
+                  documents=documents,
                   quarantined_objects=excluded,
                   note="Appendix C objects are extracted but never embedded, retrieved or passed to the answer model.")
     (output / "ingestion.json").write_text(json.dumps(result, indent=2))
@@ -256,7 +359,7 @@ class MultimodalIndex:
         self.avg = sum(map(len, self.terms)) / len(self.terms)
         df = Counter(t for terms in self.terms for t in set(terms))
         self.idf = {t: np.log(1 + (len(self.terms) - n + .5) / (n + .5)) for t, n in df.items()}
-        cache_key=hashlib.sha256(json.dumps([self.ingestion["source_sha256"],TEXT_REVISION,CLIP_REVISION,"schema-v4-table-grid"]).encode()).hexdigest()[:12]
+        cache_key=hashlib.sha256(json.dumps([self.ingestion["source_sha256"],TEXT_REVISION,CLIP_REVISION,"schema-v5-revision-notices"]).encode()).hexdigest()[:12]
         self.db = QdrantClient(path=str(self.output / "vector_db" / cache_key))
         self.by_id = {str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps([r["citation"], r["text"]]))): r
                       for r in self.records}
@@ -314,7 +417,8 @@ class MultimodalIndex:
     def search(self, query, k=5, dense_only=False):
         if not isinstance(k, int) or isinstance(k, bool) or k < 1:
             raise ValueError("k must be a positive integer.")
-        q = self.embedder.encode([query], normalize_embeddings=True, show_progress_bar=False)[0]
+        semantic_query = query if dense_only else content_query(query, self.ingestion.get('documents', {}))
+        q = self.embedder.encode([semantic_query], normalize_embeddings=True, show_progress_bar=False)[0]
         dense = self.db.search("text", query_vector=q.tolist(), limit=max(k * 4, 20))
         lists = [[r.payload for r in dense]]
         if not dense_only:
@@ -329,7 +433,7 @@ class MultimodalIndex:
             for terms in self.terms:
                 counts = Counter(terms)
                 lexical.append(sum(self.idf.get(t, 0) * counts[t] * 2.5 /
-                    (counts[t] + 1.5 * (.25 + .75 * len(terms) / self.avg)) for t in _tokens(query) if counts[t]))
+                    (counts[t] + 1.5 * (.25 + .75 * len(terms) / self.avg)) for t in _tokens(semantic_query) if counts[t]))
             lists.append([self.records[i] for i in np.argsort(-np.asarray(lexical))[:20]])
             self.load_clip()
             import torch
@@ -341,7 +445,7 @@ class MultimodalIndex:
         ranked, records = {}, {}
         for result in lists:
             for rank, record in enumerate(result, 1):
-                key = record["citation"] + ":" + record["text"][:80]
+                key = record_key(record)
                 records[key] = record
                 ranked[key] = ranked.get(key, 0) + 1 / (60 + rank)
         ordered = [records[key] for key in sorted(ranked, key=ranked.get, reverse=True)]
@@ -357,10 +461,29 @@ class MultimodalIndex:
             if requested:
                 requested_keys = {r['citation'] for r in exact}
                 ordered = [r for r in ordered if not r.get('figure_id') or r['citation'] in requested_keys]
+            reranked = ordered
             if self.enable_rerank:
                 self.load_reranker()
-                ordered = rerank_records(query, ordered[:50], self.reranker)
-            return select_evidence(ordered, exact, k)
+                reranked = rerank_records(semantic_query, ordered[:50], self.reranker)
+                # Keep exact-source filtering when combining retrieval signals.
+                dense_records = [r.payload for r in dense if not requested or
+                    not r.payload.get('figure_id') or r.payload['citation'] in requested_keys]
+                ordered = fuse_reranked(reranked, dense_records, ordered)
+            if not requested:
+                ordered = structured_table_evidence(ordered, self.objects, semantic_query)
+            # A source's explicit revision must not disappear just because the
+            # user named the older table. Links come from PDF text, not answers.
+            requested_lower = {label.casefold() for label in requested}
+            notices = [r for r in self.ingestion['passages'] if r.get('record_kind') == 'revision_notice'
+                and requested_lower.intersection(label.casefold() for label in r.get('related_objects', []))]
+            anchors = []
+            for doc_id in mentioned_documents(query, self.ingestion.get('documents', {})):
+                source_best = next((r for r in reranked if r['doc_id'] == doc_id), None)
+                if source_best:
+                    anchors.append(source_best)
+            if not requested:
+                anchors = structured_table_evidence(anchors, self.objects, semantic_query)
+            return select_evidence(ordered, exact + notices + anchors, k)
         return ordered[:k]
 
 
@@ -418,10 +541,14 @@ class Conversation:
             model = RagVisionLanguageModel()
         self.index, self.model, self.dense_only = index, model or VisionLanguageModel(), dense_only
         self.history, self.session_facts = [], []
-        self.last_hits = []
+        self.last_hits, self.last_audit = [], None
 
     def answer(self, question):
-        self.last_hits = []
+        self.last_hits, self.last_audit = [], None
+        from evidence_review import session_memory_action
+        memory_action = session_memory_action(question)
+        if memory_action == 'clear':
+            self.session_facts = []
         if re.search(r"\b(update|edit|overwrite|modify|alter|replace|change|write(?:\s+to)?)\s+"
                      r"(?:(?:the|this|original|base|saved|source|my|our|your|underlying|read-only)\s+){0,4}"
                      r"(knowledge\s*base|base\s*index|documents?|pdfs?)\b", question, re.I):
@@ -432,26 +559,32 @@ class Conversation:
         topic_history = self.history[-3:]
         topic = [{'user': ' '.join(turn['user'] for turn in topic_history)}] if topic_history else []
         query = retrieval_query(question, topic)
-        self.last_hits = hits = self.index.search(query, dense_only=self.dense_only)
-        requested = {label.casefold() for label in labels(question)}
+        if query != question and not labels(question):
+            # A chart follow-up must keep the latest chart, not every older
+            # chart mentioned anywhere in the conversation. Resolve from user
+            # turns, then read the original source again rather than treating
+            # the previous assistant's visual claim as evidence.
+            latest_named = next((turn for turn in reversed(self.history) if labels(turn['user'])), None)
+            if latest_named:
+                topic = [{'user': latest_named['user'] + ' ' + ' '.join(
+                    turn['user'] for turn in topic_history if not labels(turn['user']))}]
+                query = retrieval_query(question, topic)
+        hits = self.index.search(query, dense_only=self.dense_only)
+        if not self.dense_only and self.history and query != question and not labels(question):
+            remembered = source_memory(self.index, self.history[-1]['assistant'].get('citations', []), query)
+            if remembered:
+                hits = select_evidence(hits, remembered, 5)
+        self.last_hits = hits
+        requested = {label.casefold() for label in (labels(question) or labels(query))}
         visual_task = bool(requested) or bool(re.search(r'\b(charts?|figures?|graphs?|plots?|diagrams?|scatterplots?)\b', question, re.I))
         image_records = [r for r in hits if r.get('image_path') and
                          (r.get('figure_id', '').casefold() in requested or
                           re.sub(r'\s*\(corrected\)$', '', r.get('figure_id', ''), flags=re.I).casefold() in requested
                           if requested else visual_task)][:2]
-        evidence = [{k: r[k] for k in ["citation", "doc_id", "page", "trust_level", "figure_id", "text"]}
-                    for r in hits]
-        # Full page context keeps footnotes, table headers and revision notices
-        # from being lost at a fixed word-window boundary. Named figure crops
-        # remain isolated so their near-identical neighbours are not substituted.
-        pages = getattr(self.index, 'ingestion', {}).get('page_context', {})
-        for item in evidence:
-            if not requested or item['figure_id'].lower().startswith('table') or item['figure_id'].lower().endswith('(corrected)'):
-                page_text = pages.get(f"{item['doc_id']}:p{item['page']}", '')
-                if page_text:
-                    item['page_context'] = page_text[:6500]
+        from evidence_review import evidence_packet, review_answer, needs_review
+        packet = evidence_packet(hits, getattr(self.index, 'ingestion', {}), query, requested)
         payload = json.dumps(dict(question=question, session_facts=self.session_facts,
-                                  prior_turns=self.history[-5:], evidence=evidence,
+                                  prior_turns=self.history[-5:], **packet,
                                   image_sources=[r['citation'] for r in image_records]), ensure_ascii=False)
         instruction = ("Answer the authorized question using only the data. "
                        "Return exactly status, answer, citations and figure_references. "
@@ -467,8 +600,16 @@ class Conversation:
             # The same strict validator still rejects bad types and unknown IDs.
             schema = None if os.environ.get('LAB2_RAG_NATURAL_JSON') == '1' else rag_schema(hits)
             result = validated_json(self.model, instruction, validator=lambda raw: self.validate(raw, hits),
-                system=RULES + NATURAL_RULES, images=[r['image_path'] for r in image_records], max_new_tokens=768,
+                system=RULES + NATURAL_RULES, images=[r['image_path'] for r in image_records], max_new_tokens=512,
                 schema=schema)
+            if (not self.dense_only and os.environ.get('LAB2_RAG_EVIDENCE_REVIEW') == '1'
+                    and needs_review(question, result, self.history, self.session_facts)):
+                audit = review_answer(self.model, question, result, packet, hits,
+                    [r['image_path'] for r in image_records], [r['citation'] for r in image_records],
+                    self.session_facts, self.history[-5:], self.validate)
+                self.last_audit = dict(draft=result, checks=audit['checks'],
+                    changed=audit['answer'] != result, final=audit['answer'])
+                result = audit['answer']
         except ValueError as exc:
             output = getattr(self.index, 'output', None)
             if output:
@@ -478,7 +619,7 @@ class Conversation:
                          validation_errors=getattr(exc, 'validation_errors', []), retrieved=hits))
             raise
         self.history.append(dict(user=question, assistant=result))
-        if re.search(r"assum|for this (?:chat|session|conversation)|change|use .*instead|new data point", question, re.I):
+        if memory_action == 'add':
             self.session_facts.append(question)
         return result
 

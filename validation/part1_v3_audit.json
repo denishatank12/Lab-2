@@ -1,0 +1,36 @@
+{
+  "scope": "Source-checked Part 1 v3; not a completed pretrained 7B GPU run or a leaderboard submission.",
+  "prior_public_score_reported_by_user": 0.419,
+  "new_public_score": null,
+  "retrieval_only_validation": {
+    "artifact": "validation/part1_evidence_review_retrieval.json",
+    "candidate_questions": 25,
+    "questions_with_source_references": 24,
+    "dense_source_recall_at_5": 0.7083333333333334,
+    "hybrid_source_recall_at_5": 0.9583333333333334,
+    "interpretation": "Mean source recall on the unchanged candidate validation set. This set informed development, is not held out, and still needs team review. This is not answer accuracy or a Kaggle score."
+  },
+  "changes": [
+    "Use the full source-text hash as the retrieval identity so long common table captions do not collapse distinct rows.",
+    "Retain dense and hybrid rank signals instead of allowing the cross-encoder to erase all prior ranking.",
+    "Use the structured table on a retrieved page when its caption and cells match the query.",
+    "Recognize unambiguous source names from the supplied document manifest and retain each explicitly requested source.",
+    "Retrieve linked explicit revision/erratum notices extracted from the source PDFs.",
+    "Share page context only once, bound source text and include manifest vintage metadata.",
+    "Review risky answers against the same supplied sources using the same local model; validate text quotations, attached-image identity and citation/reference agreement.",
+    "Separate explicit assumption updates, ordinary economic changes and requests to forget an assumption.",
+    "Re-open the latest named chart image for pronoun follow-ups instead of omitting it or mixing in older named charts.",
+    "Keep bounded, conversation-local references to previously cited KB records for follow-ups, always re-reading original source text instead of indexing user or assistant claims.",
+    "Preserve draft/final answers and review checks in resumable result traces.",
+    "Export a clearly named submission_part1_v3.csv without overwriting the prior result."
+  ],
+  "boundaries": [
+    "No competition reference answers, question-ID lookups or per-question answer rules were added.",
+    "Original documents, Questions.csv and candidate reference questions/answers are unchanged.",
+    "The reviewer is an automatic model judgment, not a human rating or proof of semantic correctness.",
+    "A failed review is recorded as an error; an unreviewed draft is not silently labeled as reviewed.",
+    "The full revised GPU runtime, memory peak, answer quality and leaderboard score remain unmeasured.",
+    "No 0.8/0.9 score or end-to-end 90-minute guarantee is made.",
+    "Existing Part 2 and Part 3 artifacts and original executed notebooks were not changed."
+  ]
+}

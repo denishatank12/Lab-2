@@ -43,6 +43,13 @@ class PdfIngestionTests(unittest.TestCase):
         self.assertTrue(self.data['quarantined_objects'])
         self.assertTrue(all(r['trust_level'] != 'low' for r in self.data['passages']))
 
+    def test_revision_links_are_extracted_from_source_text_not_a_question_lookup(self):
+        notices = [r for r in self.data['passages'] if r.get('record_kind') == 'revision_notice']
+        self.assertTrue(any(r['doc_id'] == 'DOC2' and r['page'] == 3 and 'Table 1-2' in r['related_objects'] for r in notices))
+        self.assertTrue(any(r['doc_id'] == 'DOC3' and r['page'] == 6 and 'Figure B-5' in r['related_objects'] for r in notices))
+        self.assertTrue(all(r['trust_level'] != 'low' for r in notices))
+        self.assertEqual(self.data['documents']['DOC2']['data_vintage'], 'March 2014')
+
     def test_row_headers_and_visible_group_cells_are_not_lost(self):
         rows = table_search_rows([['Group', '', '2042', '2043'],
             ['Fictional area', 'Rate A', '8.1 (7.0)', '7.5'], ['', 'Rate B', '2.4', '2.1']])
@@ -99,6 +106,21 @@ class NaturalAnswerTests(unittest.TestCase):
         Conversation(Index(), model).answer('Read Figure A-99.')
         self.assertEqual(model.kwargs['images'], ['right.png'])
         self.assertEqual(model.payload['image_sources'], ['DOC1:Figure A-99'])
+
+    def test_pronoun_followup_reads_the_latest_chart_image_again_not_an_older_chart(self):
+        class Index:
+            def search(self, query, **kwargs):
+                self.query = query
+                label = labels(query)[0]
+                return [dict(HIT, image_path=label + '.png', figure_id=label)]
+        index, model = Index(), self.model()
+        chat = Conversation(index, model)
+        chat.answer('Read Figure A-98.')
+        chat.answer('Read Figure A-99.')
+        chat.answer('What is its endpoint?')
+        self.assertNotIn('A-98', index.query)
+        self.assertIn('Figure A-99', index.query)
+        self.assertEqual(model.kwargs['images'], ['Figure A-99.png'])
 
     def test_repetition_is_rejected_without_weakening_source_validation(self):
         answer = dict(answer=('This fictional phrase repeats badly. ' * 15), status='answered',

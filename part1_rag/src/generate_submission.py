@@ -89,6 +89,7 @@ def main() -> None:
                         chat.history = previous['history']
                         chat.session_facts = previous['session_facts']
                         chat.last_hits = previous['retrieved']
+                        chat.last_audit = previous.get('evidence_review')
                         elapsed = previous['seconds']
                         print(row['id'], 'RESUMED unchanged answer', flush=True)
                     else:
@@ -96,12 +97,14 @@ def main() -> None:
                         answer = chat.answer(row["question"])
                         elapsed = time.perf_counter()-started
                         checkpoint.put(item_key, dict(result=answer, history=chat.history,
-                            session_facts=chat.session_facts, retrieved=chat.last_hits, seconds=elapsed))
+                            session_facts=chat.session_facts, retrieved=chat.last_hits, seconds=elapsed,
+                            evidence_review=getattr(chat, 'last_audit', None)))
                     answers[row["id"]] = dict(id=row["id"], conversation_id=conv_id, question_id=row["question_id"],
                         answer=answer["answer"], status=answer["status"],
                         figure_references=",".join(answer["figure_references"]) or "NONE",
                         citations=",".join(answer["citations"]) or "NONE")
                     traces.append(dict(**row, result=answer, retrieved=chat.last_hits,
+                                       evidence_review=getattr(chat, 'last_audit', None),
                                        seconds=elapsed))
                     atomic_json(output.with_suffix(".traces.json"), traces)
                     print(row["id"], answer["status"], flush=True)

@@ -98,6 +98,10 @@ class Part1RuntimeTests(unittest.TestCase):
                     compile(source, 'child-cell', 'exec')
             self.assertIn('find_questions(DATA)', '\n'.join(sources))
             self.assertIn('validate_submission.py', '\n'.join(sources))
+            self.assertIn('tools/test_evidence_review.py', '\n'.join(sources))
+            self.assertIn('LAB2_RAG_EVIDENCE_REVIEW', '\n'.join(sources))
+            self.assertIn('part1_rag/src/evidence_review.py', bundle.namelist())
+            self.assertIn('submission_part1_v3.csv', bundle.read('tools/part1_kaggle.py').decode())
 
 
 if __name__ == '__main__':

@@ -33,6 +33,8 @@ class Passage:
 
 
 def _tokens(text: str) -> list[str]:
+    # Treat dotted initialisms and their usual plain spelling identically.
+    text = re.sub(r'\b(?:[A-Za-z]\.){2,}', lambda m: m.group(0).replace('.', ''), text)
     return re.findall(r"[a-z0-9]+(?:'[a-z0-9]+)?", text.lower())
 
 

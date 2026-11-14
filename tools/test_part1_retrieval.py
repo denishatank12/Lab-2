@@ -8,7 +8,9 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'part1_rag/src')]
-from multimodal import labels, retrieval_query, rerank_records, select_evidence, Conversation
+from multimodal import (labels, retrieval_query, rerank_records, select_evidence, Conversation,
+                        fuse_reranked, structured_table_evidence, content_query, record_key, mentioned_documents)
+from rag_pipeline import _tokens
 from generate_submission import conversation_turns
 
 
@@ -49,6 +51,11 @@ class RetrievalTests(unittest.TestCase):
         self.assertIn('fictional country', retrieval_query('What is its implication?', history))
         self.assertEqual(retrieval_query('What is its implication?', []), 'What is its implication?')
 
+    def test_an_assumption_update_retains_the_missing_original_entity(self):
+        query = retrieval_query('Change our chat assumption to 14%. Give the unchanged document rate.',
+            [dict(user='Assume the fictional country tax rate is 13%.')])
+        self.assertIn('fictional country tax', query)
+
     def test_reranker_scores_pairs_and_preserves_source_records(self):
         records = [hit(1, 'A distractor.'), hit(2, 'Relevant fictional evidence.')]
         class Ranker:
@@ -76,6 +83,45 @@ class RetrievalTests(unittest.TestCase):
         exact = hit(1, 'Named evidence.', 'Figure A-17')
         other = hit(2, 'Different evidence.', 'Figure A-18')
         self.assertEqual(select_evidence([other, exact], [exact], 2)[0], exact)
+
+    def test_different_table_rows_with_the_same_long_caption_do_not_collide(self):
+        caption = 'Fictional table caption ' * 8
+        a, b = hit(1, caption + 'North value: 3.5'), hit(1, caption + 'South value: 9.2')
+        self.assertNotEqual(record_key(a), record_key(b))
+        self.assertEqual(len(fuse_reranked([a, b], [b, a], [a, b])), 2)
+
+    def test_structured_table_replaces_its_flattened_page_not_another_page(self):
+        flat = hit(4, 'Fictional output in 2042 was 7.4.')
+        table = dict(hit(4, 'Fictional output table.', 'Table A-99'),
+                     caption='Fictional output table', table_grid=[['Region', '2042'], ['North', '7.4']])
+        other = hit(5, 'A prose definition unrelated to the table.')
+        self.assertEqual(structured_table_evidence([flat, other], [table], 'North output 2042'), [table, other])
+
+    def test_document_title_does_not_replace_the_query_topic(self):
+        query = content_query('Compare North growth in Supplement Z and Briefing Y.', {
+            'DOC8': {'title': 'Supplement Z: Fictional data'}, 'DOC9': {'title': 'Briefing Y: Fictional data'}})
+        self.assertIn('North growth', query)
+        self.assertNotIn('Supplement Z', query)
+        self.assertNotIn('Briefing Y', query)
+
+    def test_explicit_source_comparison_keeps_both_document_families(self):
+        metadata = {'DOC8': {'title': 'Supplement Z: Fictional data'},
+                    'DOC9': {'title': 'Briefing Y: Fictional data'}}
+        self.assertEqual(mentioned_documents('Compare Supplement Z with Briefing Y.', metadata), ['DOC8', 'DOC9'])
+        self.assertEqual(mentioned_documents('Read DOC8.', metadata), ['DOC8'])
+
+    def test_numeric_constraints_are_preserved_and_initialisms_are_normalized(self):
+        query = content_query('Assume U.S. growth was 6.2% in 2042.', {})
+        self.assertIn('6.2', query)
+        self.assertIn('2042', query)
+        self.assertEqual(_tokens('U.S. GDP'), _tokens('US GDP'))
+
+    def test_generic_source_name_is_used_only_when_unambiguous_in_the_manifest(self):
+        metadata = {'DOC8': {'title': 'Supplement Z: Fictional data'},
+                    'DOC9': {'title': 'Briefing Y: Fictional data'}}
+        self.assertEqual(mentioned_documents('Read the trusted supplement.', metadata), ['DOC8'])
+        metadata['DOC9'] = {'title': 'Supplement Y: Other data'}
+        self.assertEqual(mentioned_documents('Read the supplement.', metadata), [])
 
     def test_conversation_searches_the_current_question_not_all_old_questions(self):
         class Index:

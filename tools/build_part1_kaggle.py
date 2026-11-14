@@ -19,7 +19,7 @@ def experiment():
     return nb.v4.new_notebook(cells=[
         md('''# Part 1: Multimodal economics RAG
 
-This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Both use the same Qwen2-VL-7B model in NF4, with the visual encoder kept in float16. Tables keep their row/column structure, and explicit figure labels are matched exactly. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. Candidate references and real human ratings still need team review.'''),
+This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Both use the same Qwen2-VL-7B model in NF4, with the visual encoder kept in float16. The final system also reviews risky numeric, visual and conversational answers against its source packet; its reviewer is the same local model, not a human or an external API. Tables keep their row/column structure and explicit revision notices stay linked to the older object. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. Candidate references and real human ratings still need team review.'''),
         code('''from pathlib import Path
 import os, sys, json, csv, time, subprocess, hashlib, shutil
 ROOT = Path(os.environ["LAB2_STANDALONE_ROOT"])
@@ -30,6 +30,7 @@ from rag_model import MODEL, REVISION
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY") == "1"
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
+os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "1"
 DATA = ROOT / "part1_rag/data"
 P1 = ROOT / "part1_rag"
 OUTPUT = P1 / "outputs/v2"
@@ -38,7 +39,7 @@ QUESTIONS = find_questions(DATA)
 shutil.copy2(QUESTIONS, OUTPUT / "questions_used.csv")
 atomic_json(OUTPUT / "run_inputs.json", dict(questions_path=str(QUESTIONS),
     questions_sha256=hashlib.sha256(QUESTIONS.read_bytes()).hexdigest(), hardware=runtime_identity(),
-    seed=266, smoke_only=SMOKE_ONLY, protocol="table-grid-natural-json-7b-v2",
+    seed=266, smoke_only=SMOKE_ONLY, protocol="source-checked-7b-v3", evidence_review=True,
     answering_model=MODEL, model_revision=REVISION, language_weights="NF4", vision_weights="float16"))
 print("Actual hardware and inputs:", (OUTPUT / "run_inputs.json").read_text())
 
@@ -46,9 +47,14 @@ def run_script(relative, *arguments):
     log = ROOT / "runtime_checks" / (Path(relative).stem + ".log")
     log.parent.mkdir(exist_ok=True)
     command = [sys.executable, "-u", str(ROOT / relative), *map(str, arguments)]
+    process_env = os.environ.copy()
+    if relative.startswith("tools/test_"):
+        # Unit fixtures explicitly opt into the reviewer where it is tested.
+        # They must not inherit a real-generation option from the launcher.
+        process_env["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
     with log.open("a", encoding="utf-8") as handle:
         process = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, encoding="utf-8", errors="replace")
+            text=True, encoding="utf-8", errors="replace", env=process_env)
         for line in process.stdout:
             print(line, end="", flush=True)
             handle.write(line); handle.flush()
@@ -60,6 +66,7 @@ def run_script(relative, *arguments):
 These tests use fictional evidence and tiny random weights where needed. Passing them is not a model-quality score. They check that a new chart/year does not inherit an old one, malformed JSON stays an error, and no unsupported citation is accepted.'''),
         code('''run_script("tools/test_part1_retrieval.py")
 run_script("tools/test_part1_quality.py")
+run_script("tools/test_evidence_review.py")
 run_script("tools/test_constrained_decoding.py", "SchemaTests", "TinyActualVisionGenerationTest", "CachedQwenTokenizerTests")
 run_script("part1_rag/src/smoke_test.py")'''),
         md('''## Exercise the actual GPU path
@@ -127,6 +134,7 @@ def build():
         'tools/standalone_colab.py', 'tools/overnight_runner.py', 'tools/export_lab_results.py',
         'tools/kaggle_runtime.py', 'tools/part1_kaggle.py', 'tools/test_part1_retrieval.py',
         'tools/test_constrained_decoding.py', 'tools/rag_model.py', 'tools/test_part1_quality.py',
+        'tools/test_evidence_review.py',
         'part1_rag/eval/golden_candidate.json']
     files = {name: (ROOT / name).read_bytes() for name in names}
     files['requirements.txt'] += b'\nbitsandbytes==0.44.1\n'
@@ -185,14 +193,17 @@ print("Verified embedded source:", BUNDLE_SHA256)
     bootstrap += '''\nrun_script("tools/standalone_colab.py", "resources")
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
+os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "1"
 '''
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
     notebook = nb.v4.new_notebook(cells=[
-        md('''# Lab 2 Part 1: Revised Kaggle run
+        md('''# Lab 2 Part 1: Source-checked Kaggle run (v3)
 
 Import this one file into Kaggle and run it with a nominal 16-GB GPU and Internet enabled. All executable source is embedded; course PDFs download from pinned URLs with SHA-256 checks. The notebook creates its helper files automatically and uses an isolated pinned Python environment. No repository clone, extra Python upload or Hugging Face token is required for the public models. Its source is checked to stay below Kaggle's 1-MB saving limit.
 
-This revision fixes incomplete table crops and row/column extraction, avoids attaching unrelated charts to text questions, preserves exact named images and uses natural JSON with strict validation rather than forcing every field token. Both baseline and final use Qwen2-VL-7B in NF4 with float16 vision. No competition reference answers or question-specific lookup rules are used by the answering pipeline. A higher leaderboard score is not guaranteed; compare the new measured results with your prior 0.419 run.
+This revision keeps the table-grid and exact-chart fixes, reduces duplicate page context, adds document vintage metadata and links explicit revision notices from the PDFs. Risky answers receive one bounded source-review stage using the same local model. Text checks must quote an actual supplied source, image checks must identify an attached image, and figure references must agree with citations. Ordinary questions about economic changes are no longer remembered as assumptions. No competition reference answers or question-specific lookup rules are used by the answering pipeline. Both baseline and final use Qwen2-VL-7B in NF4 with float16 vision.
+
+A higher leaderboard score is not guaranteed. Your prior measured score was 0.419; this revised GPU score is unknown. Source quotes prove that text exists, not that a model has interpreted it correctly. The automatic reviewer is not a substitute for human ratings. Its extra calls add runtime; the whole GPU run still needs to be measured against the course's 90-minute limit.
 
 Only Part 1 runs here. Existing Part 2 results and Part 3 are not changed or rerun. On T4 x2 it uses one GPU, not pooled VRAM. The course requires the Part 1 inference notebook to finish within 90 minutes; elapsed time is recorded below, but download speed, hardware and quotas can affect it.
 
@@ -224,7 +235,7 @@ else:
     print("This timing excludes the first setup/install cell. Save Version's runtime is the whole-run timing.")'''),
         md('''## Download the CSV, executed notebook and evidence
 
-In Kaggle's Output panel download submission_part1_v2.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. Do not accidentally resubmit the old 0.419 CSV. The ZIP includes the executed experiment, answer traces, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
+In Kaggle's Output panel download submission_part1_v3.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. Do not accidentally resubmit the old 0.419 CSV. The ZIP includes the executed experiment, draft/final answer traces, source checks, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
 
 The completed run still needs real human ratings, team reference review, report/team records, a final tag and the actual Kaggle/Canvas submission. A green computation check does not stand in for those items.'''),
         code('''from pathlib import Path
