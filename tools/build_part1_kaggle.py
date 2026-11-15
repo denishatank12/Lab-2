@@ -142,22 +142,23 @@ The outer launcher saves this executed notebook even if a cell fails and exports
             'language_info': {'name': 'python'}})
     if evidence_first:
         for cell in notebook.cells:
-            cell.source = cell.source.replace('independent-fresh-7b-v6', 'independent-evidence-first-7b-v7')
+            cell.source = cell.source.replace('independent-fresh-7b-v6', 'independent-evidence-first-7b-v8')
             if cell.cell_type == 'code' and 'LAB2_RAG_PROFILE' in cell.source:
                 cell.source = cell.source.replace('os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "0"',
                                                   'os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "1"', 1)
             if cell.cell_type == 'code' and 'run_script("tools/test_part1_retrieval.py")' in cell.source:
                 cell.source += '\nrun_script("tools/test_evidence_answer.py")'
-            if cell.cell_type == 'code' and 'protocol="independent-evidence-first-7b-v7"' in cell.source:
+            if cell.cell_type == 'code' and 'protocol="independent-evidence-first-7b-v8"' in cell.source:
                 cell.source = cell.source.replace('evidence_review=False,', 'evidence_review=False, evidence_first=True,')
                 cell.source = cell.source.replace(
                     'natural JSON first; invalid responses retry with evidence-bounded constrained decoding',
-                    'one evidence-first JSON response with model source readings before answer/status; bounded structured retries')
+                    'schema-constrained source observations, answer and status; metadata-derived citations/figure labels')
         notebook.cells[0].source += '''
 
-This v7 revision selects short model source observations before answering, removes
+This v8 revision selects short model source observations before answering, removes
 earlier assistant answers from the evidence prompt, and derives missing figure
-labels only from exact object-citation metadata. User assumptions are passed in
+labels only from exact model-selected source metadata. The model does not generate
+independent citation and figure lists. User assumptions are passed in
 chronological order, including an explicit assumption in the current turn. The
 observations are not independently verified facts or a human rating. This is one
 answering pass, not the earlier slow extra editor. Quality and the 90-minute
@@ -325,20 +326,26 @@ print("Download the Lab2_Part1_Results ZIP from Output > /kaggle/working.")'''.r
             'validation_scope': 'Local smoke and regression checks are not a completed Kaggle GPU quality evaluation.'})
     if evidence_first:
         for cell in notebook.cells:
-            cell.source = cell.source.replace('submission_part1_v6', 'submission_part1_v7')
-            cell.source = cell.source.replace('independent Kaggle run (v6)', 'evidence-first Kaggle run (v7)')
+            cell.source = cell.source.replace('submission_part1_v6', 'submission_part1_v8')
+            cell.source = cell.source.replace('independent Kaggle run (v6)', 'source-linked Kaggle run (v8)')
+            cell.source = cell.source.replace(
+                'Answers begin with natural JSON; malformed answers retry with evidence-bounded constrained decoding.',
+                'Answer generation uses an evidence-bounded schema from its first call. Citation and figure lists are derived from model-selected source IDs, not generated independently.')
         notebook.cells[1].source = notebook.cells[1].source.replace(
             'os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "0"',
             'os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "1"')
         notebook.cells[0].source += '''
 
-### What changed from the completed v6 run
+### What changed after the v7 failure
 
 The model now reads short source observations before writing its answer and
 choosing a status. Its prompt contains only earlier user turns, not old assistant
 claims that could be wrong. Table rows retain their headers without duplicating
 the entire numeric matrix. Exact cited object metadata supplies matching figure
-labels. Assumptions remain chat-only, and the original PDFs are never edited.
+labels. The model selects source IDs only once, inside observations; it cannot
+generate a separate unmatched figure reference. The final answer still passes
+the original output validator and citation evaluation. Assumptions remain
+chat-only, and the original PDFs are never edited.
 
 This notebook does not contain the previous run's answers or a guaranteed score.
 It does not read candidate reference answers during generation. The software
@@ -350,7 +357,7 @@ revision still requires the full GPU run; CPU smoke results are not GPU results.
         if cell.cell_type == 'code':
             compile(cell.source, 'part1-kaggle-cell', 'exec')
     nb.validate(notebook)
-    filename = 'Lab2_Part1_Kaggle_v7.ipynb' if evidence_first else 'Lab2_Part1_Kaggle_Final.ipynb'
+    filename = 'Lab2_Part1_Kaggle_v8.ipynb' if evidence_first else 'Lab2_Part1_Kaggle_Final.ipynb'
     path = ROOT / 'part1_rag/notebooks' / filename
     nb.write(notebook, path)
     if path.stat().st_size >= 950_000:
@@ -362,5 +369,5 @@ revision still requires the full GPU run; CPU smoke results are not GPU results.
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--evidence-first', action='store_true', help='Build a separate v7; preserve the completed v6 artifact.')
+    parser.add_argument('--evidence-first', action='store_true', help='Build a separate v8; preserve the v6 and v7 artifacts.')
     build(evidence_first=parser.parse_args().evidence_first)

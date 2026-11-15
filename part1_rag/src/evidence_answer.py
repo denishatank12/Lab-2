@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 import re
-from response_schemas import choices, rag_schema, record, text
+from response_schemas import rag_schema, record, text
 from vlm_runtime import validated_json
 
 
@@ -43,13 +43,14 @@ Choose status AFTER reading the evidence and composing the answer:
 These labels describe the answer, not the presence of search results. Merely
 mentioning an unused assumption does not make a source-only answer session_override.
 
-Return exactly observations, answer, status, citations, figure_references in that
-order. observations is a list of {source: exact source ID, finding: short factual
-reading}; it is NOT a reasoning transcript. Include one observation for each source
-actually cited, and no irrelevant observations. citations and figure_references
-are lists of strings selected only from OUTPUT CHOICES. Use [] for an empty list.
-List a numbered table/figure when using its object citation, but never add all
-retrieved figures. Cite only sources actually supporting this answer. Do not copy
+Return exactly observations, answer, status in that order. observations is a list
+of {source: exact source ID, finding: short factual reading}; it is NOT a reasoning
+transcript. Select only sources actually used in your answer, not every search
+candidate. For a figure/table, choose its exact OBJECT source ID, not a nearby
+page or another plot. For surrounding prose choose its page source ID.
+The program derives the final citations and figure labels from those chosen IDs.
+Do NOT generate separate citations or figure_references fields. Use observations:
+[] when no supplied source is used. Never invent a source ID. Do not copy
 an earlier assistant response as evidence. No example answer or default status is
 provided: choose the label warranted by this question and the sources.
 """
@@ -61,13 +62,11 @@ def evidence_schema(hits):
     # Evidence precedes answer; status follows answer, avoiding an answered-first
     # shape example and the previous status-first constrained output ordering.
     return record({
-        'observations': {'type': 'array', 'maxItems': 4,
+        'observations': {'type': 'array', 'maxItems': 4 if sources else 0,
             'items': record({'source': {'type': 'string', 'enum': sources} if sources else text(),
                              'finding': text(120, 1)})},
         'answer': text(500, 1),
         'status': base['properties']['status'],
-        'citations': choices(sources, maximum=4),
-        'figure_references': base['properties']['figure_references'],
     })
 
 
@@ -121,8 +120,7 @@ def make_instruction(question, packet, hits, assumptions, history, memory_action
         parts.append('PAGE CONTEXT ' + row['citation'] + ' (same read-only document):\n' + row['text'])
     base = rag_schema(hits)['properties']
     parts.append('OUTPUT CHOICES:\n' + json.dumps({
-        'citations': base['citations']['items'].get('enum', []),
-        'figure_references': base['figure_references']['items'].get('enum', []),
+        'observation_source_ids': base['citations']['items'].get('enum', []),
         'attached_images_in_order': image_sources}, ensure_ascii=False))
     return '\n\n'.join(parts)
 
@@ -130,6 +128,8 @@ def make_instruction(question, packet, hits, assumptions, history, memory_action
 def validate_evidence_answer(raw, hits, validate_answer):
     if not isinstance(raw, dict):
         raise ValueError('Return an evidence-answer JSON object.')
+    if set(raw) != {'observations', 'answer', 'status'}:
+        raise ValueError('Generate only observations, answer and status. The program derives citation/figure fields from selected sources.')
     observations = raw.get('observations')
     if not isinstance(observations, list) or len(observations) > 4:
         raise ValueError('observations must be a list of at most four short source readings.')
@@ -139,26 +139,16 @@ def validate_evidence_answer(raw, hits, validate_answer):
                 not isinstance(row.get('finding'), str) or not row['finding'].strip() or
                 len(row['finding']) > 120):
             raise ValueError('Each observation needs an allowed source and a nonempty finding of at most 120 characters.')
-    result = validate_answer(raw, hits)
-    covered = {row['source'] for row in observations}
-    if not set(result['citations']).issubset(covered):
-        raise ValueError('Every cited source needs a short source observation; remove unused citations.')
+    # Each selected source has a single authoritative identity. A figure and its
+    # citation can no longer be two inconsistent independent model decisions.
+    # Nothing is silently removed: unknown IDs/extra fields are still errors.
+    citations = list(dict.fromkeys(row['source'] for row in observations))
+    figure_by_source = {r['citation']: r['figure_id'] for r in hits if r.get('figure_id')}
+    figures = list(dict.fromkeys(figure_by_source[c] for c in citations if c in figure_by_source))
+    result = validate_answer(dict(answer=raw['answer'], status=raw['status'],
+                                  citations=citations, figure_references=figures), hits)
     if result['status'] in {'answered', 'conflict'} and not result['citations']:
         raise ValueError('A source-supported answer needs a citation; use not_found when evidence is absent.')
-    # Metadata consistency only: this does NOT certify whether a source supports
-    # the claim. Never drop a bad citation silently or invent missing source IDs.
-    figure_by_source = {r['citation']: r['figure_id'] for r in hits if r.get('figure_id')}
-    figures = list(result['figure_references'])
-    for source in result['citations']:
-        figure = figure_by_source.get(source)
-        if figure and figure not in figures:
-            figures.append(figure)
-    for figure in figures:
-        matching = [r for r in hits if r.get('figure_id') == figure]
-        if not any(r['citation'] in result['citations'] or
-                   f"{r['doc_id']}:p{r['page']}" in result['citations'] for r in matching):
-            raise ValueError('Each figure reference needs its corresponding object or page citation.')
-    result['figure_references'] = figures
     return result
 
 
@@ -174,6 +164,7 @@ def answer_from_evidence(model, question, packet, hits, assumptions, history, me
         make_instruction(question, packet, hits, assumptions, history, memory_action,
                          [row['citation'] for row in image_records]),
         validator=validate, system=POLICY, max_new_tokens=560,
-        images=[row['image_path'] for row in image_records], schema=None, retry_schema=schema)
-    return result, dict(protocol='evidence-first-v7', observations=saved['observations'],
+        images=[row['image_path'] for row in image_records], schema=schema, retry_schema=schema)
+    return result, dict(protocol='evidence-first-v8', observations=saved['observations'],
+        references_policy='Citations and numbered-object labels derived from model-selected observation source IDs.',
         meaning='Model source readings; membership and metadata checked, factual correctness not independently certified.')

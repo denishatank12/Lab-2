@@ -44,6 +44,8 @@ class FixtureModel:
                      citations=['DOC1:p1'], figure_references=[] if schema else ['Invented fixture figure'])
         if os.environ.get('LAB2_RAG_EVIDENCE_FIRST') == '1':
             value['observations'] = [dict(source='DOC1:p1', finding='A fictional metric used only in a software test.')]
+            value.pop('citations')
+            value.pop('figure_references')
         return value
 
     def unload(self): pass

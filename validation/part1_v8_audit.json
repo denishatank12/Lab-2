@@ -1,0 +1,56 @@
+{
+  "scope": "Fix for the supplied v7 GPU failure; local software tests are not a completed pretrained GPU run.",
+  "notebook": "part1_rag/notebooks/Lab2_Part1_Kaggle_v8.ipynb",
+  "notebook_sha256": "73fec656cbb948b93af8201db5d977aa54a6ae87a878c7457709c63a7188184d",
+  "embedded_bundle_sha256": "d7d34f5e3725ebe21925f3d1eba16d4ee008fffc6ef46a82b2f92369cc73d9e4",
+  "notebook_bytes": 177846,
+  "observed_v7_failure": {
+    "hardware": "Tesla T4, CUDA available; pinned model loaded successfully",
+    "stage": "Competition answer generation; four answers printed before failure on the next item",
+    "exception": "Model response failed validation after 3 attempts: Each figure reference needs its corresponding object or page citation.",
+    "cause": "Independent model-generated citation and figure-reference lists could disagree even though each individual ID was allowed."
+  },
+  "fix": {
+    "model_output_fields": ["observations", "answer", "status"],
+    "schema_from_first_call": true,
+    "source_ids_constrained_to_retrieved_evidence": true,
+    "citations": "Unique model-selected observation source IDs, in selection order",
+    "figure_references": "Unique object labels from the exact metadata of selected object source IDs",
+    "unexpected_independent_reference_fields": "Rejected, not silently discarded",
+    "original_final_answer_validator": "Retained",
+    "official_csv_validator": "Retained",
+    "citation_support_evaluation": "Retained",
+    "fabricated_fallback_answer_or_score": false,
+    "no_question_specific_rules_or_reference_answer_lookup": true,
+    "v6_and_v7_notebook_bytes_preserved": true,
+    "old_answer_checkpoints_relabelled_as_new_results": false
+  },
+  "local_checks": {
+    "regressions_passed": 168,
+    "suite_counts": {
+      "test_part1_glob_including_old_and_new_delivery_tests": 54,
+      "test_evidence_answer_including_reported_mismatch": 13,
+      "schema_tiny_actual_image_forward_and_cached_tokenizer": 16,
+      "evidence_review_citation_judge_structured_responses_overnight_and_lab_completion": 85
+    },
+    "clean_folder_cpu_smoke": {
+      "record": "validation/part1_v8_fresh_smoke.json",
+      "completed": true,
+      "saved_errors": 0,
+      "seconds": 86.64582466700813,
+      "preinstalled_interpreter_used": true,
+      "pretrained_model_inference_and_quality_metrics_skipped": true
+    },
+    "integration_scope": "Actual prediction/evaluation/official CSV validation/publication/export code with fictional data and models, plus real tiny random-weight Qwen image forwards for schema interfaces. These are not lab predictions."
+  },
+  "new_csv": "submission_part1_v8.csv",
+  "new_leaderboard_score": null,
+  "full_pretrained_cuda_run_verified_locally": false,
+  "fresh_cuda_installation_verified_locally": false,
+  "within_90_minutes_full_gpu_run": null,
+  "limitations": [
+    "Source membership and citation/figure identity are checked; factual support and status correctness remain model judgments evaluated separately.",
+    "A full new GPU inference/evaluation run is needed. No leaderboard score, complete error-free CUDA execution or 90-minute completion is guaranteed.",
+    "Manual human ratings, team review and external submissions remain separate."
+  ]
+}

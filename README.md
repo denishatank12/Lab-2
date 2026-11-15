@@ -7,10 +7,12 @@ Part 1 and Part 3 baselines with the missing model-backed components.
 ## Open these notebooks
 
 For the new **Part 1-only Kaggle experiment**, use
-[Lab2_Part1_Kaggle_v7.ipynb](part1_rag/notebooks/Lab2_Part1_Kaggle_v7.ipynb).
+[Lab2_Part1_Kaggle_v8.ipynb](part1_rag/notebooks/Lab2_Part1_Kaggle_v8.ipynb).
 It is self-contained and targets source-reading, status, memory and citation
 errors in the previous 0.510 run. Its new leaderboard score is not measured;
-0.8 is a target, not a guarantee. The prior v6 notebook is preserved separately.
+0.8 is a target, not a guarantee. It fixes the v7 figure/citation mismatch by
+deriving both fields from model-selected source IDs. The v6 and failed v7
+notebooks are preserved separately, not recommended as the new run file.
 
 For **opening just one file in Colab**, use
 [Lab2_Colab_Standalone.ipynb](part1_rag/notebooks/Lab2_Colab_Standalone.ipynb).

@@ -1,0 +1,15 @@
+{
+  "scope": "Clean-folder CPU smoke only. Model calls and quality metrics skipped; preinstalled interpreter used.",
+  "elapsed_seconds": 86.64582466700813,
+  "folder": "/var/folders/66/0f3yxgtx51sc7fytsl8703ym0000gn/T/lab2-part1-kaggle-final-4430qth1",
+  "source_file_sha256": "73fec656cbb948b93af8201db5d977aa54a6ae87a878c7457709c63a7188184d",
+  "error": null,
+  "saved_errors": 0,
+  "execution": {
+    "completed": true,
+    "seconds": 86.59728225000435,
+    "smoke_only": true,
+    "source": "/Users/denishatank/Documents/ChatGPT/Gen AI/Lab-2/part1_rag/notebooks/Lab2_Part1_Kaggle_v8.ipynb",
+    "source_cells_sha256": "40cdcb5e704bb34673c5e2f9f6e962f920cbe8f5e557ec4a0bf86b16ef5aa76f"
+  }
+}

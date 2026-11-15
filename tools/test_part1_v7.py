@@ -1,4 +1,4 @@
-"""Local delivery audit of the independent v7 artifact, not GPU quality evidence."""
+"""Preservation audit of historical v7. It failed on the supplied full GPU run."""
 import ast
 import base64
 import hashlib
@@ -45,8 +45,6 @@ class DeliveryTests(unittest.TestCase):
             self.assertEqual(len(manifest['resources']), 3)
             self.assertFalse(any(name.startswith('part2_diffusion/') for name in bundle.namelist()))
             self.assertIn('part1_rag/src/evidence_answer.py', bundle.namelist())
-            self.assertEqual(bundle.read('part1_rag/src/evidence_answer.py'),
-                             (ROOT / 'part1_rag/src/evidence_answer.py').read_bytes())
             self.assertEqual(bundle.read('part1_rag/eval/golden_candidate.json'),
                              (ROOT / 'part1_rag/eval/golden_candidate.json').read_bytes())
             child = nbformat.reads(bundle.read('part1_rag/notebooks/Part1_Kaggle_Experiment.ipynb').decode(), 4)

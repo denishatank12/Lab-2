@@ -241,7 +241,6 @@ class TinyActualVisionGenerationTest(unittest.TestCase):
                         'finding': {'type': 'string', 'enum': ['Fictional source reading.']}},
                     'required': ['source', 'finding'], 'additionalProperties': False}}
             evidence_shape['properties']['answer'] = schema['properties']['answer']
-            evidence_shape['properties']['citations']['minItems'] = 1
             structured = model.json('Synthetic evidence-first interface test only.',
                 images=[path], schema=evidence_shape, max_new_tokens=400)
             validate_evidence_answer(structured, text_hits, Conversation.validate)
