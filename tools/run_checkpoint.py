@@ -44,7 +44,8 @@ def experiment_sources(part):
     if part == 'part1_rag':
         names += ['part1_rag/src/multimodal.py', 'part1_rag/src/rag_pipeline.py',
                   'part1_rag/src/generate_submission.py', 'part1_rag/src/evaluate_rag.py',
-                  'part1_rag/src/evidence_review.py', 'tools/rag_model.py', 'tools/citation_judge.py']
+                  'part1_rag/src/evidence_review.py', 'part1_rag/src/evidence_answer.py',
+                  'tools/rag_model.py', 'tools/citation_judge.py']
     else:
         names += ['part3_agents/src/agent_system.py', 'part3_agents/src/model_runtime.py',
                   'part3_agents/src/run_scenarios.py', 'part3_agents/src/run_red_team.py',
@@ -53,7 +54,8 @@ def experiment_sources(part):
     result=source_hashes(ROOT / name for name in names)
     if part == 'part1_rag':
         result['rag_runtime_options'] = {key: os.environ.get(key, '') for key in
-            ['LAB2_RAG_PROFILE', 'LAB2_RAG_NATURAL_JSON', 'LAB2_RAG_EVIDENCE_REVIEW', 'LAB2_RAG_REVIEW_REQUIRED']}
+            ['LAB2_RAG_PROFILE', 'LAB2_RAG_NATURAL_JSON', 'LAB2_RAG_EVIDENCE_REVIEW',
+             'LAB2_RAG_REVIEW_REQUIRED', 'LAB2_RAG_EVIDENCE_FIRST']}
     if part!='part1_rag':
         registry=json.loads((ROOT/'part2_diffusion/evidence/hub_links.json').read_text())
         # Grader-access confirmations do not change model outputs. Only bind the selected adapter.

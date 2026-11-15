@@ -40,8 +40,11 @@ class FixtureModel:
             return {'judgments': {'DOC1:p1': {'supported':False, 'reason':'Fictional classification fixture.'}}}
         # Every first call deliberately reproduces the no-figure-evidence bug.
         # The actual retry controller and unchanged validator must repair it.
-        return dict(answer='A fictional metric used only in a software test.', status='answered',
-                    citations=['DOC1:p1'], figure_references=[] if schema else ['Invented fixture figure'])
+        value = dict(answer='A fictional metric used only in a software test.', status='answered',
+                     citations=['DOC1:p1'], figure_references=[] if schema else ['Invented fixture figure'])
+        if os.environ.get('LAB2_RAG_EVIDENCE_FIRST') == '1':
+            value['observations'] = [dict(source='DOC1:p1', finding='A fictional metric used only in a software test.')]
+        return value
 
     def unload(self): pass
 
@@ -62,6 +65,10 @@ class FixtureIndex:
 
 
 class PipelineTests(unittest.TestCase):
+    def test_evidence_first_prediction_evaluation_publication_and_export(self):
+        with patch.dict(os.environ, LAB2_RAG_EVIDENCE_FIRST='1'):
+            self.test_fresh_prediction_evaluation_publication_and_export()
+
     def test_fresh_prediction_evaluation_publication_and_export(self):
         FixtureModel.calls, FixtureIndex.searches = [], []
         with tempfile.TemporaryDirectory() as folder:

@@ -56,9 +56,10 @@ def publish_submission(root=ROOT):
         cwd=root, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
     if checked.returncode:
         raise ValueError('Official CSV validation failed:\n' + (checked.stdout + checked.stderr)[-4000:])
-    destination = root.parent / 'submission_part1_v6.csv'
+    version = 'v7' if os.environ.get('LAB2_RAG_EVIDENCE_FIRST') == '1' else 'v6'
+    destination = root.parent / f'submission_part1_{version}.csv'
     if destination.exists() and destination.read_bytes() != source.read_bytes():
-        destination = root.parent / ('submission_part1_v6_' + root.name.removeprefix('Lab2_Standalone_') + '.csv')
+        destination = root.parent / (f'submission_part1_{version}_' + root.name.removeprefix('Lab2_Standalone_') + '.csv')
     if destination.exists() and destination.read_bytes() != source.read_bytes():
         raise FileExistsError('A different submission exists at the destination and was preserved.')
     shutil.copy2(source, destination)

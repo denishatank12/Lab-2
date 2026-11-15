@@ -230,6 +230,22 @@ class TinyActualVisionGenerationTest(unittest.TestCase):
             self.assertEqual([r['source'] for r in judgments], ['DOC1:p1'])
             self.assertIs(type(judgments[0]['supported']), bool)
             self.assertTrue(judgments[0]['reason'].strip())
+            # New evidence-first field order and nested source observations must
+            # also work through a real image forward, not just a fake .json().
+            from evidence_answer import evidence_schema, validate_evidence_answer
+            evidence_shape = evidence_schema(text_hits)
+            evidence_shape['properties']['observations'] = {
+                'type': 'array', 'minItems': 1, 'maxItems': 1, 'items': {
+                    'type': 'object', 'properties': {
+                        'source': {'type': 'string', 'enum': ['DOC1:p1']},
+                        'finding': {'type': 'string', 'enum': ['Fictional source reading.']}},
+                    'required': ['source', 'finding'], 'additionalProperties': False}}
+            evidence_shape['properties']['answer'] = schema['properties']['answer']
+            evidence_shape['properties']['citations']['minItems'] = 1
+            structured = model.json('Synthetic evidence-first interface test only.',
+                images=[path], schema=evidence_shape, max_new_tokens=400)
+            validate_evidence_answer(structured, text_hits, Conversation.validate)
+            self.assertEqual(len(structured['observations']), 1)
         self.assertEqual(answer['answer'], 'Synthetic format fixture.')
         Conversation.validate(answer, HITS)
 

@@ -604,10 +604,15 @@ class Conversation:
             # previous ordered-schema GPU run returned all-answered statuses
             # and many repetitive 600-character completions.
             # The same strict validator still rejects bad types and unknown IDs.
-            schema = None if os.environ.get('LAB2_RAG_NATURAL_JSON') == '1' else allowed_schema
-            result = validated_json(self.model, instruction, validator=lambda raw: self.validate(raw, hits),
-                system=RULES + NATURAL_RULES, images=[r['image_path'] for r in image_records], max_new_tokens=512,
-                schema=schema, retry_schema=allowed_schema)
+            if os.environ.get('LAB2_RAG_EVIDENCE_FIRST') == '1':
+                from evidence_answer import answer_from_evidence
+                result, self.last_audit = answer_from_evidence(self.model, question, packet, hits,
+                    self.session_facts, self.history, memory_action, image_records, self.validate)
+            else:
+                schema = None if os.environ.get('LAB2_RAG_NATURAL_JSON') == '1' else allowed_schema
+                result = validated_json(self.model, instruction, validator=lambda raw: self.validate(raw, hits),
+                    system=RULES + NATURAL_RULES, images=[r['image_path'] for r in image_records], max_new_tokens=512,
+                    schema=schema, retry_schema=allowed_schema)
             if (not self.dense_only and os.environ.get('LAB2_RAG_EVIDENCE_REVIEW') == '1'
                     and needs_review(question, result, self.history, self.session_facts)):
                 try:

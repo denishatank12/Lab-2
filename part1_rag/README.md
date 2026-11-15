@@ -2,7 +2,34 @@
 
 ## Revised implementation
 
-### Independent fresh run (current notebook)
+### New evidence-first Kaggle revision (v7)
+
+Use [Lab2_Part1_Kaggle_v7.ipynb](notebooks/Lab2_Part1_Kaggle_v7.ipynb)
+for the new experiment. Import this one file into a fresh Kaggle notebook,
+enable a nominal 16-GB GPU and Internet, attach the competition questions when
+available, then use Save Version > Save & Run All. No separate Python uploads,
+old result folders, recovery step or Hugging Face token is needed.
+
+The changes target the kinds of errors in the previous run: incorrect status
+choices, ignored temporary assumptions, neighbouring table values and mismatched
+figure references. The model now records short source readings before answering,
+sees earlier user turns rather than old assistant claims, and gets row-addressed
+table data without a repeated numeric matrix. Only exact object-citation metadata
+can add a matching figure label. This is not an automatic factual certification.
+
+Download `submission_part1_v7.csv`, the Results ZIP and the notebook with outputs
+from Kaggle's Output panel. The CSV is validated and published before the
+separate dense/hybrid evaluation, so a later evaluation failure preserves it.
+Check the new evaluation, actual wall time and Kaggle score before replacing a
+previous submission. The user's latest screenshot reports **0.510** for v6.
+There is no measured v7 leaderboard result yet, and 0.8 is not guaranteed.
+
+The completed v6 artifact below is preserved byte for byte. Local v7 regressions
+and clean-folder CPU smoke do not establish a successful full pretrained CUDA
+run, an improved score, or completion within the 90-minute limit. No reference
+answers or question-ID-specific rules were added to answer generation.
+
+### Preserved independent fresh run (v6)
 
 For a new Kaggle session, use
 [Lab2_Part1_Kaggle_Final.ipynb](notebooks/Lab2_Part1_Kaggle_Final.ipynb), titled
@@ -82,9 +109,10 @@ For the current profile use `submission_part1_v6.csv`, not an old submitted CSV.
 It is validated and published before the separate golden-set evaluation. A later
 evaluation failure does not hide the completed CSV, but does leave the full lab
 evaluation incomplete. Inner errors print automatically and stay in the result ZIP.
-The only measured public leaderboard score so far is the user's original 0.419.
-The v6 score and complete GPU runtime are unverified. Neither a 0.8 nor a 0.9
-score, nor completion within 90 minutes, is established by passing CPU tests.
+The user's latest screenshot reports a v6 leaderboard score of 0.510, up from
+0.419. The separate v7 experiment has no measured leaderboard score yet. Neither
+a 0.8 nor a 0.9 score, nor completion within 90 minutes, is established by passing
+CPU tests.
 
 For a standalone Colab run with no separate Python uploads, open
 [Lab2_Colab_Standalone.ipynb](notebooks/Lab2_Colab_Standalone.ipynb).

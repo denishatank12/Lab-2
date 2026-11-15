@@ -14,9 +14,9 @@ import nbformat as nb
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def experiment():
+def experiment(evidence_first=False):
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
-    return nb.v4.new_notebook(cells=[
+    notebook = nb.v4.new_notebook(cells=[
         md('''# Part 1: Multimodal economics RAG
 
 This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Both use the same Qwen2-VL-7B model in NF4, with the visual encoder kept in float16. Tables keep their row/column structure and explicit revision notices stay linked to the older object. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. The extra optional draft editor is disabled in this profile; it is not a required assignment component and repeatedly failed in the earlier run. Required citation evaluation remains enabled. Candidate references and real human ratings still need team review.'''),
@@ -30,6 +30,7 @@ from rag_model import MODEL, REVISION
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY") == "1"
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
+os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "0"
 os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
 os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 DATA = ROOT / "part1_rag/data"
@@ -56,6 +57,7 @@ def run_script(relative, *arguments):
         # They must not inherit a real-generation option from the launcher.
         process_env["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
         process_env["LAB2_RAG_REVIEW_REQUIRED"] = "1"
+        process_env["LAB2_RAG_EVIDENCE_FIRST"] = "0"
     with log.open("a", encoding="utf-8") as handle:
         process = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, encoding="utf-8", errors="replace", env=process_env)
@@ -138,9 +140,32 @@ Compare correct answers, Recall@5, citation support and median latency in the ta
 The outer launcher saves this executed notebook even if a cell fails and exports all available Part 1 evidence. A CPU smoke is always marked as such.''')], metadata={
             'kernelspec': {'name': 'python3', 'display_name': 'Python 3', 'language': 'python'},
             'language_info': {'name': 'python'}})
+    if evidence_first:
+        for cell in notebook.cells:
+            cell.source = cell.source.replace('independent-fresh-7b-v6', 'independent-evidence-first-7b-v7')
+            if cell.cell_type == 'code' and 'LAB2_RAG_PROFILE' in cell.source:
+                cell.source = cell.source.replace('os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "0"',
+                                                  'os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "1"', 1)
+            if cell.cell_type == 'code' and 'run_script("tools/test_part1_retrieval.py")' in cell.source:
+                cell.source += '\nrun_script("tools/test_evidence_answer.py")'
+            if cell.cell_type == 'code' and 'protocol="independent-evidence-first-7b-v7"' in cell.source:
+                cell.source = cell.source.replace('evidence_review=False,', 'evidence_review=False, evidence_first=True,')
+                cell.source = cell.source.replace(
+                    'natural JSON first; invalid responses retry with evidence-bounded constrained decoding',
+                    'one evidence-first JSON response with model source readings before answer/status; bounded structured retries')
+        notebook.cells[0].source += '''
+
+This v7 revision selects short model source observations before answering, removes
+earlier assistant answers from the evidence prompt, and derives missing figure
+labels only from exact object-citation metadata. User assumptions are passed in
+chronological order, including an explicit assumption in the current turn. The
+observations are not independently verified facts or a human rating. This is one
+answering pass, not the earlier slow extra editor. Quality and the 90-minute
+budget must be measured on the new GPU run; a 0.8 score is a target, not a promise.'''
+    return notebook
 
 
-def build():
+def build(evidence_first=False):
     from build_colab_standalone import SETUP
     from standalone_colab import unpack
     import inspect
@@ -151,6 +176,7 @@ def build():
         'tools/test_constrained_decoding.py', 'tools/rag_model.py', 'tools/test_part1_quality.py',
         'tools/test_evidence_review.py', 'tools/part1_diagnostics.py',
         'tools/citation_judge.py', 'tools/test_citation_judge.py', 'tools/test_part1_pipeline.py',
+        'tools/test_evidence_answer.py',
         'part1_rag/eval/golden_candidate.json']
     files = {name: (ROOT / name).read_bytes() for name in names}
     files['requirements.txt'] += b'\nbitsandbytes==0.44.1\n'
@@ -167,7 +193,7 @@ def build():
                         url=f'https://raw.githubusercontent.com/denishatank12/Lab-2/{data_commit}/{name}'))
                 else:
                     files[name] = path.read_bytes()
-    files['part1_rag/notebooks/Part1_Kaggle_Experiment.ipynb'] = nb.writes(experiment()).encode()
+    files['part1_rag/notebooks/Part1_Kaggle_Experiment.ipynb'] = nb.writes(experiment(evidence_first)).encode()
     commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
     manifest = dict(source_commit=commit, source_dirty_at_build=dirty, scope='Part 1 only', resources=resources,
@@ -210,6 +236,7 @@ print("Verified embedded source:", BUNDLE_SHA256)
     bootstrap += '''\nrun_script("tools/standalone_colab.py", "resources")
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
+os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "0"
 os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
 os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 '''
@@ -296,12 +323,35 @@ print("Download the Lab2_Part1_Results ZIP from Output > /kaggle/working.")'''.r
             'language_info': {'name': 'python'}, 'kaggle': {'isInternetEnabled': True, 'isGpuEnabled': True},
             'accelerator': 'GPU', 'standalone_bundle_sha256': digest,
             'validation_scope': 'Local smoke and regression checks are not a completed Kaggle GPU quality evaluation.'})
+    if evidence_first:
+        for cell in notebook.cells:
+            cell.source = cell.source.replace('submission_part1_v6', 'submission_part1_v7')
+            cell.source = cell.source.replace('independent Kaggle run (v6)', 'evidence-first Kaggle run (v7)')
+        notebook.cells[1].source = notebook.cells[1].source.replace(
+            'os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "0"',
+            'os.environ["LAB2_RAG_EVIDENCE_FIRST"] = "1"')
+        notebook.cells[0].source += '''
+
+### What changed from the completed v6 run
+
+The model now reads short source observations before writing its answer and
+choosing a status. Its prompt contains only earlier user turns, not old assistant
+claims that could be wrong. Table rows retain their headers without duplicating
+the entire numeric matrix. Exact cited object metadata supplies matching figure
+labels. Assumptions remain chat-only, and the original PDFs are never edited.
+
+This notebook does not contain the previous run's answers or a guaranteed score.
+It does not read candidate reference answers during generation. The software
+checks cannot establish factual correctness: inspect the measured evaluation and
+new Kaggle score after running. v6 remains a separate preserved notebook. This
+revision still requires the full GPU run; CPU smoke results are not GPU results.'''
     notebook.cells[1].metadata = {'jupyter': {'source_hidden': True}, 'tags': ['embedded-source-bundle']}
     for cell in notebook.cells:
         if cell.cell_type == 'code':
             compile(cell.source, 'part1-kaggle-cell', 'exec')
     nb.validate(notebook)
-    path = ROOT / 'part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb'
+    filename = 'Lab2_Part1_Kaggle_v7.ipynb' if evidence_first else 'Lab2_Part1_Kaggle_Final.ipynb'
+    path = ROOT / 'part1_rag/notebooks' / filename
     nb.write(notebook, path)
     if path.stat().st_size >= 950_000:
         raise ValueError('Notebook source exceeds the safety margin for Kaggle saving. Do not publish this artifact.')
@@ -310,4 +360,7 @@ print("Download the Lab2_Part1_Results ZIP from Output > /kaggle/working.")'''.r
 
 
 if __name__ == '__main__':
-    build()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--evidence-first', action='store_true', help='Build a separate v7; preserve the completed v6 artifact.')
+    build(evidence_first=parser.parse_args().evidence_first)
