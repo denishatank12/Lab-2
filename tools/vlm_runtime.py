@@ -48,8 +48,14 @@ def parse_json(text):
     raise ValueError("The model did not return a JSON object. Its raw output is not treated as a result.")
 
 
-def validated_json(model, instruction, *, validator, attempts=3, **kwargs):
-    """Retry malformed model fields without inventing answers or weakening validation."""
+def validated_json(model, instruction, *, validator, attempts=3, retry_schema=None, **kwargs):
+    """Retry malformed fields, optionally constraining retries to the same evidence.
+
+    The first response can remain natural JSON. A schema on subsequent calls
+    prevents another guessed citation/figure label rather than silently deleting
+    it afterwards. The model still chooses every answer and status, and all
+    responses must pass the original validator. Runtime errors are never caught.
+    """
     if not isinstance(attempts, int) or isinstance(attempts, bool) or not 1 <= attempts <= 3:
         raise ValueError("Use between one and three structured-response attempts.")
     errors, raw = [], None
@@ -58,7 +64,13 @@ def validated_json(model, instruction, *, validator, attempts=3, **kwargs):
                   + "\nReturn a corrected JSON object with exactly the requested field types. "
                   "Do not invent evidence, citations or observations.") if errors else ""
         try:
-            raw = model.json(instruction + repair, **kwargs)
+            call_options = dict(kwargs)
+            if attempt and retry_schema is not None:
+                call_options['schema'] = retry_schema
+                print(f'STRUCTURED ANSWER REPAIR {attempt + 1}/{attempts}: '
+                      'enforcing the supplied citation/figure choices; '
+                      'answer and status remain model-generated.', flush=True)
+            raw = model.json(instruction + repair, **call_options)
             if not isinstance(raw, dict):
                 raise ValueError("The response must be a JSON object.")
             return validator(raw)

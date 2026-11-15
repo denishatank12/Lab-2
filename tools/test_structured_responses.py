@@ -1,11 +1,13 @@
 """Offline regression fixtures for model-output schemas, not model-quality scores."""
 import copy
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
 import unittest
 import warnings
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'part1_rag/src'), str(ROOT / 'part3_agents/src')]
@@ -43,6 +45,37 @@ class SequenceModel:
 
 
 class RagSchemaTests(unittest.TestCase):
+    def test_reported_kaggle_empty_figure_failure_uses_constrained_retry(self):
+        """Reproduce the real run: natural JSON invented a label with no figure hits."""
+        class TextIndex:
+            def search(self, *args, **kwargs):
+                return [dict(HIT, figure_id='')]
+        for bad_label in ['Figure 1-1', 'NONE', 'DOC1:p1']:
+            with self.subTest(bad_label=bad_label), patch.dict(os.environ,
+                    LAB2_RAG_NATURAL_JSON='1', LAB2_RAG_EVIDENCE_REVIEW='0'):
+                model = SequenceModel([dict(ANSWER, figure_references=[bad_label]), ANSWER])
+                chat = Conversation(TextIndex(), model)
+                self.assertEqual(chat.answer('Fictional source question.'), ANSWER)
+                self.assertEqual(len(model.calls), 2)
+                self.assertIsNone(model.calls[0][1]['schema'])
+                schema = model.calls[1][1]['schema']
+                self.assertEqual(schema['properties']['figure_references']['maxItems'], 0)
+                self.assertEqual(schema['properties']['citations']['items']['enum'], ['DOC1:p1'])
+                self.assertIn('"figure_references": []', model.calls[0][0])
+                self.assertEqual(len(chat.history), 1)
+
+    def test_repair_keeps_available_figure_choices_and_does_not_change_facts(self):
+        with patch.dict(os.environ, LAB2_RAG_NATURAL_JSON='1', LAB2_RAG_EVIDENCE_REVIEW='0'):
+            model = SequenceModel([dict(ANSWER, citations=['DOC9:p999']),
+                                   dict(ANSWER, status='conflict', figure_references=['Figure 1-1'])])
+            result = Conversation(FixtureIndex(), model).answer('Fictional question.')
+        self.assertEqual(result['status'], 'conflict')
+        self.assertEqual(result['answer'], ANSWER['answer'])
+        self.assertEqual(result['figure_references'], ['Figure 1-1'])
+        schema = model.calls[1][1]['schema']
+        self.assertEqual(schema['properties']['figure_references']['items']['enum'], ['Figure 1-1'])
+        self.assertEqual(len(schema['properties']['status']['enum']), 5)
+
     def test_actual_reported_dict_citation_retries_instead_of_typeerror(self):
         bad = dict(ANSWER, citations=[{'doc_id': 'DOC1', 'page': 1}])
         model = SequenceModel([bad, ANSWER])
@@ -92,6 +125,25 @@ class RagSchemaTests(unittest.TestCase):
 
 
 class SharedRetryTests(unittest.TestCase):
+    def test_bad_constrained_output_is_still_an_error_not_a_fabricated_answer(self):
+        from response_schemas import rag_schema
+        model = SequenceModel([dict(ANSWER, figure_references=['Invented figure'])])
+        with self.assertRaisesRegex(ValueError, 'after 3 attempts'):
+            validated_json(model, 'Fictional task', validator=lambda raw: Conversation.validate(raw, [HIT]),
+                           schema=None, retry_schema=rag_schema([HIT]))
+        self.assertEqual(len(model.calls), 3)
+        self.assertIsNone(model.calls[0][1]['schema'])
+        self.assertIsNotNone(model.calls[-1][1]['schema'])
+
+    def test_runtime_error_during_constrained_retry_is_not_swallowed(self):
+        from response_schemas import rag_schema
+        model = SequenceModel([dict(ANSWER, figure_references=['Invented figure']),
+                               RuntimeError('Fictional CUDA failure during repair')])
+        with self.assertRaisesRegex(RuntimeError, 'CUDA failure during repair'):
+            validated_json(model, 'Fictional task', validator=lambda raw: Conversation.validate(raw, [HIT]),
+                           schema=None, retry_schema=rag_schema([HIT]))
+        self.assertEqual(len(model.calls), 2)
+
     def test_parse_failure_is_retried(self):
         model = SequenceModel([ValueError('Invalid JSON'), {'prompt': 'Fixture prompt.'}])
         self.assertEqual(validated_json(model, 'Fixture', validator=validate_prompt), 'Fixture prompt.')

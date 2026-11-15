@@ -1,0 +1,48 @@
+{
+  "scope": "Fix for the supplied v4 GPU failure, not certification of a full v5 GPU run.",
+  "observed_failure": {
+    "bundle_prefix": "77113cbfb5833ce8",
+    "stage": "generate_submission.py -> Conversation.answer -> validated_json",
+    "exception": "ValueError: Model response failed validation after 3 attempts: Use only supplied figure labels: []",
+    "model_loaded_successfully": true,
+    "interpretation": "All three unconstrained base responses failed the evidence-bounded figure-label check. The log is not a CUDA model-loading or GPU-memory failure."
+  },
+  "changes": [
+    "Expose exact allowed citation and figure lists in each question's evidence payload.",
+    "Keep natural generation on the first call; use the existing schema-constrained decoder on subsequent invalid responses within the same three-call validation budget.",
+    "An empty figure evidence list permits only an empty generated figure-reference list.",
+    "Retain all five model-chosen statuses, the same retrieved evidence and unchanged semantic validator. No question-specific lookup, fabricated answer or post-hoc deletion of unknown references.",
+    "Preserve error propagation for genuine runtime failures and persistently invalid outputs.",
+    "Keep early CSV publication, diagnostic logs, per-answer checkpoints and partial-result export from v4.",
+    "Do not change course PDFs, competition questions, golden references or existing Part 2/3 outputs."
+  ],
+  "regression_scope": [
+    "Reproduce the no-figure-hit failure with an invented label, NONE and a page citation used as a figure label.",
+    "Verify constrained retries retain real available labels and all status choices.",
+    "Run actual tiny random-weight Qwen image generation through the repair path with an empty figure schema.",
+    "Verify real runtime errors and persistent invalid responses are still errors."
+  ],
+  "new_output": "submission_part1_v5.csv",
+  "notebook_sha256": "93f816e82aaeab938dcde6ccd321b47d181bac4181c02f0eb7ff3c4124a34b1c",
+  "local_validation": {
+    "structured_response_tests": {"passed": 20},
+    "constrained_decoding_tests_including_tiny_actual_qwen_repair": {"passed": 16},
+    "evidence_review_tests": {"passed": 19},
+    "kaggle_packaging_and_export_tests": {"passed": 9},
+    "overnight_resume_tests": {"passed": 17},
+    "lab_completion_regressions": {"passed": 22},
+    "exact_notebook_cpu_smoke": {
+      "record": "validation/part1_kaggle_final_smoke.json",
+      "completed": true,
+      "saved_errors": 0,
+      "seconds": 82.62879299999986,
+      "pretrained_model_calls_skipped": true
+    }
+  },
+  "full_v5_gpu_run_verified": false,
+  "new_leaderboard_score": null,
+  "limitations": [
+    "CPU regression tests and tiny random-weight model forwards are not a pretrained 7B GPU run or a model-quality score.",
+    "No guarantee of a particular leaderboard score, total runtime or absence of all possible runtime errors is made."
+  ]
+}

@@ -12,7 +12,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'part1_rag/src')]
 from response_schemas import rag_schema, VISION_SCHEMA, CRITIQUE_SCHEMA, citation_judge_schema
-from vlm_runtime import VisionLanguageModel, response_parser, schema_prefix
+from vlm_runtime import VisionLanguageModel, response_parser, schema_prefix, validated_json
 from multimodal import Conversation
 
 HITS = [dict(citation='DOC1:Figure 1-1', doc_id='DOC1', page=1, figure_id='Figure 1-1')]
@@ -203,6 +203,27 @@ class TinyActualVisionGenerationTest(unittest.TestCase):
             path = Path(folder) / 'fictional.png'
             Image.new('RGB', (56, 56), 'blue').save(path)
             answer = model.json('Fixture only.', images=[path], schema=schema, max_new_tokens=256)
+            # Exercise the reported failure through the actual retry/generation
+            # path. Only the first bad draft is injected; its repair is decoded
+            # by the real tiny Qwen model with an actual image forward on CPU.
+            text_hits = [dict(HITS[0], citation='DOC1:p1', figure_id='')]
+            repair_schema = copy.deepcopy(rag_schema(text_hits))
+            repair_schema['properties']['answer'] = schema['properties']['answer']
+            class BadDraftThenActualModel:
+                def __init__(self): self.calls = []
+                def json(self, instruction, **kwargs):
+                    self.calls.append(kwargs)
+                    if len(self.calls) == 1:
+                        return dict(ANSWER, figure_references=['Invented fixture figure'])
+                    return model.json(instruction, **kwargs)
+            retry_model = BadDraftThenActualModel()
+            repaired = validated_json(retry_model, 'Fictional fixture only.',
+                validator=lambda raw: Conversation.validate(raw, text_hits),
+                schema=None, retry_schema=repair_schema, attempts=2,
+                images=[path], max_new_tokens=256)
+            self.assertEqual(repaired['figure_references'], [])
+            self.assertTrue(set(repaired['citations']).issubset({'DOC1:p1'}))
+            self.assertEqual(len(retry_model.calls), 2)
         self.assertEqual(answer['answer'], 'Synthetic format fixture.')
         Conversation.validate(answer, HITS)
 

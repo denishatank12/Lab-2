@@ -45,7 +45,7 @@ class Part1RuntimeTests(unittest.TestCase):
             root = Path(folder) / 'working/Lab2_Standalone_fixture'
             output = self.fixture_submission(root)
             path = publish_submission(root)
-            self.assertEqual(path.name, 'submission_part1_v4.csv')
+            self.assertEqual(path.name, 'submission_part1_v5.csv')
             self.assertEqual(path.read_bytes(), (output / 'submission.csv').read_bytes())
             self.assertTrue((output / 'published_submission.json').is_file())
 
@@ -57,7 +57,7 @@ class Part1RuntimeTests(unittest.TestCase):
                 stream.write('2,C02,Q02,Changed,NONE,NONE,not_found\n')
             with self.assertRaisesRegex(ValueError, 'hashes'):
                 publish_submission(root)
-            self.assertFalse((root.parent / 'submission_part1_v4.csv').exists())
+            self.assertFalse((root.parent / 'submission_part1_v5.csv').exists())
 
     def test_late_evaluation_failure_retains_real_csv_but_is_not_called_complete(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -172,7 +172,8 @@ class Part1RuntimeTests(unittest.TestCase):
             self.assertIn('tools/test_evidence_review.py', '\n'.join(sources))
             self.assertIn('LAB2_RAG_EVIDENCE_REVIEW', '\n'.join(sources))
             self.assertIn('part1_rag/src/evidence_review.py', bundle.namelist())
-            self.assertIn('submission_part1_v4.csv', bundle.read('tools/part1_kaggle.py').decode())
+            self.assertIn('submission_part1_v5.csv', bundle.read('tools/part1_kaggle.py').decode())
+            self.assertIn('retry_schema=allowed_schema', bundle.read('part1_rag/src/multimodal.py').decode())
             self.assertIn('tools/part1_diagnostics.py', bundle.namelist())
             self.assertIn('READ-ONLY FAILURE DIAGNOSTICS', '\n'.join(codes))
             self.assertIn('publish_submission(ROOT)', '\n'.join(sources))
