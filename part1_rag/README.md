@@ -2,7 +2,33 @@
 
 ## Revised implementation
 
-### Recover the existing v5 session first
+### Independent fresh run (current notebook)
+
+For a new Kaggle session, use
+[Lab2_Part1_Kaggle_Final.ipynb](notebooks/Lab2_Part1_Kaggle_Final.ipynb), titled
+"independent Kaggle run (v6)". It needs only a GPU and Internet, plus attached
+competition questions when available. Its executable code is embedded, its PDF
+downloads are hash-checked, and its isolated Python environment is set up
+automatically. It does not need the old session, a recovery notebook, a Results
+ZIP, a repository clone, separate Python uploads or an HF token.
+
+The output is `submission_part1_v6.csv`. The required dense-baseline/final-system
+comparison, citation evaluation and evidence ZIP are retained. The extra optional
+draft-editor pass is disabled: it repeatedly failed its checks and consumed time
+in the previous profile, and it is not required by the rubric. This is a changed
+measured configuration, not a claim that old outputs were improved or rerun.
+It does not guarantee a particular score or a sub-90-minute full run.
+
+Before the main stages the notebook runs regressions, a fictional-model complete
+pipeline fixture, and actual GPU chart-answer/citation-judge preflights. Local
+CPU smoke checks are not a full pretrained CUDA run. Timing includes setup and
+the experiment, with final display/export overhead separately noted. Human
+ratings, team reference review, report/team details and external submission
+remain separate tasks.
+
+### Historical v5 recovery (optional)
+
+Historical recovery option, only for a session that still has those v5 outputs:
 
 The supplied v5 log confirms all 40 competition answers were generated and
 `submission_part1_v5.csv` was published. It stopped later in the separate citation
@@ -25,15 +51,15 @@ filled with fabricated support values. The metrics display no longer tries to
 read an absent evaluation file. This fix does not establish a new score, timing
 compliance, human ratings or a complete GPU run.
 
-### Fresh run
+### Earlier implementation details
 
-For the current Part 1-only Kaggle run, import
+The current Part 1-only Kaggle run is
 [Lab2_Part1_Kaggle_Final.ipynb](notebooks/Lab2_Part1_Kaggle_Final.ipynb).
 Select a nominal 16-GB GPU, enable Internet, attach the competition data and use
 Save Version > Save & Run All. All helper code is embedded. Public model and PDF
 downloads are pinned, so no separate Python upload or Hugging Face token is needed.
 
-The v5.1 notebook retains the v4 failure fix, `Use only supplied figure labels: []`.
+The current notebook retains the v4 failure fix, `Use only supplied figure labels: []`.
 The GPU model loaded successfully in that log; unconstrained generation then kept
 guessing a figure label despite having no figure evidence. The first call still
 uses natural JSON. Invalid outputs retry with schema-constrained decoding whose
@@ -43,7 +69,7 @@ answer or status replaces a failed response. Persistent invalid answers remain
 errors. Regression checks include a real tiny Qwen image forward for this repair
 path, not a full pretrained 7B GPU run.
 
-The notebook uses the same 7B NF4 model for both systems. The final system adds
+The notebook uses the same 7B NF4 model for both systems. The earlier v5 profile added
 an evidence review for numeric, chart, revision and conversational answers.
 Text observations must include a real source quote. Its result ZIP preserves the
 draft, final answer and checks. If only that optional review fails output
@@ -52,12 +78,12 @@ reported explicitly. Real CUDA/model errors and invalid base answers still stop
 the run. This is an automatic model judgment, not proof of correctness or a human
 rating. The additional calls also cost time.
 
-Use the newly generated `submission_part1_v5.csv`, not the old submitted CSV.
+For the current profile use `submission_part1_v6.csv`, not an old submitted CSV.
 It is validated and published before the separate golden-set evaluation. A later
 evaluation failure does not hide the completed CSV, but does leave the full lab
 evaluation incomplete. Inner errors print automatically and stay in the result ZIP.
 The only measured public leaderboard score so far is the user's original 0.419.
-The v5.1 score and complete GPU runtime are unverified. Neither a 0.8 nor a 0.9
+The v6 score and complete GPU runtime are unverified. Neither a 0.8 nor a 0.9
 score, nor completion within 90 minutes, is established by passing CPU tests.
 
 For a standalone Colab run with no separate Python uploads, open

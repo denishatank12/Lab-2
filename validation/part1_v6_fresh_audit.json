@@ -1,0 +1,58 @@
+{
+  "scope": "Independent fresh-run Part 1 notebook, not a recovery notebook or certification of a full pretrained GPU run.",
+  "notebook": "part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb",
+  "notebook_sha256": "73cab0044dde8763b7f8e95511288d888da21962d55a405606769b1959be1c01",
+  "embedded_bundle_sha256": "600d1e02c1ff21f3e1c999cb59b1d98499492585a0dcafc4696169f6a479f68e",
+  "independence": {
+    "old_run_folder_required": false,
+    "recovery_notebook_required": false,
+    "old_results_zip_required": false,
+    "repository_clone_or_separate_python_upload_required": false,
+    "hf_token_required_for_public_models": false,
+    "executable_files_embedded": 34,
+    "hash_checked_course_pdfs_downloaded": 3,
+    "gpu_and_internet_required_for_real_run": true,
+    "python_environment_created_automatically": true
+  },
+  "profile": {
+    "model": "Qwen/Qwen2-VL-7B-Instruct",
+    "quantization": "NF4 language weights, float16 vision",
+    "minimum_hardware": "One nominal 16-GB GPU; not pooled VRAM",
+    "seed": 266,
+    "optional_draft_editor": "Disabled because this non-required pass repeatedly failed validation and consumed additional calls in the supplied v5 log.",
+    "required_citation_evaluation": "Retained with exact-key schema-constrained classification from its first call.",
+    "required_baseline_comparison": "Retained: dense-only and hybrid multimodal on the separate 25-item candidate set.",
+    "early_real_gpu_preflight": "Chart answering and the citation judge run before the main GPU stages; not executed by the local CPU smoke.",
+    "old_measured_answers_reused_as_new_results": false
+  },
+  "local_validation": {
+    "fresh_folder_notebook_smoke": {
+      "record": "validation/part1_v6_fresh_smoke.json",
+      "completed": true,
+      "saved_errors": 0,
+      "seconds": 80.43730458299979,
+      "uses_preinstalled_pinned_interpreter": true,
+      "full_pretrained_gpu_inference_skipped": true
+    },
+    "complete_control_flow_fixture": "Passed actual generate_submission, strict answer-repair validation, both golden evaluation systems, exact-key citation judging, official CSV validator, publication and ZIP export with explicitly fictional software-test data/models. These fixture outputs are not lab results or quality scores.",
+    "kaggle_packaging_tests_passed": 11,
+    "kaggle_runtime_and_installer_fixture_tests_passed": 11,
+    "citation_judge_tests_passed": 7,
+    "structured_response_tests_passed": 20,
+    "lab_completion_regressions_passed": 22,
+    "overnight_resume_tests_passed": 17,
+    "embedded_checks": "Also run retrieval, quality-control, evidence-review, constrained-decoding, tiny random-weight actual Qwen image forward and citation-judge tests before real inference. Tiny model tests are interface checks, not quality measurements."
+  },
+  "new_output": "submission_part1_v6.csv",
+  "full_pretrained_cuda_run_verified_locally": false,
+  "fresh_cuda_installation_verified_locally": false,
+  "new_leaderboard_score": null,
+  "within_90_minutes_full_gpu_run": null,
+  "limitations": [
+    "No local CUDA GPU was available; CPU tests cannot prove the full 7B GPU run is error-free.",
+    "Setup/download times, GPU availability and account permissions remain external runtime dependencies.",
+    "Removing the optional editor changes the measured configuration and may change answer quality. No particular score or runtime is promised.",
+    "The prior reported v5 attempt exceeded 90 minutes. V6 must be measured anew; its timer includes setup and the experiment and explicitly notes remaining final display/export overhead.",
+    "Human ratings, team reference review, report/team details, final tagging and external submission remain separate."
+  ]
+}

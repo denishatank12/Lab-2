@@ -45,7 +45,7 @@ class Part1RuntimeTests(unittest.TestCase):
             root = Path(folder) / 'working/Lab2_Standalone_fixture'
             output = self.fixture_submission(root)
             path = publish_submission(root)
-            self.assertEqual(path.name, 'submission_part1_v5.csv')
+            self.assertEqual(path.name, 'submission_part1_v6.csv')
             self.assertEqual(path.read_bytes(), (output / 'submission.csv').read_bytes())
             self.assertTrue((output / 'published_submission.json').is_file())
 
@@ -57,7 +57,7 @@ class Part1RuntimeTests(unittest.TestCase):
                 stream.write('2,C02,Q02,Changed,NONE,NONE,not_found\n')
             with self.assertRaisesRegex(ValueError, 'hashes'):
                 publish_submission(root)
-            self.assertFalse((root.parent / 'submission_part1_v5.csv').exists())
+            self.assertFalse((root.parent / 'submission_part1_v6.csv').exists())
 
     def test_late_evaluation_failure_retains_real_csv_but_is_not_called_complete(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -172,12 +172,33 @@ class Part1RuntimeTests(unittest.TestCase):
             self.assertIn('tools/test_evidence_review.py', '\n'.join(sources))
             self.assertIn('LAB2_RAG_EVIDENCE_REVIEW', '\n'.join(sources))
             self.assertIn('part1_rag/src/evidence_review.py', bundle.namelist())
-            self.assertIn('submission_part1_v5.csv', bundle.read('tools/part1_kaggle.py').decode())
+            self.assertIn('submission_part1_v6.csv', bundle.read('tools/part1_kaggle.py').decode())
             self.assertIn('retry_schema=allowed_schema', bundle.read('part1_rag/src/multimodal.py').decode())
             self.assertIn('tools/part1_diagnostics.py', bundle.namelist())
             self.assertIn('tools/citation_judge.py', bundle.namelist())
             self.assertIn('READ-ONLY FAILURE DIAGNOSTICS', '\n'.join(codes))
             self.assertIn('publish_submission(ROOT)', '\n'.join(sources))
+
+    def test_fresh_notebook_has_no_saved_session_or_recovery_dependency(self):
+        import nbformat
+        notebook = nbformat.read(ROOT / 'part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb', 4)
+        codes = [c.source for c in notebook.cells if c.cell_type == 'code']
+        self.assertNotIn('LAB2_PART1_SAVED_ROOT', '\n'.join(codes))
+        self.assertNotIn('submission.provenance.json").is_file()', codes[0])
+        self.assertIn('ROOT = unpack(', codes[0])
+        self.assertIn('NOTEBOOK_STARTED = time.perf_counter()', codes[0])
+        self.assertIn('os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "0"', codes[0])
+        self.assertIn('notebook_wall_time.json', '\n'.join(codes))
+        values = {node.targets[0].id:ast.literal_eval(node.value) for node in ast.parse(codes[0]).body
+            if isinstance(node,ast.Assign) and isinstance(node.targets[0],ast.Name)
+            and node.targets[0].id == 'BUNDLE_BASE64'}
+        with zipfile.ZipFile(io.BytesIO(base64.b64decode(values['BUNDLE_BASE64']))) as bundle:
+            self.assertFalse(any('recover_part1' in name for name in bundle.namelist()))
+            child = json.loads(bundle.read('part1_rag/notebooks/Part1_Kaggle_Experiment.ipynb'))
+            text = '\n'.join(''.join(c['source']) for c in child['cells'])
+            self.assertIn('evidence_review=False', text)
+            self.assertIn('REAL GPU CITATION-JUDGE PREFLIGHT PASSED', text)
+            self.assertIn('tools/test_part1_pipeline.py', text)
 
     def test_missing_evaluation_display_reports_pending_instead_of_file_error(self):
         import nbformat

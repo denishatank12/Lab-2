@@ -1,15 +1,15 @@
 {
   "scope": "Clean-folder CPU smoke only. Model calls and quality metrics skipped; preinstalled interpreter used.",
-  "elapsed_seconds": 76.01560108299964,
-  "folder": "/var/folders/66/0f3yxgtx51sc7fytsl8703ym0000gn/T/lab2-part1-kaggle-final-lhni2kd1",
-  "source_file_sha256": "e6032cab2a62ba5a2186c3e20960d4e8e6a2d31bcf081a2d66edffc297fa164c",
+  "elapsed_seconds": 80.43730458299979,
+  "folder": "/var/folders/66/0f3yxgtx51sc7fytsl8703ym0000gn/T/lab2-part1-kaggle-final-8x695w2v",
+  "source_file_sha256": "73cab0044dde8763b7f8e95511288d888da21962d55a405606769b1959be1c01",
   "error": null,
   "saved_errors": 0,
   "execution": {
     "completed": true,
-    "seconds": 75.96449391699934,
+    "seconds": 80.4022905830061,
     "smoke_only": true,
     "source": "/Users/denishatank/Documents/ChatGPT/Gen AI/Lab-2/part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb",
-    "source_cells_sha256": "8c4f246ea532a4e2af5827545ed29c57cd10b17070e56a223b2fc99356f8a8d3"
+    "source_cells_sha256": "13175a2e3b6a4afc7f655b874be8c7730f7210a25762ade5130b2a275a3bb4f5"
   }
 }

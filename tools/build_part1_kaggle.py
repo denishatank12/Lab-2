@@ -19,7 +19,7 @@ def experiment():
     return nb.v4.new_notebook(cells=[
         md('''# Part 1: Multimodal economics RAG
 
-This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Both use the same Qwen2-VL-7B model in NF4, with the visual encoder kept in float16. The final system also reviews risky numeric, visual and conversational answers against its source packet; its reviewer is the same local model, not a human or an external API. Tables keep their row/column structure and explicit revision notices stay linked to the older object. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. Candidate references and real human ratings still need team review.'''),
+This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed by a pinned cross-encoder. Both use the same Qwen2-VL-7B model in NF4, with the visual encoder kept in float16. Tables keep their row/column structure and explicit revision notices stay linked to the older object. The PDFs are read-only and low-trust Appendix C is quarantined. Nothing is trained on competition answers. The extra optional draft editor is disabled in this profile; it is not a required assignment component and repeatedly failed in the earlier run. Required citation evaluation remains enabled. Candidate references and real human ratings still need team review.'''),
         code('''from pathlib import Path
 import os, sys, json, csv, time, subprocess, hashlib, shutil
 ROOT = Path(os.environ["LAB2_STANDALONE_ROOT"])
@@ -30,7 +30,7 @@ from rag_model import MODEL, REVISION
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY") == "1"
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
-os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "1"
+os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
 os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 DATA = ROOT / "part1_rag/data"
 P1 = ROOT / "part1_rag"
@@ -40,9 +40,9 @@ QUESTIONS = find_questions(DATA)
 shutil.copy2(QUESTIONS, OUTPUT / "questions_used.csv")
 atomic_json(OUTPUT / "run_inputs.json", dict(questions_path=str(QUESTIONS),
     questions_sha256=hashlib.sha256(QUESTIONS.read_bytes()).hexdigest(), hardware=runtime_identity(),
-    seed=266, smoke_only=SMOKE_ONLY, protocol="evidence-bounded-schema-repair-7b-v5.1", evidence_review=True,
+    seed=266, smoke_only=SMOKE_ONLY, protocol="independent-fresh-7b-v6", evidence_review=False,
     answer_policy="natural JSON first; invalid responses retry with evidence-bounded constrained decoding",
-    review_policy="retain validated draft and log failed optional review; runtime errors remain fatal",
+    review_policy="optional draft editor disabled; required exact-key citation evaluation retained",
     answering_model=MODEL, model_revision=REVISION, language_weights="NF4", vision_weights="float16"))
 print("Actual hardware and inputs:", (OUTPUT / "run_inputs.json").read_text())
 
@@ -72,11 +72,12 @@ These tests use fictional evidence and tiny random weights where needed. Passing
 run_script("tools/test_part1_quality.py")
 run_script("tools/test_evidence_review.py")
 run_script("tools/test_citation_judge.py")
+run_script("tools/test_part1_pipeline.py")
 run_script("tools/test_constrained_decoding.py", "SchemaTests", "TinyActualVisionGenerationTest", "CachedQwenTokenizerTests")
 run_script("part1_rag/src/smoke_test.py")'''),
         md('''## Exercise the actual GPU path
 
-The preflight checks a real chart request with the actual VLM. It also loads the pinned reranker before the longer stages. The dense baseline does not use BM25, CLIP fusion, exact-label promotion or reranking.'''),
+The preflight checks a real chart request and the citation judge with the actual VLM before the longer stages. Its short source-quote probe is only an interface test, not a competition answer or quality score. It also loads the pinned reranker. The dense baseline does not use BM25, CLIP fusion, exact-label promotion or reranking.'''),
         code('''if SMOKE_ONLY:
     print("SKIPPED: real pretrained-model GPU preflight. CPU smoke is not quality evidence.")
 else:
@@ -84,12 +85,20 @@ else:
     if not torch.cuda.is_available():
         raise RuntimeError("Select a GPU accelerator before running Part 1.")
     from multimodal import MultimodalIndex, Conversation
+    from citation_judge import judge_citations
     index = MultimodalIndex(DATA, OUTPUT / "index")
     chat = Conversation(index)
     try:
         print("Trusted figure/table objects:", len(index.objects))
         print("Quarantined objects:", len(index.ingestion["quarantined_objects"]))
         print("GPU PREFLIGHT:", chat.answer("Read Figure A-5. Identify its stated base date if readable; do not guess."))
+        source = next(r for r in index.ingestion["passages"] if r["text"].strip())
+        probe = dict(answer=source["text"][:240], citations=[source["citation"]])
+        checks = judge_citations(chat.model, probe, [source])
+        atomic_json(OUTPUT / "gpu_preflight.json", dict(
+            purpose="GPU interface checks only, not quality evaluation", runtime=runtime_identity(),
+            model=chat.model.profile, citation_judge_checked=True, judgments=checks))
+        print("REAL GPU CITATION-JUDGE PREFLIGHT PASSED:", checks)
     finally:
         chat.model.unload()
         index.db.close()
@@ -141,7 +150,7 @@ def build():
         'tools/kaggle_runtime.py', 'tools/part1_kaggle.py', 'tools/test_part1_retrieval.py',
         'tools/test_constrained_decoding.py', 'tools/rag_model.py', 'tools/test_part1_quality.py',
         'tools/test_evidence_review.py', 'tools/part1_diagnostics.py',
-        'tools/citation_judge.py', 'tools/test_citation_judge.py',
+        'tools/citation_judge.py', 'tools/test_citation_judge.py', 'tools/test_part1_pipeline.py',
         'part1_rag/eval/golden_candidate.json']
     files = {name: (ROOT / name).read_bytes() for name in names}
     files['requirements.txt'] += b'\nbitsandbytes==0.44.1\n'
@@ -175,7 +184,8 @@ def build():
     raw = payload.getvalue()
     digest = hashlib.sha256(raw).hexdigest()
     bootstrap = '''from pathlib import Path, PurePosixPath
-import os, sys, subprocess, json, hashlib, base64, io, stat, zipfile
+import os, sys, subprocess, json, hashlib, base64, io, stat, zipfile, time
+NOTEBOOK_STARTED = time.perf_counter()
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY", "0") == "1"
 '''
     bootstrap += (ROOT / 'tools/kaggle_runtime.py').read_text() + '\n'
@@ -200,28 +210,28 @@ print("Verified embedded source:", BUNDLE_SHA256)
     bootstrap += '''\nrun_script("tools/standalone_colab.py", "resources")
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
-os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "1"
+os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
 os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 '''
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
     notebook = nb.v4.new_notebook(cells=[
-        md('''# Lab 2 Part 1: Kaggle run (v5.1, citation-evaluation fix)
+        md('''# Lab 2 Part 1: independent Kaggle run (v6)
 
 Import this one file into Kaggle and run it with a nominal 16-GB GPU and Internet enabled. All executable source is embedded; course PDFs download from pinned URLs with SHA-256 checks. The notebook creates its helper files automatically and uses an isolated pinned Python environment. No repository clone, extra Python upload or Hugging Face token is required for the public models. Its source is checked to stay below Kaggle's 1-MB saving limit.
 
-This revision keeps the table-grid and exact-chart fixes, reduces duplicate page context, adds document vintage metadata and links explicit revision notices from the PDFs. Risky answers receive one bounded source-review stage using the same local model. Text checks must quote an actual supplied source, image checks must identify an attached image, and figure references must agree with citations. Ordinary questions about economic changes are no longer remembered as assumptions. No competition reference answers or question-specific lookup rules are used by the answering pipeline. Both baseline and final use Qwen2-VL-7B in NF4 with float16 vision.
+Start in a new Kaggle notebook with a GPU and Internet enabled, then run all cells in order. No saved run folder, recovery notebook, previous ZIP, separate Python file, repository checkout or Hugging Face token is needed. The first cell unpacks its own verified executable source, creates its isolated Python environment and downloads the three hash-checked course PDFs. On a fresh session it creates everything it needs automatically. Keep course work and saved outputs private.
 
-An optional editor's malformed output no longer discards an already validated draft. The trace records that review as failed, and the visible metrics report review coverage. Invalid base answers and genuine CUDA, download or model-loading failures still stop the run. If a stage fails, its saved inner diagnostics print automatically and partial results are exported. A completed, provenance-checked CSV is copied to the Output panel before the separate evaluation stage, so a later evaluation failure does not hide the predictions. Do not mistake an available CSV for completion of the full lab requirements.
+The final system uses hybrid dense/BM25/CLIP retrieval, reranking, table grids, exact chart references, source trust and per-conversation memory. It compares against a dense-only baseline on a separate 25-question candidate set. The model never receives the candidate reference answers. Both systems use the same pinned Qwen2-VL-7B NF4 model with float16 vision on one nominal 16-GB GPU. T4 x2 is supported, but only one card is used; VRAM is not pooled.
 
-The supplied v4 log identified a specific base-answer failure: the model returned an unprovided figure label even though the allowed list was empty. This revision keeps natural generation on the first call, but switches invalid responses to schema-constrained retries using only that question's retrieved citation/figure choices. With no figure evidence, the decoder can produce only an empty figure list. It never deletes invented references after generation, substitutes a canned answer or weakens the validator. The model still chooses the answer and all five possible statuses. Regression tests reproduce this failure, including a tiny real Qwen image forward for the repair path; they are not a full pretrained GPU quality run.
+Answers begin with natural JSON; malformed answers retry with evidence-bounded constrained decoding. Only supplied citation/figure labels are allowed, and an empty figure evidence list requires an empty figure-reference list. The citation judge always uses exact source keys and real boolean values, even when answer generation uses natural JSON. GPU preflight exercises both chart answering and citation judging before the long stages. Required validation is not bypassed and missing scores are not invented.
 
-The supplied v5 log confirms that all 40 competition answers were generated. Its separate citation judge then failed because natural-answer mode disabled the judge's exact-key schema. The judge now always constrains exact source keys and boolean types from its first call. For an existing saved v5 session, use Lab2_Part1_Evaluation_Recovery.ipynb rather than regenerating those 40 answers with this fresh-run notebook. The reported v5 attempt had already exceeded 90 minutes; the new judge is not evidence that the complete pipeline now meets the time limit.
+The earlier optional draft editor is disabled. It was not required by the rubric, repeatedly failed its own checks and consumed extra model calls. Required citation evaluation and the baseline comparison are still performed. This changes the measured profile, so old answer checkpoints are not reused or claimed as new results. No particular leaderboard score or runtime is guaranteed. The 90-minute requirement is checked against the actual elapsed time, including setup, rather than asserted in advance.
 
-A higher leaderboard score is not guaranteed. Your prior measured score was 0.419; this revised GPU score is unknown. Source quotes prove that text exists, not that a model has interpreted it correctly. The automatic reviewer is not a substitute for human ratings. Its extra calls add runtime; the whole GPU run still needs to be measured against the course's 90-minute limit.
+Attach the competition data if available. Its Questions.csv is selected automatically; otherwise the embedded official practice file is used. Questions are not rewritten or reordered. Complete predictions are validated and published as submission_part1_v6.csv before the separate golden evaluation. Results and per-item checkpoints are saved as they complete; diagnostics and a ZIP preserve available evidence if a later stage fails. On a new session, unsaved files from an old session are not needed or recovered.
 
-Only Part 1 runs here. Existing Part 2 results and Part 3 are not changed or rerun. On T4 x2 it uses one GPU, not pooled VRAM. The course requires the Part 1 inference notebook to finish within 90 minutes; elapsed time is recorded below, but download speed, hardware and quotas can affect it.
+Only Part 1 runs. Part 2 training and Part 3 are not repeated. A successful CPU smoke checks packaging/control flow and tiny model interfaces, not full pretrained CUDA execution or answer quality. Real groundedness ratings, team reference review, report/team records, a tag and external Kaggle/Canvas submission remain separate.
 
-Attach the competition data if available. An attached Questions.csv is selected automatically; the embedded practice file is the fallback. Keep the notebook private. For a background run, use Save Version > Save & Run All. A new session cannot recover unsaved files from an old session automatically.'''),
+For a background run, use Save Version > Save & Run All after setting the accelerator and Internet. Download the new CSV, Results ZIP and executed notebook from Kaggle's Output panel when finished.'''),
         code(bootstrap),
         md('''## Run and keep the executed experiment
 
@@ -236,6 +246,13 @@ except Exception:
     print("\\nREAD-ONLY FAILURE DIAGNOSTICS:\\n" + diagnostics.failure_details(ROOT))
     print("Keep this session open. The final export cell can be run independently; it does not repeat inference.")
     raise
+finally:
+    elapsed = time.perf_counter() - NOTEBOOK_STARTED
+    timing = dict(scope="Current notebook invocation including setup and experiment; not a sum of prior sessions",
+                  elapsed_seconds=elapsed, smoke_only=SMOKE_ONLY,
+                  within_90_minutes=(elapsed <= 5400) if not SMOKE_ONLY else None)
+    (ROOT / "runtime_checks/notebook_wall_time.json").write_text(json.dumps(timing, indent=2))
+    print("NOTEBOOK WALL TIME:", timing)
 print((ROOT / "runtime_checks/part1_completion.json").read_text())'''),
         md('''## View measured results
 
@@ -257,11 +274,13 @@ else:
     completion = json.loads((ROOT / "runtime_checks/part1_completion.json").read_text())
     print("Experiment elapsed minutes:", round(completion["seconds"] / 60, 2))
     print("Upload THIS new CSV, not the previous 0.419 file:", completion.get("competition_csv"))
-    print("Within 90-minute experiment budget:", completion["seconds"] <= 5400)
-    print("This timing excludes the first setup/install cell. Save Version's runtime is the whole-run timing.")'''),
+    timing = json.loads((ROOT / "runtime_checks/notebook_wall_time.json").read_text())
+    print("Notebook elapsed minutes, including setup:", round(timing["elapsed_seconds"] / 60, 2))
+    print("Within 90-minute notebook budget:", timing["within_90_minutes"])
+    print("Save Version's full runtime also includes the final display/export cells.")'''),
         md('''## Download the CSV, executed notebook and evidence
 
-In Kaggle's Output panel download submission_part1_v5.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. Do not accidentally resubmit the old 0.419 CSV. The ZIP includes the executed experiment, draft/final answer traces, source checks, review-failure warnings, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
+In Kaggle's Output panel download submission_part1_v6.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. The ZIP includes the executed experiment, answer traces, evaluation, blank human-rating forms, timing and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
 
 The completed run still needs real human ratings, team reference review, report/team records, a final tag and the actual Kaggle/Canvas submission. A green computation check does not stand in for those items.'''),
         code('''from pathlib import Path
