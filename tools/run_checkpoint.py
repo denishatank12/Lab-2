@@ -44,7 +44,7 @@ def experiment_sources(part):
     if part == 'part1_rag':
         names += ['part1_rag/src/multimodal.py', 'part1_rag/src/rag_pipeline.py',
                   'part1_rag/src/generate_submission.py', 'part1_rag/src/evaluate_rag.py',
-                  'part1_rag/src/evidence_review.py', 'tools/rag_model.py']
+                  'part1_rag/src/evidence_review.py', 'tools/rag_model.py', 'tools/citation_judge.py']
     else:
         names += ['part3_agents/src/agent_system.py', 'part3_agents/src/model_runtime.py',
                   'part3_agents/src/run_scenarios.py', 'part3_agents/src/run_red_team.py',

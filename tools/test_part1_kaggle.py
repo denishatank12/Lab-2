@@ -175,8 +175,19 @@ class Part1RuntimeTests(unittest.TestCase):
             self.assertIn('submission_part1_v5.csv', bundle.read('tools/part1_kaggle.py').decode())
             self.assertIn('retry_schema=allowed_schema', bundle.read('part1_rag/src/multimodal.py').decode())
             self.assertIn('tools/part1_diagnostics.py', bundle.namelist())
+            self.assertIn('tools/citation_judge.py', bundle.namelist())
             self.assertIn('READ-ONLY FAILURE DIAGNOSTICS', '\n'.join(codes))
             self.assertIn('publish_submission(ROOT)', '\n'.join(sources))
+
+    def test_missing_evaluation_display_reports_pending_instead_of_file_error(self):
+        import nbformat
+        notebook = nbformat.read(ROOT / 'part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb', 4)
+        cell = next(c for c in notebook.cells if c.cell_type == 'code' and 'columns = [' in c.source)
+        with tempfile.TemporaryDirectory() as folder:
+            printed = io.StringIO()
+            with redirect_stdout(printed):
+                exec(cell.source, {'ROOT':Path(folder), 'SMOKE_ONLY':False})
+            self.assertIn('Evaluation is incomplete', printed.getvalue())
 
 
 if __name__ == '__main__':

@@ -1,0 +1,35 @@
+{
+  "scope": "Fix the separate citation judge and resume saved v5 evaluation, not certify a complete GPU submission.",
+  "user_supplied_v5_log": {
+    "competition_rows_generated": 40,
+    "competition_csv_reported": "/kaggle/working/submission_part1_v5.csv",
+    "csv_generation_complete_reported": true,
+    "failed_stage": "evaluate_rag.py -> judge_citations",
+    "error": "Citation judge did not assess exactly the returned citations; the saved answer can resume without regeneration.",
+    "secondary_error": "The metrics-display cell read evaluation.json even though evaluation had not completed.",
+    "attempt_seconds": 5828.516117332,
+    "within_90_minutes": false,
+    "evidence_limit": "These are observations from the supplied GPU log; the actual v5 CSV and full result ZIP were not supplied for local content/quality inspection."
+  },
+  "fixes": [
+    "Citation judging always uses an exact-source-key schema, independent of the natural-answer mode setting.",
+    "The model must choose a boolean and nonempty short reason for every citation; missing or invalid judgments are not filled with invented scores.",
+    "The metrics display handles a missing evaluation file without a second FileNotFoundError.",
+    "The self-contained recovery notebook resumes evaluation in the original runtime without calling competition answer generation.",
+    "Original source files, CSV, generation receipt, failed notebook and timing record remain intact. Replacement judge code and elapsed recovery time are separately recorded.",
+    "Changed/missing original sources, changed CSV or different runtime/GPU cause a safe stop rather than automatic answer regeneration."
+  ],
+  "local_tests": {
+    "citation_judge_regressions_passed": 7,
+    "recovery_regressions_passed": 7,
+    "recovery_integration": "Extracted actual original v5 embedded source from commit d0f5ff83f70588b38c31061d151eedbe4f9e7597; reproduced its judge failure with fictional CPU model/data, resumed its genuine answer checkpoint, verified the saved first answer was not generated twice, completed both fixture systems, and verified idempotent recovery.",
+    "tiny_actual_qwen_image_forward": "Passed through both the answer-repair and citation-judge paths using random weights and fictional data; not a quality evaluation.",
+    "full_7b_gpu_recovery_run_verified": false
+  },
+  "still_not_established": [
+    "Successful completion of the real GPU recovery",
+    "A new Kaggle leaderboard score",
+    "Compliance with the 90-minute full-run requirement; this recorded v5 attempt already exceeded it",
+    "Human groundedness ratings, team reference review, final report/team details, final tag or external submission"
+  ]
+}

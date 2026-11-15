@@ -84,8 +84,8 @@ class SubmissionResumeTest(unittest.TestCase):
             calls=[]
             def json(self,*args,**kwargs):
                 self.calls.append(kwargs)
-                return {'citations':[{'source':[],'supported':True}]} if len(self.calls)==1 else {
-                    'citations':[{'source':'DOC1:p1','supported':True}]}
+                return {'judgments':{}} if len(self.calls)==1 else {
+                    'judgments':{'DOC1:p1':{'supported':True,'reason':'Fictional fixture support.'}}}
         judge=Judge()
         checked=evaluate_rag.judge_citations(judge,{'citations':['DOC1:p1']},[{'image_path':'SYNTHETIC-IMAGE-FIXTURE'}])
         self.assertTrue(checked[0]['supported'])

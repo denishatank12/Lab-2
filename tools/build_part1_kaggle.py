@@ -40,7 +40,7 @@ QUESTIONS = find_questions(DATA)
 shutil.copy2(QUESTIONS, OUTPUT / "questions_used.csv")
 atomic_json(OUTPUT / "run_inputs.json", dict(questions_path=str(QUESTIONS),
     questions_sha256=hashlib.sha256(QUESTIONS.read_bytes()).hexdigest(), hardware=runtime_identity(),
-    seed=266, smoke_only=SMOKE_ONLY, protocol="evidence-bounded-schema-repair-7b-v5", evidence_review=True,
+    seed=266, smoke_only=SMOKE_ONLY, protocol="evidence-bounded-schema-repair-7b-v5.1", evidence_review=True,
     answer_policy="natural JSON first; invalid responses retry with evidence-bounded constrained decoding",
     review_policy="retain validated draft and log failed optional review; runtime errors remain fatal",
     answering_model=MODEL, model_revision=REVISION, language_weights="NF4", vision_weights="float16"))
@@ -71,6 +71,7 @@ These tests use fictional evidence and tiny random weights where needed. Passing
         code('''run_script("tools/test_part1_retrieval.py")
 run_script("tools/test_part1_quality.py")
 run_script("tools/test_evidence_review.py")
+run_script("tools/test_citation_judge.py")
 run_script("tools/test_constrained_decoding.py", "SchemaTests", "TinyActualVisionGenerationTest", "CachedQwenTokenizerTests")
 run_script("part1_rag/src/smoke_test.py")'''),
         md('''## Exercise the actual GPU path
@@ -140,6 +141,7 @@ def build():
         'tools/kaggle_runtime.py', 'tools/part1_kaggle.py', 'tools/test_part1_retrieval.py',
         'tools/test_constrained_decoding.py', 'tools/rag_model.py', 'tools/test_part1_quality.py',
         'tools/test_evidence_review.py', 'tools/part1_diagnostics.py',
+        'tools/citation_judge.py', 'tools/test_citation_judge.py',
         'part1_rag/eval/golden_candidate.json']
     files = {name: (ROOT / name).read_bytes() for name in names}
     files['requirements.txt'] += b'\nbitsandbytes==0.44.1\n'
@@ -203,7 +205,7 @@ os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 '''
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
     notebook = nb.v4.new_notebook(cells=[
-        md('''# Lab 2 Part 1: Kaggle run (v5)
+        md('''# Lab 2 Part 1: Kaggle run (v5.1, citation-evaluation fix)
 
 Import this one file into Kaggle and run it with a nominal 16-GB GPU and Internet enabled. All executable source is embedded; course PDFs download from pinned URLs with SHA-256 checks. The notebook creates its helper files automatically and uses an isolated pinned Python environment. No repository clone, extra Python upload or Hugging Face token is required for the public models. Its source is checked to stay below Kaggle's 1-MB saving limit.
 
@@ -212,6 +214,8 @@ This revision keeps the table-grid and exact-chart fixes, reduces duplicate page
 An optional editor's malformed output no longer discards an already validated draft. The trace records that review as failed, and the visible metrics report review coverage. Invalid base answers and genuine CUDA, download or model-loading failures still stop the run. If a stage fails, its saved inner diagnostics print automatically and partial results are exported. A completed, provenance-checked CSV is copied to the Output panel before the separate evaluation stage, so a later evaluation failure does not hide the predictions. Do not mistake an available CSV for completion of the full lab requirements.
 
 The supplied v4 log identified a specific base-answer failure: the model returned an unprovided figure label even though the allowed list was empty. This revision keeps natural generation on the first call, but switches invalid responses to schema-constrained retries using only that question's retrieved citation/figure choices. With no figure evidence, the decoder can produce only an empty figure list. It never deletes invented references after generation, substitutes a canned answer or weakens the validator. The model still chooses the answer and all five possible statuses. Regression tests reproduce this failure, including a tiny real Qwen image forward for the repair path; they are not a full pretrained GPU quality run.
+
+The supplied v5 log confirms that all 40 competition answers were generated. Its separate citation judge then failed because natural-answer mode disabled the judge's exact-key schema. The judge now always constrains exact source keys and boolean types from its first call. For an existing saved v5 session, use Lab2_Part1_Evaluation_Recovery.ipynb rather than regenerating those 40 answers with this fresh-run notebook. The reported v5 attempt had already exceeded 90 minutes; the new judge is not evidence that the complete pipeline now meets the time limit.
 
 A higher leaderboard score is not guaranteed. Your prior measured score was 0.419; this revised GPU score is unknown. Source quotes prove that text exists, not that a model has interpreted it correctly. The automatic reviewer is not a substitute for human ratings. Its extra calls add runtime; the whole GPU run still needs to be measured against the course's 90-minute limit.
 
@@ -238,6 +242,9 @@ print((ROOT / "runtime_checks/part1_completion.json").read_text())'''),
 No placeholder quality numbers are shown. If running a CPU smoke, model inference and quality measurements are skipped.'''),
         code('''if SMOKE_ONLY:
     print("CPU SMOKE ONLY. No leaderboard CSV or model-quality scores were created.")
+elif not (ROOT / "part1_rag/outputs/v2/evaluation/evaluation.json").is_file():
+    print("Evaluation is incomplete. No evaluation scores are available yet; no placeholder metrics were created.")
+    print("Keep the saved CSV and Results ZIP. Inspect the failed stage above rather than running this display cell again.")
 else:
     from IPython.display import display, HTML
     import html

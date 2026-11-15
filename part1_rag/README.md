@@ -2,13 +2,38 @@
 
 ## Revised implementation
 
+### Recover the existing v5 session first
+
+The supplied v5 log confirms all 40 competition answers were generated and
+`submission_part1_v5.csv` was published. It stopped later in the separate citation
+judge, not in competition answer generation. The original attempt took 5,828.5
+seconds, about 97.1 minutes, so its 90-minute requirement is not met.
+
+Use [Lab2_Part1_Evaluation_Recovery.ipynb](notebooks/Lab2_Part1_Evaluation_Recovery.ipynb)
+in the same session with the original saved run folder. Do not start a fresh
+background run to recover an existing session. Missing original files cause a
+safe stop rather than repeating the 40 competition answers. It checks original
+source, CSV and hardware fingerprints, replaces only the citation-judge function
+in memory, resumes genuine golden-answer checkpoints, and records the patch and
+timing separately. Remaining golden items still need GPU inference. Original
+failed notebook outputs and source files stay intact. If that session is gone,
+retain its exported Results ZIP for an audited migration.
+
+The citation judge now constrains exact source keys and boolean types from its
+first call even when answers use natural JSON. Missing/invalid judgments are not
+filled with fabricated support values. The metrics display no longer tries to
+read an absent evaluation file. This fix does not establish a new score, timing
+compliance, human ratings or a complete GPU run.
+
+### Fresh run
+
 For the current Part 1-only Kaggle run, import
 [Lab2_Part1_Kaggle_Final.ipynb](notebooks/Lab2_Part1_Kaggle_Final.ipynb).
 Select a nominal 16-GB GPU, enable Internet, attach the competition data and use
 Save Version > Save & Run All. All helper code is embedded. Public model and PDF
 downloads are pinned, so no separate Python upload or Hugging Face token is needed.
 
-The v5 notebook fixes the supplied v4 failure, `Use only supplied figure labels: []`.
+The v5.1 notebook retains the v4 failure fix, `Use only supplied figure labels: []`.
 The GPU model loaded successfully in that log; unconstrained generation then kept
 guessing a figure label despite having no figure evidence. The first call still
 uses natural JSON. Invalid outputs retry with schema-constrained decoding whose
@@ -32,8 +57,8 @@ It is validated and published before the separate golden-set evaluation. A later
 evaluation failure does not hide the completed CSV, but does leave the full lab
 evaluation incomplete. Inner errors print automatically and stay in the result ZIP.
 The only measured public leaderboard score so far is the user's original 0.419.
-The v5 score and complete GPU runtime have not been measured here. Neither a 0.8
-or 0.9 score nor completion within 90 minutes is claimed by passing CPU tests.
+The v5.1 score and complete GPU runtime are unverified. Neither a 0.8 nor a 0.9
+score, nor completion within 90 minutes, is established by passing CPU tests.
 
 For a standalone Colab run with no separate Python uploads, open
 [Lab2_Colab_Standalone.ipynb](notebooks/Lab2_Colab_Standalone.ipynb).

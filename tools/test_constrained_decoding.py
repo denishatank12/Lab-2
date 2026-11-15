@@ -224,6 +224,12 @@ class TinyActualVisionGenerationTest(unittest.TestCase):
             self.assertEqual(repaired['figure_references'], [])
             self.assertTrue(set(repaired['citations']).issubset({'DOC1:p1'}))
             self.assertEqual(len(retry_model.calls), 2)
+            from citation_judge import judge_citations
+            judgments = judge_citations(model, dict(answer='Fictional answer.', citations=['DOC1:p1']),
+                                       [dict(text_hits[0], image_path=str(path))])
+            self.assertEqual([r['source'] for r in judgments], ['DOC1:p1'])
+            self.assertIs(type(judgments[0]['supported']), bool)
+            self.assertTrue(judgments[0]['reason'].strip())
         self.assertEqual(answer['answer'], 'Synthetic format fixture.')
         Conversation.validate(answer, HITS)
 
