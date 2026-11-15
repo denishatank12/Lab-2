@@ -59,7 +59,7 @@ def main() -> None:
     data_dir = Path(args.data_dir)
     if not args.lexical_only:
         from multimodal import MultimodalIndex, Conversation
-        from run_checkpoint import ItemCheckpoint, experiment_sources, atomic_json, digest
+        from run_checkpoint import ItemCheckpoint, experiment_sources, atomic_json, digest, file_hash, runtime_identity
         import time
         index = MultimodalIndex(data_dir, Path(args.output).parent / "index")
         questions = Path(args.questions_path) if args.questions_path else data_dir / "Questions.csv"
@@ -112,6 +112,10 @@ def main() -> None:
                 writer = csv.DictWriter(handle, fieldnames=["id", "conversation_id", "question_id", "answer", "figure_references", "citations", "status"])
                 writer.writeheader()
                 writer.writerows(answers[row["id"]] for row in rows)
+            atomic_json(output.with_suffix('.provenance.json'), dict(
+                submission_sha256=file_hash(output), questions_sha256=file_hash(questions),
+                sources=experiment_sources('part1_rag'), runtime=runtime_identity(),
+                document_sha256=index.ingestion['source_sha256'], rows=len(rows)))
             print(f"wrote {len(rows)} model-generated rows to {output}")
         finally:
             if conversations:

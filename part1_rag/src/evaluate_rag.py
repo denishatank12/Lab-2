@@ -159,6 +159,10 @@ def evaluate(data, output, golden):
                 correct_out_of_25=sum(r["candidate_numeric_status_correct"] for r in rows),
                 retrieval_recall_at_5=statistics.mean(recall_values),
                 model_judged_citation_accuracy=entailed / cited if cited else None,
+                optional_reviews_completed=sum(r.get('evidence_review', {}).get('completed') is True
+                    for r in rows if r.get('evidence_review')),
+                optional_reviews_failed=sum(r.get('evidence_review', {}).get('completed') is False
+                    for r in rows if r.get('evidence_review')),
                 median_seconds_per_question=statistics.median(r["seconds"] for r in rows),
                 human_groundedness=human['mean_groundedness'], human_agreement_within_one=human['agreement_within_one'],
                 reference_status="team verified" if all(r.get("team_verified") for r in items) else "AI-assisted candidate references require team review"))

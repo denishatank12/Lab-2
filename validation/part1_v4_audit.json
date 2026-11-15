@@ -1,0 +1,21 @@
+{
+  "scope": "Kaggle v4 recovery and diagnostic changes; not a verified full 7B GPU run.",
+  "observed_user_failure": "The v3 launcher exited with code 1. Its underlying GPU-stage error was not supplied, so its root cause is still unknown.",
+  "changes": [
+    "A failed optional review output validation can retain the already validated draft, with completed=false and its validation errors saved. It is not relabeled as a successful review.",
+    "CUDA, model-loading and other runtime failures remain errors. Invalid base answers are not fabricated into successful rows.",
+    "The official CSV validator and a generation receipt check the full prediction file before it is published.",
+    "The completed CSV is published before the separate evaluation stage. A late evaluation failure does not mark that evaluation complete or discard valid predictions.",
+    "Inner notebook exceptions and stage logs print automatically with credential redaction.",
+    "The result ZIP retains available predictions, traces, executed cells and diagnostic logs.",
+    "No changes were made to Part 2, Part 3, original course documents, competition questions or candidate reference answers."
+  ],
+  "new_output": "submission_part1_v4.csv",
+  "gpu_run_verified": false,
+  "new_leaderboard_score": null,
+  "limitations": [
+    "Local fixture and clean-folder CPU tests cannot certify CUDA compatibility, full runtime or answer quality.",
+    "The actual cause of the user's v3 failure requires its saved notebook or log.",
+    "A 0.8/0.9 leaderboard score, a completely error-free GPU run and completion within 90 minutes are not guaranteed."
+  ]
+}

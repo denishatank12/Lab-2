@@ -7,18 +7,89 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from kaggle_runtime import configure_runtime
-from part1_kaggle import find_questions, export
+from part1_kaggle import find_questions, export, publish_submission, run
+from part1_diagnostics import failure_details
+from run_checkpoint import experiment_sources, runtime_identity, file_hash
 
 
 class Part1RuntimeTests(unittest.TestCase):
+    def fixture_submission(self, root):
+        output = root / 'part1_rag/outputs/v2'
+        output.mkdir(parents=True)
+        (output / 'submission.csv').write_text('id,conversation_id,question_id,answer,figure_references,citations,status\n'
+            '1,C01,Q01,Fictional test answer,NONE,DOC1:p1,answered\n')
+        (output / 'questions_used.csv').write_text('id,conversation_id,question_id,question\n1,C01,Q01,Fictional test question\n')
+        (output / 'run_inputs.json').write_text(json.dumps(dict(smoke_only=False,
+            questions_sha256=file_hash(output / 'questions_used.csv'))))
+        (output / 'submission.provenance.json').write_text(json.dumps(dict(
+            submission_sha256=file_hash(output / 'submission.csv'),
+            questions_sha256=file_hash(output / 'questions_used.csv'),
+            sources=experiment_sources('part1_rag'), runtime=runtime_identity(), rows=1)))
+        validator = root / 'part1_rag/data/validate_submission.py'
+        validator.parent.mkdir(parents=True)
+        shutil.copy2(ROOT / 'part1_rag/data/validate_submission.py', validator)
+        return output
+
+    def test_completed_csv_is_published_without_waiting_for_evaluation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / 'working/Lab2_Standalone_fixture'
+            output = self.fixture_submission(root)
+            path = publish_submission(root)
+            self.assertEqual(path.name, 'submission_part1_v4.csv')
+            self.assertEqual(path.read_bytes(), (output / 'submission.csv').read_bytes())
+            self.assertTrue((output / 'published_submission.json').is_file())
+
+    def test_stale_or_changed_predictions_are_not_published(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / 'working/Lab2_Standalone_fixture'
+            output = self.fixture_submission(root)
+            with (output / 'submission.csv').open('a') as stream:
+                stream.write('2,C02,Q02,Changed,NONE,NONE,not_found\n')
+            with self.assertRaisesRegex(ValueError, 'hashes'):
+                publish_submission(root)
+            self.assertFalse((root.parent / 'submission_part1_v4.csv').exists())
+
+    def test_late_evaluation_failure_retains_real_csv_but_is_not_called_complete(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / 'working/Lab2_Standalone_fixture'
+            self.fixture_submission(root)
+            with patch('overnight_runner.execute_saved', side_effect=RuntimeError('Fictional evaluation failure')), \
+                 patch('part1_kaggle.export', return_value=root / 'fixture.zip'), \
+                 patch('kaggle_runtime.publish_zip'), redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(RuntimeError, 'Fictional evaluation failure'):
+                    run(root)
+            record = json.loads((root / 'runtime_checks/part1_completion.json').read_text())
+            self.assertTrue(record['csv_generation_complete'])
+            self.assertFalse(record['computational_checks_passed'])
+            self.assertFalse(record['submission_ready'])
+            self.assertTrue(Path(record['competition_csv']).is_file())
+
+    def test_failure_diagnostics_reveal_inner_error_and_redact_credentials(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            saved = root / 'output/executed/part1_rag/Part1_Kaggle_Experiment.ipynb'
+            saved.parent.mkdir(parents=True)
+            saved.write_text(json.dumps(dict(cells=[dict(outputs=[dict(output_type='error',
+                ename='ValueError', evalue='Fictional inner cause', traceback=['Fictional traceback'])])])) )
+            log = root / 'runtime_checks/generate_submission.log'
+            log.parent.mkdir()
+            token = 'hf_' + 'z' * 30
+            log.write_text('Fictional source log: ' + token)
+            detail = failure_details(root)
+            self.assertIn('Fictional inner cause', detail)
+            self.assertIn('TOKEN REDACTED', detail)
+            self.assertNotIn(token, detail)
+
     def test_public_part1_models_require_no_secret(self):
         with tempfile.TemporaryDirectory() as folder:
             working = Path(folder) / 'working'
@@ -101,7 +172,10 @@ class Part1RuntimeTests(unittest.TestCase):
             self.assertIn('tools/test_evidence_review.py', '\n'.join(sources))
             self.assertIn('LAB2_RAG_EVIDENCE_REVIEW', '\n'.join(sources))
             self.assertIn('part1_rag/src/evidence_review.py', bundle.namelist())
-            self.assertIn('submission_part1_v3.csv', bundle.read('tools/part1_kaggle.py').decode())
+            self.assertIn('submission_part1_v4.csv', bundle.read('tools/part1_kaggle.py').decode())
+            self.assertIn('tools/part1_diagnostics.py', bundle.namelist())
+            self.assertIn('READ-ONLY FAILURE DIAGNOSTICS', '\n'.join(codes))
+            self.assertIn('publish_submission(ROOT)', '\n'.join(sources))
 
 
 if __name__ == '__main__':

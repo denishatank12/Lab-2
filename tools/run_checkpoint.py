@@ -53,7 +53,7 @@ def experiment_sources(part):
     result=source_hashes(ROOT / name for name in names)
     if part == 'part1_rag':
         result['rag_runtime_options'] = {key: os.environ.get(key, '') for key in
-            ['LAB2_RAG_PROFILE', 'LAB2_RAG_NATURAL_JSON', 'LAB2_RAG_EVIDENCE_REVIEW']}
+            ['LAB2_RAG_PROFILE', 'LAB2_RAG_NATURAL_JSON', 'LAB2_RAG_EVIDENCE_REVIEW', 'LAB2_RAG_REVIEW_REQUIRED']}
     if part!='part1_rag':
         registry=json.loads((ROOT/'part2_diffusion/evidence/hub_links.json').read_text())
         # Grader-access confirmations do not change model outputs. Only bind the selected adapter.

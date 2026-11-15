@@ -127,6 +127,32 @@ class AuditTests(unittest.TestCase):
         with patch.dict(os.environ, LAB2_RAG_EVIDENCE_REVIEW='1'), self.assertRaisesRegex(ValueError, 'after 2 attempts'):
             Conversation(Index(), Model()).answer('What is growth in 2042?')
 
+    def test_optional_review_failure_keeps_validated_draft_and_explicit_failed_review(self):
+        class Index:
+            def search(self, *args, **kwargs): return [copy.deepcopy(HIT)]
+        class Model:
+            def json(self, *args, **kwargs): return copy.deepcopy(ANSWER)
+        with patch.dict(os.environ, LAB2_RAG_EVIDENCE_REVIEW='1', LAB2_RAG_REVIEW_REQUIRED='0'):
+            chat = Conversation(Index(), Model())
+            self.assertEqual(chat.answer('What is growth in 2042?'), ANSWER)
+            self.assertFalse(chat.last_audit['completed'])
+            self.assertFalse(chat.last_audit['changed'])
+            self.assertIn('after 2 attempts', chat.last_audit['error'])
+            self.assertEqual(chat.history[-1]['assistant'], ANSWER)
+
+    def test_real_runtime_failure_is_not_converted_into_an_optional_review_warning(self):
+        class Index:
+            def search(self, *args, **kwargs): return [copy.deepcopy(HIT)]
+        class Model:
+            def __init__(self): self.calls = 0
+            def json(self, *args, **kwargs):
+                self.calls += 1
+                if self.calls == 1: return copy.deepcopy(ANSWER)
+                raise RuntimeError('Fictional CUDA failure')
+        with patch.dict(os.environ, LAB2_RAG_EVIDENCE_REVIEW='1', LAB2_RAG_REVIEW_REQUIRED='0'):
+            with self.assertRaisesRegex(RuntimeError, 'Fictional CUDA failure'):
+                Conversation(Index(), Model()).answer('What is growth in 2042?')
+
     def test_simple_definition_does_not_spend_a_second_call(self):
         raw = dict(answer='A fictional definition.', status='answered', citations=['DOC8:p4'], figure_references=[])
         self.assertFalse(needs_review('Define the fictional term.', raw, [], []))

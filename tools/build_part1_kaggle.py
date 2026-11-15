@@ -24,13 +24,14 @@ This run compares dense retrieval with hybrid dense/BM25/CLIP retrieval followed
 import os, sys, json, csv, time, subprocess, hashlib, shutil
 ROOT = Path(os.environ["LAB2_STANDALONE_ROOT"])
 sys.path[:0] = [str(ROOT / "tools"), str(ROOT / "part1_rag/src")]
-from part1_kaggle import find_questions
+from part1_kaggle import find_questions, publish_submission
 from run_checkpoint import atomic_json, runtime_identity
 from rag_model import MODEL, REVISION
 SMOKE_ONLY = os.environ.get("LAB2_SMOKE_ONLY") == "1"
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
 os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "1"
+os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 DATA = ROOT / "part1_rag/data"
 P1 = ROOT / "part1_rag"
 OUTPUT = P1 / "outputs/v2"
@@ -39,7 +40,8 @@ QUESTIONS = find_questions(DATA)
 shutil.copy2(QUESTIONS, OUTPUT / "questions_used.csv")
 atomic_json(OUTPUT / "run_inputs.json", dict(questions_path=str(QUESTIONS),
     questions_sha256=hashlib.sha256(QUESTIONS.read_bytes()).hexdigest(), hardware=runtime_identity(),
-    seed=266, smoke_only=SMOKE_ONLY, protocol="source-checked-7b-v3", evidence_review=True,
+    seed=266, smoke_only=SMOKE_ONLY, protocol="recoverable-source-checked-7b-v4", evidence_review=True,
+    review_policy="retain validated draft and log failed optional review; runtime errors remain fatal",
     answering_model=MODEL, model_revision=REVISION, language_weights="NF4", vision_weights="float16"))
 print("Actual hardware and inputs:", (OUTPUT / "run_inputs.json").read_text())
 
@@ -52,6 +54,7 @@ def run_script(relative, *arguments):
         # Unit fixtures explicitly opt into the reviewer where it is tested.
         # They must not inherit a real-generation option from the launcher.
         process_env["LAB2_RAG_EVIDENCE_REVIEW"] = "0"
+        process_env["LAB2_RAG_REVIEW_REQUIRED"] = "1"
     with log.open("a", encoding="utf-8") as handle:
         process = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, encoding="utf-8", errors="replace", env=process_env)
@@ -99,6 +102,7 @@ else:
     run_script("part1_rag/src/generate_submission.py", "--data-dir", DATA,
         "--questions-path", QUESTIONS, "--output", OUTPUT / "submission.csv", "--require-dense")
     run_script("part1_rag/data/validate_submission.py", OUTPUT / "submission.csv", QUESTIONS)
+    publish_submission(ROOT)
     with (OUTPUT / "submission.csv").open(newline="", encoding="utf-8") as handle:
         answers = list(csv.DictReader(handle))
     print("Example model answers:", json.dumps(answers[:3], indent=2, ensure_ascii=False))
@@ -134,7 +138,7 @@ def build():
         'tools/standalone_colab.py', 'tools/overnight_runner.py', 'tools/export_lab_results.py',
         'tools/kaggle_runtime.py', 'tools/part1_kaggle.py', 'tools/test_part1_retrieval.py',
         'tools/test_constrained_decoding.py', 'tools/rag_model.py', 'tools/test_part1_quality.py',
-        'tools/test_evidence_review.py',
+        'tools/test_evidence_review.py', 'tools/part1_diagnostics.py',
         'part1_rag/eval/golden_candidate.json']
     files = {name: (ROOT / name).read_bytes() for name in names}
     files['requirements.txt'] += b'\nbitsandbytes==0.44.1\n'
@@ -194,14 +198,17 @@ print("Verified embedded source:", BUNDLE_SHA256)
 os.environ["LAB2_RAG_PROFILE"] = "7b-nf4"
 os.environ["LAB2_RAG_NATURAL_JSON"] = "1"
 os.environ["LAB2_RAG_EVIDENCE_REVIEW"] = "1"
+os.environ["LAB2_RAG_REVIEW_REQUIRED"] = "0"
 '''
     md, code = nb.v4.new_markdown_cell, nb.v4.new_code_cell
     notebook = nb.v4.new_notebook(cells=[
-        md('''# Lab 2 Part 1: Source-checked Kaggle run (v3)
+        md('''# Lab 2 Part 1: Kaggle run (v4)
 
 Import this one file into Kaggle and run it with a nominal 16-GB GPU and Internet enabled. All executable source is embedded; course PDFs download from pinned URLs with SHA-256 checks. The notebook creates its helper files automatically and uses an isolated pinned Python environment. No repository clone, extra Python upload or Hugging Face token is required for the public models. Its source is checked to stay below Kaggle's 1-MB saving limit.
 
 This revision keeps the table-grid and exact-chart fixes, reduces duplicate page context, adds document vintage metadata and links explicit revision notices from the PDFs. Risky answers receive one bounded source-review stage using the same local model. Text checks must quote an actual supplied source, image checks must identify an attached image, and figure references must agree with citations. Ordinary questions about economic changes are no longer remembered as assumptions. No competition reference answers or question-specific lookup rules are used by the answering pipeline. Both baseline and final use Qwen2-VL-7B in NF4 with float16 vision.
+
+An optional editor's malformed output no longer discards an already validated draft. The trace records that review as failed, and the visible metrics report review coverage. Invalid base answers and genuine CUDA, download or model-loading failures still stop the run. If a stage fails, its saved inner diagnostics print automatically and partial results are exported. A completed, provenance-checked CSV is copied to the Output panel before the separate evaluation stage, so a later evaluation failure does not hide the predictions. Do not mistake an available CSV for completion of the full lab requirements.
 
 A higher leaderboard score is not guaranteed. Your prior measured score was 0.419; this revised GPU score is unknown. Source quotes prove that text exists, not that a model has interpreted it correctly. The automatic reviewer is not a substitute for human ratings. Its extra calls add runtime; the whole GPU run still needs to be measured against the course's 90-minute limit.
 
@@ -212,7 +219,16 @@ Attach the competition data if available. An attached Questions.csv is selected 
         md('''## Run and keep the executed experiment
 
 The isolated child notebook saves after every cell, so its outputs go into the result ZIP. Validation and checkpoint tests run before model generation. Errors are retained and partial results are exported automatically when possible. Unchanged completed answers can resume while this exact run folder still exists.'''),
-        code('''run_script("tools/part1_kaggle.py", "run", *(["--smoke-only"] if SMOKE_ONLY else []))
+        code('''try:
+    run_script("tools/part1_kaggle.py", "run", *(["--smoke-only"] if SMOKE_ONLY else []))
+except Exception:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("part1_diagnostics", ROOT / "tools/part1_diagnostics.py")
+    diagnostics = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(diagnostics)
+    print("\\nREAD-ONLY FAILURE DIAGNOSTICS:\\n" + diagnostics.failure_details(ROOT))
+    print("Keep this session open. The final export cell can be run independently; it does not repeat inference.")
+    raise
 print((ROOT / "runtime_checks/part1_completion.json").read_text())'''),
         md('''## View measured results
 
@@ -223,7 +239,7 @@ else:
     from IPython.display import display, HTML
     import html
     metrics = json.loads((ROOT / "part1_rag/outputs/v2/evaluation/evaluation.json").read_text())
-    columns = ["system", "correct_out_of_25", "retrieval_recall_at_5", "model_judged_citation_accuracy", "median_seconds_per_question"]
+    columns = ["system", "correct_out_of_25", "retrieval_recall_at_5", "model_judged_citation_accuracy", "median_seconds_per_question", "optional_reviews_completed", "optional_reviews_failed"]
     header = "".join("<th>" + html.escape(key) + "</th>" for key in columns)
     rows = "".join("<tr>" + "".join("<td>" + html.escape(str(row.get(key))) + "</td>" for key in columns) + "</tr>" for row in metrics["results"])
     display(HTML("<table><tr>" + header + "</tr>" + rows + "</table>"))
@@ -235,7 +251,7 @@ else:
     print("This timing excludes the first setup/install cell. Save Version's runtime is the whole-run timing.")'''),
         md('''## Download the CSV, executed notebook and evidence
 
-In Kaggle's Output panel download submission_part1_v3.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. Do not accidentally resubmit the old 0.419 CSV. The ZIP includes the executed experiment, draft/final answer traces, source checks, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
+In Kaggle's Output panel download submission_part1_v4.csv (or its bundle-suffixed name if an older CSV was preserved), the Part 1 Results ZIP, and this notebook with its outputs. The exact new CSV path prints above. Do not accidentally resubmit the old 0.419 CSV. The ZIP includes the executed experiment, draft/final answer traces, source checks, review-failure warnings, evaluation, blank human-rating forms and diagnostic logs. It does not contain pretrained model caches or secrets. Running this cell never repeats model inference.
 
 The completed run still needs real human ratings, team reference review, report/team records, a final tag and the actual Kaggle/Canvas submission. A green computation check does not stand in for those items.'''),
         code('''from pathlib import Path

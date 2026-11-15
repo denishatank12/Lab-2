@@ -604,12 +604,26 @@ class Conversation:
                 schema=schema)
             if (not self.dense_only and os.environ.get('LAB2_RAG_EVIDENCE_REVIEW') == '1'
                     and needs_review(question, result, self.history, self.session_facts)):
-                audit = review_answer(self.model, question, result, packet, hits,
-                    [r['image_path'] for r in image_records], [r['citation'] for r in image_records],
-                    self.session_facts, self.history[-5:], self.validate)
-                self.last_audit = dict(draft=result, checks=audit['checks'],
-                    changed=audit['answer'] != result, final=audit['answer'])
-                result = audit['answer']
+                try:
+                    audit = review_answer(self.model, question, result, packet, hits,
+                        [r['image_path'] for r in image_records], [r['citation'] for r in image_records],
+                        self.session_facts, self.history[-5:], self.validate)
+                except ValueError as exc:
+                    if os.environ.get('LAB2_RAG_REVIEW_REQUIRED', '1') != '0':
+                        raise
+                    # Only the optional editor's output validation may recover.
+                    # The draft already passed the unchanged answer validator.
+                    # CUDA, download and other RuntimeErrors still propagate.
+                    self.last_audit = dict(completed=False, draft=result, final=result,
+                        changed=False, checks=[], error=str(exc),
+                        validation_errors=getattr(exc, 'validation_errors', []),
+                        raw=getattr(exc, 'raw_response', None))
+                    print('OPTIONAL REVIEW WARNING: retaining the validated draft; '
+                          'the source review did not pass. Details are saved in the answer trace.', flush=True)
+                else:
+                    self.last_audit = dict(completed=True, draft=result, checks=audit['checks'],
+                        changed=audit['answer'] != result, final=audit['answer'])
+                    result = audit['answer']
         except ValueError as exc:
             output = getattr(self.index, 'output', None)
             if output:

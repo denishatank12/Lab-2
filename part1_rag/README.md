@@ -8,15 +8,21 @@ Select a nominal 16-GB GPU, enable Internet, attach the competition data and use
 Save Version > Save & Run All. All helper code is embedded. Public model and PDF
 downloads are pinned, so no separate Python upload or Hugging Face token is needed.
 
-The v3 notebook uses the same 7B NF4 model for both systems. The final system adds
+The v4 notebook uses the same 7B NF4 model for both systems. The final system adds
 an evidence review for numeric, chart, revision and conversational answers.
 Text observations must include a real source quote. Its result ZIP preserves the
-draft, final answer and checks. This is an automatic model judgment, not proof of
-correctness or a human rating. The additional calls also cost time.
+draft, final answer and checks. If only that optional review fails output
+validation, the original validated draft is retained and the failed review is
+reported explicitly. Real CUDA/model errors and invalid base answers still stop
+the run. This is an automatic model judgment, not proof of correctness or a human
+rating. The additional calls also cost time.
 
-Use the newly generated `submission_part1_v3.csv`, not the old submitted CSV.
+Use the newly generated `submission_part1_v4.csv`, not the old submitted CSV.
+It is validated and published before the separate golden-set evaluation. A later
+evaluation failure does not hide the completed CSV, but does leave the full lab
+evaluation incomplete. Inner errors print automatically and stay in the result ZIP.
 The only measured public leaderboard score so far is the user's original 0.419.
-The v3 score and complete GPU runtime have not been measured here. Neither a 0.8
+The v4 score and complete GPU runtime have not been measured here. Neither a 0.8
 or 0.9 score nor completion within 90 minutes is claimed by passing CPU tests.
 
 For a standalone Colab run with no separate Python uploads, open

@@ -1,14 +1,14 @@
 {
   "scope": "Clean-folder CPU smoke only. Model calls and quality metrics skipped.",
-  "elapsed_seconds": 72.73456512502162,
-  "folder": "/var/folders/66/0f3yxgtx51sc7fytsl8703ym0000gn/T/lab2-part1-kaggle-final-hzp4awmf",
+  "elapsed_seconds": 79.5074765419995,
+  "folder": "/var/folders/66/0f3yxgtx51sc7fytsl8703ym0000gn/T/lab2-part1-kaggle-final-_q_6zznf",
   "error": null,
   "saved_errors": 0,
   "execution": {
     "completed": true,
-    "seconds": 72.70146166702034,
+    "seconds": 79.47302541699901,
     "smoke_only": true,
     "source": "/Users/denishatank/Documents/ChatGPT/Gen AI/Lab-2/part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb",
-    "source_cells_sha256": "b57da3fb26af92caa02824f80d74d8d8c5db5eaced05779fc6432af75f97ee30"
+    "source_cells_sha256": "2838f30b9f838d548446a50f254c6160ba94733be44d4b91bf2acf03513e9fe8"
   }
 }

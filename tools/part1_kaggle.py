@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import time
 import zipfile
@@ -27,6 +28,45 @@ def find_questions(data, environ=None, input_root=Path('/kaggle/input')):
     if len(candidates) > 1:
         raise ValueError('Multiple attached Questions.csv files found. Set QUESTIONS_PATH explicitly; no file was guessed.')
     return candidates[0].resolve() if candidates else (Path(data) / 'Questions.csv').resolve()
+
+
+def publish_submission(root=ROOT):
+    """Publish completed, officially validated predictions before evaluation.
+
+    A receipt ties the CSV to actual generation with this source, question file
+    and runtime. A stale CSV or a partial row set is never labeled as complete.
+    """
+    from run_checkpoint import file_hash, experiment_sources, runtime_identity
+    root = Path(root)
+    output = root / 'part1_rag/outputs/v2'
+    source, questions = output / 'submission.csv', output / 'questions_used.csv'
+    receipt = json.loads(source.with_suffix('.provenance.json').read_text())
+    inputs = json.loads((output / 'run_inputs.json').read_text())
+    if inputs.get('smoke_only') is not False:
+        raise ValueError('A CPU smoke does not produce a competition submission.')
+    if (not source.is_file() or not questions.is_file() or
+            receipt.get('submission_sha256') != file_hash(source) or
+            receipt.get('questions_sha256') != file_hash(questions) or
+            inputs.get('questions_sha256') != file_hash(questions)):
+        raise ValueError('Submission/input hashes do not match the completed-generation receipt.')
+    if receipt.get('sources') != experiment_sources('part1_rag') or receipt.get('runtime') != runtime_identity():
+        raise ValueError('Submission receipt belongs to different source/options or hardware. Old results were preserved.')
+    validator = root / 'part1_rag/data/validate_submission.py'
+    checked = subprocess.run([sys.executable, '-I', str(validator), str(source), str(questions)],
+        cwd=root, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
+    if checked.returncode:
+        raise ValueError('Official CSV validation failed:\n' + (checked.stdout + checked.stderr)[-4000:])
+    destination = root.parent / 'submission_part1_v4.csv'
+    if destination.exists() and destination.read_bytes() != source.read_bytes():
+        destination = root.parent / ('submission_part1_v4_' + root.name.removeprefix('Lab2_Standalone_') + '.csv')
+    if destination.exists() and destination.read_bytes() != source.read_bytes():
+        raise FileExistsError('A different submission exists at the destination and was preserved.')
+    shutil.copy2(source, destination)
+    atomic_json(output / 'published_submission.json', dict(path=str(destination),
+        sha256=file_hash(destination), generation_receipt=receipt,
+        meaning='CSV generation and format validation complete; this is not completion of the full lab evaluation.'))
+    print('VALIDATED KAGGLE CSV:', destination, flush=True)
+    return destination
 
 
 def export(root=ROOT):
@@ -100,17 +140,21 @@ def run(root=ROOT, smoke=False):
             record['computational_checks_passed'] = all(record['checks'].values())
             if not record['computational_checks_passed']:
                 raise RuntimeError('Part 1 computation checks failed. Partial evidence was retained.')
-            destination = root.parent / 'submission_part1_v3.csv'
-            if destination.exists() and destination.read_bytes() != (output / 'submission.csv').read_bytes():
-                destination = root.parent / ('submission_part1_v3_' + root.name.removeprefix('Lab2_Standalone_') + '.csv')
-            if destination.exists() and destination.read_bytes() != (output / 'submission.csv').read_bytes():
-                raise FileExistsError('A different submission exists at the destination and was preserved.')
-            shutil.copy2(output / 'submission.csv', destination)
+            destination = publish_submission(root)
             record['competition_csv'] = str(destination)
-            print('VALIDATED KAGGLE CSV:', destination, flush=True)
         print('Part 1 finished. Human review and the external competition submission remain separate.', flush=True)
     except Exception as exc:
         record['error'] = str(exc)
+        if not smoke and (root / 'part1_rag/outputs/v2/submission.provenance.json').is_file():
+            try:
+                record['competition_csv'] = str(publish_submission(root))
+                record['csv_generation_complete'] = True
+            except Exception as csv_exc:
+                record['csv_publish_error'] = str(csv_exc)
+        from part1_diagnostics import failure_details, safe_text
+        diagnostic = safe_text(type(exc).__name__ + ': ' + str(exc), 8000) + '\n\n' + failure_details(root)
+        atomic_json(root / 'runtime_checks/part1_failure_diagnostics.json', dict(details=diagnostic))
+        print('\nACTUAL SAVED FAILURE DETAILS:\n' + diagnostic, flush=True)
         raise
     finally:
         record['seconds'] = time.perf_counter() - started
