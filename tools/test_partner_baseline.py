@@ -1,6 +1,7 @@
 """Offline checks for attribution, baseline-only routing and standalone packaging."""
 import ast
 import base64
+from contextlib import redirect_stderr, redirect_stdout
 import hashlib
 import importlib.util
 import io
@@ -21,6 +22,59 @@ from build_partner_baseline_notebook import payload
 
 
 class PartnerBaselineTests(unittest.TestCase):
+    def authentication_helper(self):
+        notebook = nb.read(ROOT / "part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb", as_version=4)
+        tree = ast.parse(notebook.cells[1].source)
+        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "configure_hf_token")
+        namespace = {}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), "notebook-auth-helper", "exec"), namespace)
+        return namespace["configure_hf_token"]
+
+    def test_auth_uses_existing_environment_without_prompt(self):
+        configure = self.authentication_helper()
+        env = {"HF_TOKEN": "fictional-environment-credential"}
+        def forbidden(*args):
+            self.fail("An existing credential must not require another secret or prompt.")
+        self.assertEqual(configure(env, forbidden, forbidden), "environment")
+
+    def test_auth_uses_secret_without_prompt_or_output(self):
+        configure = self.authentication_helper()
+        env, output = {}, io.StringIO()
+        with redirect_stdout(output), redirect_stderr(output):
+            result = configure(env, lambda: " fictional-secret-value ",
+                               lambda _: self.fail("Secret was already available."))
+        self.assertEqual(result, "notebook secret")
+        self.assertEqual(env["HF_TOKEN"], "fictional-secret-value")
+        self.assertEqual(output.getvalue(), "")
+
+    def test_auth_missing_secret_uses_hidden_prompt_without_echo(self):
+        configure = self.authentication_helper()
+        env, output = {}, io.StringIO()
+        def missing():
+            raise RuntimeError("fictional secret permission denied")
+        with redirect_stdout(output), redirect_stderr(output):
+            result = configure(env, missing, lambda _: " fictional-hidden-value ")
+        self.assertEqual(result, "hidden prompt")
+        self.assertEqual(env["HF_TOKEN"], "fictional-hidden-value")
+        self.assertEqual(output.getvalue(), "")
+
+    def test_auth_background_or_plaintext_fallback_is_blocked(self):
+        import warnings
+        from getpass import GetPassWarning
+        configure = self.authentication_helper()
+        def unavailable(_):
+            raise EOFError("fictional background execution")
+        def plaintext(_):
+            warnings.warn("fictional unsafe fallback", GetPassWarning)
+            self.fail("Must stop before accepting an echoing input.")
+        for prompt in [unavailable, plaintext]:
+            env = {}
+            with self.assertRaisesRegex(RuntimeError, "interactively"):
+                configure(env, lambda: "", prompt)
+            self.assertNotIn("HF_TOKEN", env)
+        with self.assertRaisesRegex(RuntimeError, "No token entered"):
+            configure({}, lambda: "", lambda _: "  ")
+
     def unpack(self, path):
         with zipfile.ZipFile(io.BytesIO(payload())) as bundle:
             bundle.extractall(path)

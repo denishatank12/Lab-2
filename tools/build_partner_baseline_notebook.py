@@ -72,25 +72,43 @@ os.environ['HF_HOME'] = str(scratch / 'lab2_p3_hf_cache')
 os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 os.environ['PYTHONUNBUFFERED'] = '1'
+
+def configure_hf_token(environ, secret_loader=None, hidden_prompt=None):
+    # Never return, print, or save the credential. Child processes inherit it.
+    from getpass import getpass, GetPassWarning
+    import warnings
+    token = (environ.get('HF_TOKEN') or '').strip()
+    source = 'environment'
+    if not token and secret_loader is not None:
+        try:
+            token = (secret_loader() or '').strip()
+        except Exception:
+            token = ''
+        source = 'notebook secret'
+    if not token:
+        source = 'hidden prompt'
+        try:
+            # Refuse a terminal fallback that could echo the value as plain text.
+            with warnings.catch_warnings():
+                warnings.simplefilter('error', GetPassWarning)
+                token = (hidden_prompt or getpass)('Hugging Face read token (hidden): ').strip()
+        except Exception:
+            raise RuntimeError('Hidden token entry is unavailable. Run this setup cell interactively, '
+                'or enable HF_TOKEN in Kaggle Add-ons > Secrets before a background run.') from None
+    if not token:
+        raise RuntimeError('No token entered. Enable HF_TOKEN or rerun this cell and use the hidden input box.')
+    environ['HF_TOKEN'] = token
+    return source
+
 if not SMOKE_ONLY:
-    secret = os.environ.get('HF_TOKEN', '').strip()
-    if not secret and Path('/kaggle').is_dir():
-        try:
+    def notebook_secret():
+        if Path('/kaggle').is_dir():
             from kaggle_secrets import UserSecretsClient
-            secret = UserSecretsClient().get_secret('HF_TOKEN').strip()
-        except Exception:
-            raise RuntimeError('In Add-ons > Secrets, enable HF_TOKEN with access to the partner adapter. Do not paste it into code.') from None
-    elif not secret:
-        try:
-            from google.colab import userdata
-            secret = userdata.get('HF_TOKEN').strip()
-        except Exception:
-            from getpass import getpass
-            secret = getpass('Hugging Face read token (hidden): ').strip()
-    if not secret:
-        raise RuntimeError('A Hugging Face read token is required for the private partner adapter.')
-    os.environ['HF_TOKEN'] = secret
-    del secret
+            return UserSecretsClient().get_secret('HF_TOKEN')
+        from google.colab import userdata
+        return userdata.get('HF_TOKEN')
+    token_source = configure_hf_token(os.environ, secret_loader=notebook_secret)
+    print('Hugging Face credential loaded through:', token_source, '(value not displayed or saved)')
 
 # An isolated site-packages environment preserves the platform's CUDA torch.
 ENV = scratch / 'lab2_p3_baseline_env'
@@ -128,7 +146,7 @@ def run_baseline(action):
 
 Name: Denisha Ketan Tank. This notebook runs my own baseline using my partner Shibin's executed agent implementation, credited in the embedded provenance. It does not retrain Part 2 or repeat my partner's final critique-loop experiment.
 
-Before Run All, use a fresh Kaggle GPU session, enable Internet, and enable **HF_TOKEN** under Add-ons > Secrets. The token must read `Shibin22/sd15-naruto-run1-lora-r4`. Keep the notebook and outputs private. The code uses GPU 0 only, with diffusion CPU offload; two T4 cards do not combine their memory. Colab GPU sessions are also supported.
+Before Run All, use a fresh Kaggle GPU session and enable Internet. Enable **HF_TOKEN** under Add-ons > Secrets, or run the setup cell interactively and paste your token into its hidden input box. Never put a token in a code cell. Background Save & Run All jobs need the enabled secret because they cannot answer a prompt. The token must read `Shibin22/sd15-naruto-run1-lora-r4`. Keep the notebook and outputs private. The code uses GPU 0 only, with diffusion CPU offload; two T4 cards do not combine their memory. Colab GPU sessions are also supported.
 
 The baseline uses Qwen3-VL-8B in 4-bit, SD 1.5 plus the real private LoRA, InstructPix2Pix, CLIP and an image safety checker. It runs 15 scenarios and 10 red-team cases. The revision loop is disabled, but the partner's diagnostic critic and safety checks remain. The run cannot establish human task success; both members still need to inspect and rate the outputs.
 

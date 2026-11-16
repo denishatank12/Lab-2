@@ -20,7 +20,9 @@ The later v7/v8 experiments remain for history but are not recommended.
 For **Denisha's Part 3 baseline**, use
 [Part3_Partner_Baseline_Standalone.ipynb](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb).
 Import that one file into a fresh Kaggle GPU notebook, enable Internet and the
-`HF_TOKEN` secret, and Run All. It uses Shibin's actual adapter and the source
+`HF_TOKEN` secret, and Run All. Interactive setup can also ask for the token in
+a hidden input box if the secret is missing. Background runs need the secret.
+It uses Shibin's actual adapter and the source
 embedded in his executed notebook, with declared download/safety safeguards.
 It runs only the no-revision-loop baseline, saves an executed notebook and
 exports a ZIP. Real CUDA execution is still required; local CPU checks do not

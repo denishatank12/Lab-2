@@ -122,3 +122,8 @@ The original Part 1 v6 source associated with the user's 0.510 leaderboard
 screenshot is preserved. Later v8 outputs are not transplanted into v6. The
 completed Part 2 notebook and original measurements are unchanged. Missing
 human ratings and original v6 execution files remain pending rather than invented.
+
+The follow-up adds hidden interactive token entry when Kaggle Secrets is not
+configured. AI did not embed the user's disclosed token in the repository.
+Authentication regression tests use fictional values and check that credentials
+are not printed; unattended runs still require an enabled notebook secret.

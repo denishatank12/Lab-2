@@ -9,6 +9,12 @@ enable Internet and the `HF_TOKEN` secret with read access to
 the notebook checks it securely. No separate Python uploads or repository clone
 are needed. Do not run the older all-parts launcher for this baseline.
 
+If the Kaggle secret is missing, the setup cell now offers a hidden token input
+when run interactively. Paste the value only into that input box, not into code.
+For a background Save & Run All job, enable `HF_TOKEN` in Secrets instead; a
+background job cannot respond to the hidden prompt. Credentials remain in the
+runtime environment, not in the notebook source or result ZIP.
+
 The baseline disables the revision loop, not the diagnostic critic or safety
 filters. It runs the same 15 scenarios and 10 red-team cases, saves every
 request's typed state and trace, keeps the executed notebook, and exports one ZIP

@@ -351,3 +351,13 @@ The CPU execution test created a genuine executed **mock-only** notebook with
 no error outputs. It did not load Qwen3-VL, Stable Diffusion, the private adapter
 or a CUDA GPU. The new Part 3 baseline still needs a real GPU run. No new quality,
 timing, human-rating or 16-GB compatibility result is claimed by these tests.
+
+### Hidden token input follow-up
+
+The Part 3 baseline setup now falls back to hidden interactive input when the
+platform secret is unavailable. No credential is embedded in source, printed or
+written into the result bundle. Background jobs still need the enabled secret.
+The baseline suite passed 13 checks, including four authentication tests for
+existing environment values, platform secrets, a missing-secret hidden prompt,
+and rejection of unavailable or echoing input. The existing CPU mock notebook
+execution and integrity checks also passed again. This is not a new CUDA run.
