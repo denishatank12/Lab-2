@@ -22,13 +22,79 @@ from build_partner_baseline_notebook import payload
 
 
 class PartnerBaselineTests(unittest.TestCase):
-    def authentication_helper(self):
+    def notebook_helper(self, name):
         notebook = nb.read(ROOT / "part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb", as_version=4)
         tree = ast.parse(notebook.cells[1].source)
-        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "configure_hf_token")
+        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
         namespace = {}
-        exec(compile(ast.Module(body=[function], type_ignores=[]), "notebook-auth-helper", "exec"), namespace)
-        return namespace["configure_hf_token"]
+        exec(compile(ast.Module(body=[function], type_ignores=[]), "notebook-helper", "exec"), namespace)
+        return namespace[name]
+
+    def authentication_helper(self):
+        return self.notebook_helper("configure_hf_token")
+
+    def test_environment_creation_never_calls_ensurepip(self):
+        import venv
+        prepare = self.notebook_helper("prepare_python_environment")
+        with tempfile.TemporaryDirectory() as temporary:
+            env = Path(temporary) / "python_env"
+            with patch.object(venv.EnvBuilder, "_setup_pip", side_effect=AssertionError("ensurepip must never run")):
+                python = prepare(env)
+                self.assertEqual(prepare(env), python)
+            result = subprocess.run([str(python), '-c', 'import json,sys,torch; '
+                'print(json.dumps(dict(prefix=sys.prefix, version=list(sys.version_info[:2]), torch=torch.__version__)))'],
+                check=True, text=True, capture_output=True, timeout=90)
+            record = json.loads(result.stdout)
+            self.assertEqual(Path(record['prefix']).resolve(), env.resolve())
+            self.assertEqual(record['version'], list(sys.version_info[:2]))
+            import torch
+            self.assertEqual(record['torch'], torch.__version__)
+
+    def test_environment_recovers_partial_folder_without_deleting_files(self):
+        import venv
+        prepare = self.notebook_helper("prepare_python_environment")
+        with tempfile.TemporaryDirectory() as temporary:
+            env = Path(temporary) / "partial_env"
+            venv.EnvBuilder(with_pip=False, system_site_packages=False).create(env)
+            sentinel = env / "preserve_this_file.txt"
+            sentinel.write_text("fictional previous run marker")
+            with patch.object(venv.EnvBuilder, "_setup_pip", side_effect=AssertionError("broken ensurepip")):
+                prepare(env)
+            self.assertTrue(sentinel.exists())
+            self.assertIn('include-system-site-packages = true', (env / 'pyvenv.cfg').read_text().lower())
+
+    def test_host_pip_installs_offline_wheel_into_pip_free_target(self):
+        prepare = self.notebook_helper("prepare_python_environment")
+        with tempfile.TemporaryDirectory() as temporary:
+            env = Path(temporary) / "target"
+            python = prepare(env)
+            wheel = Path(temporary) / "lab2_env_probe-1.0-py3-none-any.whl"
+            with zipfile.ZipFile(wheel, 'w') as bundle:
+                files = {
+                    'lab2_env_probe/__init__.py': 'VALUE = "fictional bootstrap check"\n',
+                    'lab2_env_probe-1.0.dist-info/METADATA': 'Metadata-Version: 2.1\nName: lab2-env-probe\nVersion: 1.0\n',
+                    'lab2_env_probe-1.0.dist-info/WHEEL': 'Wheel-Version: 1.0\nRoot-Is-Purelib: true\nTag: py3-none-any\n'}
+                files['lab2_env_probe-1.0.dist-info/RECORD'] = ''.join(name + ',,\n' for name in files) + 'lab2_env_probe-1.0.dist-info/RECORD,,\n'
+                for name, contents in files.items():
+                    bundle.writestr(name, contents)
+            with patch.object(__import__('venv').EnvBuilder, '_setup_pip', side_effect=AssertionError('ensurepip forbidden')):
+                result = subprocess.run([sys.executable, '-m', 'pip', '--python', str(python), 'install',
+                    '--disable-pip-version-check', '--no-index', '--no-deps', str(wheel)],
+                    text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            result = subprocess.run([str(python), '-c', 'import lab2_env_probe; '
+                'print(lab2_env_probe.VALUE); print(lab2_env_probe.__file__)'],
+                check=True, capture_output=True, text=True, timeout=30)
+            self.assertIn('fictional bootstrap check', result.stdout)
+            self.assertIn(str(env), result.stdout)
+            self.assertIsNone(importlib.util.find_spec('lab2_env_probe'))
+
+    def test_packaged_setup_uses_host_pip_not_target_ensurepip(self):
+        notebook = nb.read(ROOT / "part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb", as_version=4)
+        setup = notebook.cells[1].source
+        self.assertNotIn('with_pip=True', setup)
+        self.assertIn("[sys.executable, '-m', 'pip', '--python', str(PYTHON)", setup)
+        self.assertIn('prepare_python_environment(ENV)', setup)
 
     def test_auth_uses_existing_environment_without_prompt(self):
         configure = self.authentication_helper()

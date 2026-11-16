@@ -127,3 +127,9 @@ The follow-up adds hidden interactive token entry when Kaggle Secrets is not
 configured. AI did not embed the user's disclosed token in the repository.
 Authentication regression tests use fictional values and check that credentials
 are not printed; unattended runs still require an enabled notebook secret.
+
+AI repaired the Kaggle `ensurepip` setup failure by creating an unseeded venv
+and installing through host pip's target-interpreter option. The repair adds
+interpreter identity and partial-environment recovery checks without changing
+the partner model source or existing Part 1/Part 2 results. Tests exercised the
+actual bootstrap and an offline wheel install on the Mac, not a full CUDA run.

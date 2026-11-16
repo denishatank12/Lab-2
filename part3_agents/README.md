@@ -15,6 +15,15 @@ For a background Save & Run All job, enable `HF_TOKEN` in Secrets instead; a
 background job cannot respond to the hidden prompt. Credentials remain in the
 runtime environment, not in the notebook source or result ZIP.
 
+The November 16 setup repair bypasses Debian/Kaggle `ensurepip`: it creates the
+environment without pip and uses the host pip's
+[`--python` option](https://pip.pypa.io/en/stable/topics/python-option/) to install
+into that environment. It keeps the host Python ABI and CUDA-enabled PyTorch.
+An interpreter file alone no longer counts as a healthy environment: the setup
+also checks its prefix, Python version and access to host packages. Older
+incomplete folders and all saved model/results files are preserved. This repairs
+the reported setup failure, not an unobserved GPU/model failure.
+
 The baseline disables the revision loop, not the diagnostic critic or safety
 filters. It runs the same 15 scenarios and 10 red-team cases, saves every
 request's typed state and trace, keeps the executed notebook, and exports one ZIP

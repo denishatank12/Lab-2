@@ -110,16 +110,61 @@ if not SMOKE_ONLY:
     token_source = configure_hf_token(os.environ, secret_loader=notebook_secret)
     print('Hugging Face credential loaded through:', token_source, '(value not displayed or saved)')
 
-# An isolated site-packages environment preserves the platform's CUDA torch.
-ENV = scratch / 'lab2_p3_baseline_env'
-PYTHON = ENV / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
-if not PYTHON.is_file():
-    venv.EnvBuilder(with_pip=True, system_site_packages=True).create(ENV)
+def prepare_python_environment(folder):
+    # Kaggle's Debian Python can lack a working ensurepip. Do not invoke it.
+    from pathlib import Path
+    import json, os, subprocess, sys, sysconfig, venv
+    folder = Path(folder).absolute()
+    if folder.is_symlink():
+        raise RuntimeError('The environment directory must not be a symlink.')
+    python = folder / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
+    probe_code = ('import json,sys,sysconfig; print(json.dumps(dict(prefix=sys.prefix, '
+                  'base=sys.base_prefix, version=list(sys.version_info[:2]), '
+                  'purelib=sysconfig.get_path("purelib"))))')
+    def inspect():
+        try:
+            result = subprocess.run([str(python), '-c', probe_code], check=True,
+                capture_output=True, text=True, timeout=30)
+            return json.loads(result.stdout)
+        except (OSError, subprocess.SubprocessError, ValueError):
+            return {}
+    info = inspect() if python.is_file() else {}
+    cfg = folder / 'pyvenv.cfg'
+    includes_host = cfg.is_file() and any(line.strip().lower() == 'include-system-site-packages = true'
+        for line in cfg.read_text().splitlines())
+    expected_version = list(sys.version_info[:2])
+    if not info or not includes_host or info.get('version') != expected_version:
+        # Rewrites only venv scaffolding; keeps installed packages and all run outputs.
+        # This also repairs the partial folder left behind by a failed ensurepip.
+        venv.EnvBuilder(with_pip=False, system_site_packages=True).create(folder)
+        info = inspect()
+    if (not info or Path(info['prefix']).resolve() != folder.resolve()
+            or info['prefix'] == info['base'] or info['version'] != expected_version):
+        raise RuntimeError('The isolated interpreter failed its identity check; refusing to install into the host.')
+    if sys.prefix != sys.base_prefix:
+        # A local-runtime host may itself be a venv. Retain its CUDA torch without
+        # copying or reinstalling it. Isolated packages still take precedence.
+        host_site = Path(sysconfig.get_path('purelib'))
+        site_dir = Path(info['purelib'])
+        if host_site != site_dir:
+            (site_dir / '_lab2_host_packages.pth').write_text(str(host_site) + '\\n')
+    return python
+
+# Keep the host Python ABI and CUDA torch. A new ABI gets a separate directory;
+# the older incomplete folder and all model/results folders remain untouched.
+ENV = scratch / ('lab2_p3_baseline_env_py' + str(sys.version_info.major) + str(sys.version_info.minor))
+PYTHON = prepare_python_environment(ENV)
 PINS = ['transformers==5.22.2', 'accelerate==1.15.0', 'bitsandbytes==0.50.2',
         'diffusers==0.43.0', 'peft==0.21.2', 'pydantic==2.14.3', 'qwen-vl-utils==0.0.14',
         'datasets==5.2.0', 'pandas>=2.2,<4', 'Pillow>=11,<13', 'sentencepiece',
         'nbformat>=5.10,<6', 'nbclient>=0.10,<0.11', 'ipykernel>=6.29,<8', 'matplotlib-inline']
-subprocess.run([str(PYTHON), '-m', 'pip', 'install', '--disable-pip-version-check', *PINS], check=True)
+# Host pip's supported --python mode installs into a target even when it has
+# no pip of its own. No ensurepip, get-pip script, sudo, or live-kernel upgrade.
+pip_environment = os.environ.copy()
+for option in ['PIP_TARGET', 'PIP_PREFIX', 'PIP_USER', 'PIP_PYTHON']:
+    pip_environment.pop(option, None)
+subprocess.run([sys.executable, '-m', 'pip', '--python', str(PYTHON), 'install',
+    '--disable-pip-version-check', *PINS], check=True, env=pip_environment)
 subprocess.run([str(PYTHON), '-c', 'import torch, transformers, diffusers, peft, bitsandbytes, pandas, PIL; '
     'print("ISOLATED IMPORTS:", torch.__version__, transformers.__version__, diffusers.__version__); '
     + ('' if SMOKE_ONLY else 'assert torch.cuda.is_available(), "Isolated environment lost CUDA access"')], check=True)
@@ -152,7 +197,7 @@ The baseline uses Qwen3-VL-8B in 4-bit, SD 1.5 plus the real private LoRA, Instr
 
 The embedded partner source is unchanged. The runner adds strict real-photo downloads, exact model revision records, missing-adapter checks, fail-closed safety and per-case resume. These declared runtime differences mean this is not a byte-identical reproduction of the partner's measured environment. Their existing run used an RTX 4090; a full 16-GB run remains to be measured.
 
-No repository clone or separate Python uploads are needed. Internal helper files are created automatically."""),
+No repository clone or separate Python uploads are needed. Internal helper files are created automatically. Setup bypasses `ensurepip`, keeps the host Python/CUDA build, and repairs incomplete environment scaffolding without deleting results."""),
         code(setup),
         md("""## Check the baseline control flow
 

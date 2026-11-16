@@ -361,3 +361,20 @@ The baseline suite passed 13 checks, including four authentication tests for
 existing environment values, platform secrets, a missing-secret hidden prompt,
 and rejection of unavailable or echoing input. The existing CPU mock notebook
 execution and integrity checks also passed again. This is not a new CUDA run.
+
+### Kaggle ensurepip failure repair
+
+The user's trace shows successful token entry followed by failure in Python
+3.13's `venv._setup_pip`, before the actual baseline. The new setup never calls
+`ensurepip`. A version-specific environment is created with `with_pip=False`
+and host package access, then the host pip installs into it with `--python`.
+Partial scaffolding can be repaired without removing installed packages or run
+outputs. Prefix and ABI checks prevent silent installation into the host.
+
+All 17 baseline tests passed locally on Python 3.12. Four added checks cover
+creation with `ensurepip` explicitly forbidden, repair of a partial environment
+while preserving a marker file, a genuine offline wheel installation into the
+target through host pip, and the generated notebook's installer command. The
+fresh environment also imported the same host PyTorch version. The mock-only
+executed notebook/export test passed again. Kaggle Python 3.13 and CUDA are not
+available on this Mac, so a successful full Kaggle run remains to be observed.
