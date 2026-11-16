@@ -1,0 +1,69 @@
+{
+  "origin": "https://github.com/Shibin-1020/data266-6945",
+  "commit": "a79529d1d59a6efb05bf0524ce6d60bda9bf6c09",
+  "folder": "GPU_LAB 2/part3",
+  "executed_notebook": "GPU_LAB 2/notebooks/p3_agents.ipynb",
+  "attribution": "Partner Shibin; imported unchanged for team evidence. Not Denisha's own baseline execution.",
+  "source_policy": "Use code embedded in the executed notebook, not later edited modules.",
+  "latest_modules_different_from_executed_snapshot": [
+    "agents/agents.py",
+    "agents/backends.py"
+  ],
+  "code_cells": 24,
+  "executed_code_cells": 24,
+  "saved_error_count": 0,
+  "execution_identity": [
+    {
+      "commit": "",
+      "python": "3.13.3",
+      "torch": "2.11.0+cu128",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "seed": 266
+    }
+  ],
+  "executed_backend_config": {
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct",
+    "vlm_4bit": true,
+    "sd_model": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    "pix2pix_model": "timbrooks/instruct-pix2pix",
+    "clip_model": "openai/clip-vit-large-patch14",
+    "lora_repo": "Shibin22/sd15-naruto-run1-lora-r4",
+    "lora_weight_name": "",
+    "lora_scale": 1.0,
+    "domain_name": "Naruto",
+    "domain_trigger": "",
+    "steps": 30,
+    "size": 512,
+    "cpu_offload": false,
+    "max_pixels": 602112
+  },
+  "human_results_verified": false,
+  "notes": [
+    "Reported results are automatic proxies, not completed human evaluation.",
+    "The supplied real-model run used an RTX 4090, not verified single-16-GB execution.",
+    "Latest-source tests include later changes; they are not proof of this older executed snapshot.",
+    "Original input image bytes and per-request output files/traces are not included in the partner Git tree."
+  ],
+  "files": {
+    "source/agents/__init__.py": "4e8ac849471628be75d25d6f3c45d36b9421662726f102ff52b4b5b1cb498894",
+    "source/agents/agents.py": "594263338a6fbc14247c66f0eaea2f41e7d9e7c4fbe5332ef8f75ee12836abd8",
+    "source/agents/backends.py": "8d58e3f17e185a5332ce9f92f5c509690985471dbe6280918e172fda11fc9559",
+    "source/agents/evaluate.py": "3bf4f263d47ee673d5f686de9c6029c447f40c0ff05e9ff5e33ca6a751ec03db",
+    "source/agents/graph.py": "e8ef83fa8c5452db2049196fc9c6facf832e06491f312306a62e44cac33a43df",
+    "source/agents/safety.py": "47ba81d26459648a51adaa7aa9f35609c7ab6a5286ab2bee8b5be7b9cafe714b",
+    "source/agents/state.py": "8bbe0185fdd57dfc7be95b1b047346e7d100586bf069259a68e07f619eabf761",
+    "source/eval/make_images.py": "4cf284695a6a8deee4869ae1239f1a47f3a183877f984bd36e8d61ccdc0e3f85",
+    "source/eval/inputs.json": "8c20c8f64e1ec6e9b0b05499b2933d938e5336a78bf9ee40c481bc03757f4219",
+    "source/eval/scenarios.json": "50158be67003b891eb85022c6e1f85cbb9c872d5e6268a27d70797431d7565c6",
+    "source/eval/redteam.json": "089ecb29431d3967282db09a0676cf449805d814456f5b65249872173f480ead",
+    "source/app.py": "94acfbab5c2719881032a292a801177fe52f3e6e136bca501d41e25c1d67708a",
+    "Partner_Part3_Executed.ipynb": "b3dd559d53ef2489279e3bcaee34a575c35f780b3ecc427c8c66fe1d31c83fa4",
+    "reported_results/p3_results.json": "0e5cd3c8cad44e2428730e244fd4d080cd001874ed1134b130b45897124d640a",
+    "reported_results/p3_results_table.csv": "d14b258b2bcdb8f755eb5e1c7d3fc2c5082029804e14b635e2efe5b3d97dc783",
+    "reported_results/p3_redteam.csv": "fdcf4fd93169d7c084d0051d4ba1791b4f76706956ea47cd2b844faed7d75a11",
+    "reported_results/p3_human_task_success.csv": "92e2e35c5dc6e780d344c611c0a6ddad9159da8f0f9d4fdcc36627c1d98fa482",
+    "reported_results/p3_human_critic_agreement.csv": "04ec20c3d9ed133982f2172f4014fcf3ed7c6b3257c133f9550e375dfca6fab5",
+    "latest_source_tests/test_agents_mock.py.reference": "d14c7e9efd7bfb3a26b7044665493015d91bf98037a59681f2ef6a92146f04d1",
+    "latest_source_tests/test_eval_mock.py.reference": "627810b13a6f50f660bc36734c102d2705daf538b10173e1bb172b2fac996ad2"
+  }
+}

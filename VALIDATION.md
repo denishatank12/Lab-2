@@ -1,5 +1,10 @@
 # Notebook repair validation
 
+Current selection: preserve Part 1 v6 (reported Kaggle 0.510), retain completed
+Part 2, and run the new partner-based Part 3 baseline. See the November 16
+review at the end. Earlier dated launcher instructions below are historical,
+not a request to retrain Part 2 or replace the selected Part 1 notebook.
+
 ## Standalone Colab clean folder check
 
 `Lab2_Colab_Standalone.ipynb` contains its executable helper source. It was
@@ -321,3 +326,28 @@ remain separate requirements. None of those are replaced with invented results.
    device. The GPU tiny-model smoke test runs before full training starts.
 5. Save the full executed notebooks and outputs. Check the actual metrics and
    failed scenarios before treating the lab as submission-ready.
+
+## November 16 partner baseline review
+
+The selected Part 1 v6 source and the completed Part 2 notebook/evidence are
+unchanged from the starting commit. Part 1's 0.510 score comes from the user's
+Kaggle screenshot, not a new local evaluation. Its genuine executed v6 ZIP is
+still needed; later v8 outputs have not been relabeled.
+
+The imported Shibin notebook has 24 executed code cells and zero saved errors.
+Its source and reported results are preserved with hashes and attribution under
+`part3_agents/partner_snapshot`. The latest partner source differs from the
+executed snapshot in two modules, as recorded in its provenance.
+
+The following local checks passed on the Mac's Python 3.12 environment:
+
+| Command | Passed | Scope |
+| --- | --- | --- |
+| `.venv/bin/python tools/test_partner_baseline.py` | 9 | Snapshot hashes, frozen v6, standalone syntax/bundle, private-access preflight, fail-closed safety, mock no-revision routing, actual CPU notebook execution and ZIP manifest |
+| `.venv/bin/python tools/test_part1_kaggle.py` | 11 | Existing Part 1 packaging, validation, export and failure recovery regressions |
+| `.venv/bin/python tools/test_part2_submission.py` | 20 | Existing Part 2 result recovery, rating validation, import and report-fixture regressions |
+
+The CPU execution test created a genuine executed **mock-only** notebook with
+no error outputs. It did not load Qwen3-VL, Stable Diffusion, the private adapter
+or a CUDA GPU. The new Part 3 baseline still needs a real GPU run. No new quality,
+timing, human-rating or 16-GB compatibility result is claimed by these tests.

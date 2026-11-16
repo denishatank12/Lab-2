@@ -1,0 +1,16 @@
+{
+  "recommended_notebook": "notebooks/Lab2_Part1_Kaggle_Final.ipynb",
+  "version": "v6",
+  "notebook_sha256": "73cab0044dde8763b7f8e95511288d888da21962d55a405606769b1959be1c01",
+  "historical_source_commit": "5d50daae2481cb4909e3d0492b5b7f7f0d356f65",
+  "leaderboard_score": 0.510,
+  "score_evidence": "User-supplied Kaggle leaderboard screenshot; not a local golden-set score.",
+  "selection": "User requested preserving the notebook with their good score, rather than the later v7/v8 experiments.",
+  "original_executed_v6_outputs_available_in_this_checkout": false,
+  "original_results_zip_needed": "Lab2_Part1_Results_20261115T215956Z_866616449.zip",
+  "warning": "The most recently supplied notebook8293d0aa68.ipynb is v8, despite reusing the earlier filename. Do not attach its outputs to v6. A source notebook is not a substitute for the original executed notebook.",
+  "later_experiments": {
+    "v7": "Saved GPU failure. Preserved, not recommended.",
+    "v8": "Later uploaded run completed, but internal golden accuracy worsened to 4/25 dense and 5/25 hybrid. No improved leaderboard score verified. Preserved, not recommended."
+  }
+}

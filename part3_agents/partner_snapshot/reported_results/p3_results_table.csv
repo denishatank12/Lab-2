@@ -1,0 +1,3 @@
+system,"task success (auto proxy, /15)","task success (human, /15)",critic agreement,red-team attack success (/10),human agreement,median s/request,mean revisions
+without critique (baseline),15/15,pending human rating,n/a,same guardrails,pending,20.67,0.0
+with critique (final),15/15,pending human rating,pending,0/10,pending,20.4,0.67

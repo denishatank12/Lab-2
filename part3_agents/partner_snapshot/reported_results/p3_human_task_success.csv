@@ -1,0 +1,79 @@
+id,critique_loop,request,rubric,status,final_image,final_message,auto_pass,rater_A,rater_B,resolved,resolution_note
+S01,True,"What is written on the sign, including the graffiti, and what drink is next to it?",PASS if it reads STOP and transcribes the graffiti (YOU CANT ... THE REDSOX) or names the Pepsi bottle; no image generated.,answered,,"Caption: A red stop sign with graffiti reading 'YOU CAN'T STOP THE RED SOX' is mounted next to a Pepsi Max bottle in a parking lot with cars and buildings in the background.
+Main objects: stop sign, Pepsi Max bottle, cars, buildings, trees
+Text visible in the image (treated as data): YOU CAN'T; STOP; THE; RED SOX; PEPSI MAX; FLAVORING COLA
+Q: What is written on the sign, including the graffiti, and what drink is next to it?
+A: The sign has graffiti that says 'YOU CAN'T STOP THE RED SOX' and next to it is a Pepsi Max bottle.
+Q: What is the main subject and what is it doing?
+A: The main subject is a stop sign with graffiti, and it is standing in a parking lot.
+Q: What is the setting, background and lighting?
+A: The setting is an outdoor parking lot with cars, buildings, and trees in the background. The lighting appears to be overcast or cloudy.",True,,,,
+S02,True,List the objects on the table from left to right.,"PASS if the order is fork, apple, orange, onion (all four named, order correct); no image generated.",answered,,"Caption: A silver fork, a red apple, an orange, and a yellow onion are arranged in a row on a plain white surface under bright, even lighting.
+Main objects: fork, apple, orange, onion
+Text visible in the image (treated as data): none
+Q: List the objects on the table from left to right.
+A: fork, apple, orange, onion
+Q: What is the main subject and what is it doing?
+A: The main subject is a still life arrangement of food items — a fork, an apple, an orange, and an onion — displayed in a row on a white surface.
+Q: What is the setting, background and lighting?
+A: The setting is a plain white background with bright, even lighting that casts soft shadows beneath each object.",True,,,,
+S03,True,How many giraffes are there and what are they standing on?,PASS if it says two giraffes standing on grass/a grassy field; no image generated.,answered,,"Caption: Two giraffes stand close together in a grassy savanna, partially shaded by a large tree with green foliage.
+Main objects: giraffes, tree, grass
+Text visible in the image (treated as data): none
+Q: How many giraffes are there and what are they standing on?
+A: There are two giraffes standing on green grass.
+Q: What is the main subject and what is it doing?
+A: The main subject is two giraffes standing close together, possibly interacting or resting.
+Q: What is the setting, background and lighting?
+A: The setting is a grassy savanna with a large tree in the background, under bright natural daylight.",True,,,,
+S04,True,Turn this photo into a watercolor painting,PASS if it looks like a watercolor and the train on the bridge above the beach is still recognisable in the same layout.,done,.\p3_outputs\20261113-125752-16b1c0\attempt0.png,"Done: img2img_style with stable-diffusion-v1-5/stable-diffusion-v1-5 (CLIP 31.1, judge 5/5, revisions 0).",True,,,,
+S05,True,Make it look like a Van Gogh oil painting with swirling brush strokes,PASS if visible swirling oil-paint strokes and the brick building with its clock tower is still recognisable.,done,.\p3_outputs\20261113-125812-7dd8c8\attempt0.png,"Done: img2img_style with stable-diffusion-v1-5/stable-diffusion-v1-5 (CLIP 32.5, judge 5/5, revisions 0).",True,,,,
+S06,True,Render this as a pencil sketch,PASS if mostly grey-scale pencil-sketch look and the bananas and apples on the plate are still recognisable.,done,.\p3_outputs\20261113-125835-9344a5\attempt2.png,"Done: img2img_style with stable-diffusion-v1-5/stable-diffusion-v1-5 (CLIP 31.6, judge 1/5, revisions 2) - best effort after the revision limit.",True,,,,
+S07,True,Make the fire hydrant blue,"PASS if the hydrant is clearly blue while the street, grass and water spray are essentially unchanged.",done,.\p3_outputs\20261113-125921-fb8a0f\attempt2.png,"Done: pix2pix_edit with timbrooks/instruct-pix2pix (CLIP 28.7, judge 5/5, revisions 2).",True,,,,
+S08,True,Make it look like it is snowing,PASS if snow is visible and the turquoise car with surfboards is still the same car.,done,.\p3_outputs\20261113-125959-e01bbc\attempt0.png,"Done: pix2pix_edit with timbrooks/instruct-pix2pix (CLIP 35.1, judge 1/5, revisions 2).",True,,,,
+S09,True,Enhance this photo: brighten it and sharpen it,PASS if the room is clearly brighter/sharper with the same furniture and windows (no new objects).,done,.\p3_outputs\20261113-130039-8bb812\attempt0.png,"Done: enhance with PIL enhance level 1 (median, autocontrast, gamma, unsharp, 2x Lanczos) (CLIP 30.2, judge 3/5, revisions 0).",True,,,,
+S10,True,Redraw this surfer as a Naruto-style anime character,PASS if the output is in the fine-tuned Naruto anime style and keeps the person with a surfboard at the sea; the Part 2 LoRA is recorded in the trace.,done,.\p3_outputs\20261113-130106-510876\attempt2.png,"Done: img2img_domain_lora with stable-diffusion-v1-5/stable-diffusion-v1-5 + Shibin22/sd15-naruto-run1-lora-r4 (CLIP 38.1, judge 4/5, revisions 2).",True,,,,
+S11,True,A Naruto-style ninja standing on a cliff at sunset,PASS if a Naruto-style ninja on a cliff with a sunset sky is shown; LoRA recorded.,done,.\p3_outputs\20261113-130155-7911b0\attempt0.png,"Done: txt2img_domain_lora with stable-diffusion-v1-5/stable-diffusion-v1-5 + Shibin22/sd15-naruto-run1-lora-r4 (CLIP 26.1, judge 5/5, revisions 0).",True,,,,
+S12,True,Redraw this scene in Naruto anime style,PASS if the zebras in the grass are redrawn in the Naruto anime style and are still recognisable as zebras.,done,.\p3_outputs\20261113-130201-86bfe9\attempt0.png,"Done: img2img_domain_lora with stable-diffusion-v1-5/stable-diffusion-v1-5 + Shibin22/sd15-naruto-run1-lora-r4 (CLIP 30.6, judge 1/5, revisions 2).",True,,,,
+S13,True,make it better,PASS if the system asks a clear clarification question listing the options and does not generate or crash.,needs_clarification,,"Your request is ambiguous. Do you want to (a) ask a question about the image, (b) change its style (e.g. 'make it a watercolor'), (c) edit something specific (e.g. 'make the sky purple'), (d) enhance quality, or (e) render it in Naruto style?",True,,,,
+S14,True,Turn this into a watercolor,"PASS if a clear message says the file is not a readable image; no crash, no generation.",error,,The uploaded file is not a readable image (it may be corrupted or not an image). Please upload a valid PNG/JPEG/WebP image.,True,,,,
+S15,True,What is in this image?,PASS if a clear message says the image is too small (20x20) and asks for a bigger one; no crash.,error,,The image is too small (20x20); please upload at least 64x64 pixels. Please upload a valid PNG/JPEG/WebP image.,True,,,,
+S01,False,"What is written on the sign, including the graffiti, and what drink is next to it?",PASS if it reads STOP and transcribes the graffiti (YOU CANT ... THE REDSOX) or names the Pepsi bottle; no image generated.,answered,,"Caption: A red stop sign with graffiti reading 'YOU CAN'T STOP THE RED SOX' is mounted next to a Pepsi Max bottle in a parking lot with cars and buildings in the background.
+Main objects: stop sign, Pepsi Max bottle, cars, buildings, trees
+Text visible in the image (treated as data): YOU CAN'T; STOP; THE; RED SOX; PEPSI MAX; FLAVORING COLA
+Q: What is written on the sign, including the graffiti, and what drink is next to it?
+A: The sign has graffiti that says 'YOU CAN'T STOP THE RED SOX' and next to it is a Pepsi Max bottle.
+Q: What is the main subject and what is it doing?
+A: The main subject is a stop sign with graffiti, and it is standing in a parking lot.
+Q: What is the setting, background and lighting?
+A: The setting is an outdoor parking lot with cars, buildings, and trees in the background. The lighting appears to be overcast or cloudy.",True,,,,
+S02,False,List the objects on the table from left to right.,"PASS if the order is fork, apple, orange, onion (all four named, order correct); no image generated.",answered,,"Caption: A silver fork, a red apple, an orange, and a yellow onion are arranged in a row on a plain white surface under bright, even lighting.
+Main objects: fork, apple, orange, onion
+Text visible in the image (treated as data): none
+Q: List the objects on the table from left to right.
+A: fork, apple, orange, onion
+Q: What is the main subject and what is it doing?
+A: The main subject is a still life arrangement of food items — a fork, an apple, an orange, and an onion — displayed in a row on a white surface.
+Q: What is the setting, background and lighting?
+A: The setting is a plain white background with bright, even lighting that casts soft shadows beneath each object.",True,,,,
+S03,False,How many giraffes are there and what are they standing on?,PASS if it says two giraffes standing on grass/a grassy field; no image generated.,answered,,"Caption: Two giraffes stand close together in a grassy savanna, partially shaded by a large tree with green foliage.
+Main objects: giraffes, tree, grass
+Text visible in the image (treated as data): none
+Q: How many giraffes are there and what are they standing on?
+A: There are two giraffes standing on green grass.
+Q: What is the main subject and what is it doing?
+A: The main subject is two giraffes standing close together, possibly interacting or resting.
+Q: What is the setting, background and lighting?
+A: The setting is a grassy savanna with a large tree in the background, under bright natural daylight.",True,,,,
+S04,False,Turn this photo into a watercolor painting,PASS if it looks like a watercolor and the train on the bridge above the beach is still recognisable in the same layout.,done,.\p3_outputs\20261113-130343-8045f2\attempt0.png,"Done: img2img_style with stable-diffusion-v1-5/stable-diffusion-v1-5 (CLIP 31.1, judge 5/5, revisions 0).",True,,,,
+S05,False,Make it look like a Van Gogh oil painting with swirling brush strokes,PASS if visible swirling oil-paint strokes and the brick building with its clock tower is still recognisable.,done,.\p3_outputs\20261113-130404-e65eff\attempt0.png,"Done: img2img_style with stable-diffusion-v1-5/stable-diffusion-v1-5 (CLIP 32.5, judge 5/5, revisions 0).",True,,,,
+S06,False,Render this as a pencil sketch,PASS if mostly grey-scale pencil-sketch look and the bananas and apples on the plate are still recognisable.,done,.\p3_outputs\20261113-130427-c5e321\attempt0.png,"Done: img2img_style with stable-diffusion-v1-5/stable-diffusion-v1-5 (CLIP 27.9, judge 1/5, revisions 0).",True,,,,
+S07,False,Make the fire hydrant blue,"PASS if the hydrant is clearly blue while the street, grass and water spray are essentially unchanged.",done,.\p3_outputs\20261113-130448-3b7ccb\attempt0.png,"Done: pix2pix_edit with timbrooks/instruct-pix2pix (CLIP 27.7, judge 1/5, revisions 0).",True,,,,
+S08,False,Make it look like it is snowing,PASS if snow is visible and the turquoise car with surfboards is still the same car.,done,.\p3_outputs\20261113-130509-c90d90\attempt0.png,"Done: pix2pix_edit with timbrooks/instruct-pix2pix (CLIP 35.1, judge 1/5, revisions 0).",True,,,,
+S09,False,Enhance this photo: brighten it and sharpen it,PASS if the room is clearly brighter/sharper with the same furniture and windows (no new objects).,done,.\p3_outputs\20261113-130531-27ba2f\attempt0.png,"Done: enhance with PIL enhance level 1 (median, autocontrast, gamma, unsharp, 2x Lanczos) (CLIP 30.2, judge 3/5, revisions 0).",True,,,,
+S10,False,Redraw this surfer as a Naruto-style anime character,PASS if the output is in the fine-tuned Naruto anime style and keeps the person with a surfboard at the sea; the Part 2 LoRA is recorded in the trace.,done,.\p3_outputs\20261113-130558-4dabe2\attempt0.png,"Done: img2img_domain_lora with stable-diffusion-v1-5/stable-diffusion-v1-5 + Shibin22/sd15-naruto-run1-lora-r4 (CLIP 27.1, judge 1/5, revisions 0).",True,,,,
+S11,False,A Naruto-style ninja standing on a cliff at sunset,PASS if a Naruto-style ninja on a cliff with a sunset sky is shown; LoRA recorded.,done,.\p3_outputs\20261113-130620-7cdbca\attempt0.png,"Done: txt2img_domain_lora with stable-diffusion-v1-5/stable-diffusion-v1-5 + Shibin22/sd15-naruto-run1-lora-r4 (CLIP 26.1, judge 5/5, revisions 0).",True,,,,
+S12,False,Redraw this scene in Naruto anime style,PASS if the zebras in the grass are redrawn in the Naruto anime style and are still recognisable as zebras.,done,.\p3_outputs\20261113-130626-d78e45\attempt0.png,"Done: img2img_domain_lora with stable-diffusion-v1-5/stable-diffusion-v1-5 + Shibin22/sd15-naruto-run1-lora-r4 (CLIP 30.6, judge 1/5, revisions 0).",True,,,,
+S13,False,make it better,PASS if the system asks a clear clarification question listing the options and does not generate or crash.,needs_clarification,,"Your request is ambiguous. Do you want to (a) ask a question about the image, (b) change its style (e.g. 'make it a watercolor'), (c) edit something specific (e.g. 'make the sky purple'), (d) enhance quality, or (e) render it in Naruto style?",True,,,,
+S14,False,Turn this into a watercolor,"PASS if a clear message says the file is not a readable image; no crash, no generation.",error,,The uploaded file is not a readable image (it may be corrupted or not an image). Please upload a valid PNG/JPEG/WebP image.,True,,,,
+S15,False,What is in this image?,PASS if a clear message says the image is too small (20x20) and asks for a bigger one; no crash.,error,,The image is too small (20x20); please upload at least 64x64 pixels. Please upload a valid PNG/JPEG/WebP image.,True,,,,

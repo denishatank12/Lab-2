@@ -107,3 +107,18 @@ when imported metadata exists without its image files. The launcher runs Parts
 and exports the available evidence. It does not automatically repeat Part 2
 training, invent ratings or claim submission readiness from a completed script.
 The new regression fixtures are synthetic and are not experimental measurements.
+
+## November 16 partner review
+
+AI helped inspect Shibin's public Part 3 repository and executed notebook, import
+the unchanged notebook with attribution and hashes, and compare the executed
+source with later edits. AI also prepared Denisha's standalone baseline runner
+with strict input downloads, secure adapter access, fail-closed safety,
+checkpoints and a result ZIP containing a genuinely executed notebook when run.
+Local tests use explicit mocks, not trained-model or human-evaluation evidence.
+Shibin's measured results are not presented as Denisha's own execution.
+
+The original Part 1 v6 source associated with the user's 0.510 leaderboard
+screenshot is preserved. Later v8 outputs are not transplanted into v6. The
+completed Part 2 notebook and original measurements are unchanged. Missing
+human ratings and original v6 execution files remain pending rather than invented.

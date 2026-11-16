@@ -1,11 +1,25 @@
 # Lab 2 Part 1 - Multimodal RAG
 
-## Revised implementation
+## Selected notebook
 
-### Current source-linked Kaggle revision (v8)
+Keep [Lab2_Part1_Kaggle_Final.ipynb](notebooks/Lab2_Part1_Kaggle_Final.ipynb),
+the original independent v6 source associated with the user's **0.510** Kaggle
+leaderboard screenshot. Its bytes are preserved. The builder refuses to overwrite
+this selected file with newer code. See [selected_run.json](selected_run.json)
+for its hash and score provenance.
 
-Use [Lab2_Part1_Kaggle_v8.ipynb](notebooks/Lab2_Part1_Kaggle_v8.ipynb)
-for the new experiment. Import this one file into a fresh Kaggle notebook,
+The original executed v6 notebook/ZIP still needs restoring. A later upload reused
+the same notebook filename but contains v8, so those outputs cannot be labeled
+as v6. No executed outputs have been fabricated or transplanted.
+
+The v7/v8 material below is experimental history, not the recommended run.
+
+## Earlier experiments
+
+### Superseded source-linked experiment v8
+
+The [v8 notebook](notebooks/Lab2_Part1_Kaggle_v8.ipynb)
+is retained only as an experiment. It was designed to run in a fresh Kaggle notebook,
 enable a nominal 16-GB GPU and Internet, attach the competition questions when
 available, then use Save Version > Save & Run All. No separate Python uploads,
 old result folders, recovery step or Hugging Face token is needed.
@@ -31,11 +45,13 @@ from Kaggle's Output panel. The CSV is validated and published before the
 separate dense/hybrid evaluation, so a later evaluation failure preserves it.
 Check the new evaluation, actual wall time and Kaggle score before replacing a
 previous submission. The user's latest screenshot reports **0.510** for v6.
-There is no measured v8 leaderboard result yet, and 0.8 is not guaranteed.
+The later supplied v8 GPU run completed, but internal golden accuracy was only
+4/25 dense and 5/25 hybrid. That is not a leaderboard score, and no improved
+v8 leaderboard result is verified. Do not replace the selected 0.510 run with it.
 
-The completed v6 and failed v7 artifacts are preserved byte for byte. Local v8 regressions
-and clean-folder CPU smoke do not establish a successful full pretrained CUDA
-run, an improved score, or completion within the 90-minute limit. No reference
+The v6 source and failed v7 artifacts are preserved byte for byte. Local v8 regressions
+and clean-folder CPU smoke alone did not establish GPU quality or timing. The
+later GPU evidence still does not establish an improved leaderboard score. No reference
 answers or question-ID-specific rules were added to answer generation.
 
 ### Preserved independent fresh run (v6)

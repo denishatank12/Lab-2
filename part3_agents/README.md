@@ -1,5 +1,80 @@
 # Lab 2 Part 3 - Multimodal multi-agent system
 
+## Partner review and Denisha's baseline
+
+Use [Part3_Partner_Baseline_Standalone.ipynb](notebooks/Part3_Partner_Baseline_Standalone.ipynb)
+for Denisha's baseline. Import only that file into a fresh Kaggle GPU session,
+enable Internet and the `HF_TOKEN` secret with read access to
+`Shibin22/sd15-naruto-run1-lora-r4`, then Run All. The user confirmed access;
+the notebook checks it securely. No separate Python uploads or repository clone
+are needed. Do not run the older all-parts launcher for this baseline.
+
+The baseline disables the revision loop, not the diagnostic critic or safety
+filters. It runs the same 15 scenarios and 10 red-team cases, saves every
+request's typed state and trace, keeps the executed notebook, and exports one ZIP
+under `/kaggle/working`. Download the newest `Lab2_Part3_Baseline_*.zip` from the
+Output panel. Interrupted runs keep partial files; do not delete them. Model and
+input revisions are recorded so a changed run is not silently merged.
+
+### What the partner actually ran
+
+The [unchanged executed notebook](partner_snapshot/Partner_Part3_Executed.ipynb)
+comes from [Shibin's Part 3](https://github.com/Shibin-1020/data266-6945/tree/a79529d1d59a6efb05bf0524ce6d60bda9bf6c09/GPU_LAB%202/part3).
+All 24 code cells have execution counts and no saved error outputs. Its first
+cell identifies an RTX 4090, Python 3.13.3 and Torch 2.11.0+cu128; its printed git
+commit was blank. The external source commit and file hashes are preserved in
+[PROVENANCE.json](partner_snapshot/PROVENANCE.json). This is Shibin's execution,
+not Denisha's.
+
+| Saved automatic result | No revision loop | Critique loop |
+| --- | --- | --- |
+| Scenario proxy checks | 15/15 | 15/15 |
+| Median request time | 20.671 s | 20.402 s |
+| Mean revisions | 0 | about 0.67 |
+| Red-team attack success | Not measured separately | 0/10 |
+| Human task success and critic agreement | Not rated | Not rated |
+
+These automatic checks mostly test routes, status, files and text. They do not
+prove that a sketch, snow edit or style transfer looks correct. The small timing
+difference does not establish that the critique loop is faster.
+
+### Source and runtime qualifications
+
+Two latest partner modules differ from the source embedded in the executed
+notebook. Later source adds sketch/snow processing and mock-test support. The
+new baseline uses the executed snapshot instead of claiming that newer source
+produced the older results. The latest-source test files are kept separately;
+they do not certify the older snapshot.
+
+The baseline runner adds declared safeguards without editing the snapshot:
+
+- All 16 real COCO photos must download. Placeholders are allowed only in mock tests.
+- The private adapter must exist and load. A missing adapter cannot fall back to the base model.
+- Safety-checker exceptions block acceptance, and generated images are checked before saving.
+- Model revisions, input hashes, actual hardware and per-case checkpoints are saved.
+- Diffusion CPU offload is enabled for memory headroom. It can change timing relative to the partner run.
+
+The original partner code disables the diffusion pipeline's built-in checker
+and instead calls an external checker. Its nodes catch checker failures and
+continue. The wrapper closes that failure path; it does not claim the original
+run used this safeguard. Exact partner input bytes and raw per-request files
+were not in the supplied Git tree, so byte-identical image reproduction is not
+established by the imported notebook alone.
+
+### Still needed before final submission
+
+Denisha must run the real baseline. Both members must complete genuine ratings
+and resolve disagreements, then integrate the comparison into the team report.
+The assignment's single-16-GB setup still needs actual compatibility evidence;
+the existing partner run used a 24-GB RTX 4090. Private input/output links,
+grader access, team details and the required demo/submission records also need
+their final review. A local mock smoke test is not any of those measurements.
+
+## Older local implementation
+
+The remaining sections describe this repository's earlier agent implementation,
+not the newly selected partner snapshot or Denisha's new baseline notebook.
+
 ## Revised model-backed system
 
 Use `notebooks/Part3_Agents_Run.ipynb` and the root `RERUN_GUIDE.md`. The new runtime

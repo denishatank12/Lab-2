@@ -1,18 +1,39 @@
 # DATA 266 Lab 2
 
 This repository contains the three lab implementations and their run notebooks.
-The latest repair keeps the completed Part 2 GPU results and replaces the older
-Part 1 and Part 3 baselines with the missing model-backed components.
+The selected Part 1 notebook is the preserved v6 associated with Denisha's
+reported 0.510 Kaggle score. Part 2 keeps the original completed GPU results.
+Part 3 now includes Shibin's credited executed notebook and a separate notebook
+for Denisha to run the baseline without repeating Part 2 training.
 
 ## Open these notebooks
 
-For the new **Part 1-only Kaggle experiment**, use
-[Lab2_Part1_Kaggle_v8.ipynb](part1_rag/notebooks/Lab2_Part1_Kaggle_v8.ipynb).
-It is self-contained and targets source-reading, status, memory and citation
-errors in the previous 0.510 run. Its new leaderboard score is not measured;
-0.8 is a target, not a guarantee. It fixes the v7 figure/citation mismatch by
-deriving both fields from model-selected source IDs. The v6 and failed v7
-notebooks are preserved separately, not recommended as the new run file.
+For **Part 1**, keep
+[Lab2_Part1_Kaggle_Final.ipynb](part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb).
+This is the unchanged independent v6 source, not v8 renamed as v6. The user's
+leaderboard screenshot reports **0.510**. The original executed v6 notebook and
+ZIP are not currently available in this checkout; please restore that original
+evidence rather than copying later outputs into it. The selected source and
+score provenance are recorded in [selected_run.json](part1_rag/selected_run.json).
+The later v7/v8 experiments remain for history but are not recommended.
+
+For **Denisha's Part 3 baseline**, use
+[Part3_Partner_Baseline_Standalone.ipynb](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb).
+Import that one file into a fresh Kaggle GPU notebook, enable Internet and the
+`HF_TOKEN` secret, and Run All. It uses Shibin's actual adapter and the source
+embedded in his executed notebook, with declared download/safety safeguards.
+It runs only the no-revision-loop baseline, saves an executed notebook and
+exports a ZIP. Real CUDA execution is still required; local CPU checks do not
+establish GPU compatibility or scores.
+
+Shibin's [executed Part 3 notebook](part3_agents/partner_snapshot/Partner_Part3_Executed.ipynb)
+is preserved separately with attribution. Its saved RTX 4090 outputs report
+15/15 automatic scenario checks for both conditions and 0/10 red-team attacks
+against the final system. Those are automatic proxies, not completed human
+ratings or Denisha's own baseline execution. See the [Part 3 review](part3_agents/README.md).
+
+The older all-parts launchers below remain available for recovery and history.
+They are not the selected Part 1 source or the new partner-based Part 3 baseline.
 
 For **opening just one file in Colab**, use
 [Lab2_Colab_Standalone.ipynb](part1_rag/notebooks/Lab2_Colab_Standalone.ipynb).
@@ -44,9 +65,9 @@ GPU work. See the rerun guide for the contents and download details.
 
 | Part | Notebook | What needs running now? |
 | --- | --- | --- |
-| 1 | [RAG](part1_rag/notebooks/Part1_RAG_Run.ipynb) | Full revised GPU run |
+| 1 | [Selected v6](part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb) | Restore the genuine 0.510 executed notebook/ZIP; do not replace with v8 outputs |
 | 2 | [Fine-tuning](part2_diffusion/notebooks/Part2_FineTune_Run.ipynb) | Reuse completed training; refresh the last review cell when evidence changes |
-| 3 | [Agents](part3_agents/notebooks/Part3_Agents_Run.ipynb) | Full revised GPU run using the existing Part 2 adapter |
+| 3 | [Partner baseline](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb) | Denisha's real baseline run, then both members' human ratings |
 
 Read [RERUN_GUIDE.md](RERUN_GUIDE.md) before running. The setup creates an isolated,
 pinned environment. Run one notebook at a time in a fresh kernel. A first full
@@ -71,12 +92,13 @@ Part 2 retains the actual two 1,200-update LoRA runs, 120 images and measured
 KID/CLIP/LPIPS results. The private Hugging Face upload records are tied to the
 actual adapter and image-manifest hashes. Existing GPU cells are unchanged.
 
-Part 3 now has image question answering/text transcription, prompt rewriting,
+The older local Part 3 implementation has image question answering/text transcription, prompt rewriting,
 separate style and instruction-editing models, a pinned Hub adapter, visual
 critique and image-based safety cases. Fifteen rubric-defined scenarios run with
 and without critique. Automatic acceptance is not counted as human task success.
-The default real inputs are held-out anime frames; this does not establish
-performance on unrelated photographs.
+Its default inputs are held-out anime frames. The newly selected partner-based
+baseline instead uses Shibin's fixed COCO photo scenarios. These experiments
+must not be mixed into one measured comparison without noting that difference.
 
 ## Ratings and reports
 

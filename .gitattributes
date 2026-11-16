@@ -1,1 +1,3 @@
 *.pdf binary
+# Preserve the teammate's imported evidence byte for byte, including CRLF.
+part3_agents/partner_snapshot/** -text whitespace=cr-at-eol

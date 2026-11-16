@@ -359,6 +359,9 @@ revision still requires the full GPU run; CPU smoke results are not GPU results.
     nb.validate(notebook)
     filename = 'Lab2_Part1_Kaggle_v8.ipynb' if evidence_first else 'Lab2_Part1_Kaggle_Final.ipynb'
     path = ROOT / 'part1_rag/notebooks' / filename
+    if not evidence_first and path.exists():
+        raise RuntimeError('The selected 0.510 v6 notebook is frozen. Do not overwrite it with later source. '
+                           'Build a separately named experiment instead.')
     nb.write(notebook, path)
     if path.stat().st_size >= 950_000:
         raise ValueError('Notebook source exceeds the safety margin for Kaggle saving. Do not publish this artifact.')
