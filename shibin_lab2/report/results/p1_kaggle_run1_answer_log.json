@@ -1,0 +1,1981 @@
+[
+ {
+  "id": "1",
+  "question": "What sparked the global economic crisis around 2008?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"financial crisis\", \"period\": \"2008\", \"evidence\": \"E1\", \"kind\": \"actual\"}],\n \"user_value\": \"null\",\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"The global economic crisis around 2008 was sparked by a financial crisis that originated in the United States, as noted in the text. This crisis led to a significant decline in stock prices and a world recession, as described in the evidence.\",\n \"status\": \"answered\",\n \"evidence\": [\"E1\"],\n \"figure_references\": [\"Figure 1-1\"],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "The global economic crisis around 2008 was sparked by a financial crisis that originated in the United States, as noted in the text. This crisis led to a significant decline in stock prices and a world recession, as described in the evidence.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p2"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p2",
+   "DOC1:p5",
+   "DOC1:p3",
+   "DOC1:p12",
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p12",
+   "DOC1:p21",
+   "DOC1:p32",
+   "DOC1:p1"
+  ],
+  "evidence": [
+   "DOC1:p2",
+   "DOC1:p5",
+   "DOC1:p3",
+   "DOC1:p12",
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p12",
+   "DOC1:p21",
+   "DOC1:p32",
+   "DOC2:p1",
+   "DOC1:Table 1-2",
+   "DOC1:Table 1-1",
+   "DOC1:Figure 1-1"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 22.737319946289062
+ },
+ {
+  "id": "2",
+  "question": "Why should we worry about unemployment rates going up?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"10%\", \"period\": \"2010\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Unemployment rates going up should be a concern because they indicate economic distress, as seen in the U.S. unemployment rate reaching nearly 10% in 2010, which was the highest since the 1980s. This suggests a significant portion of the workforce is without jobs, leading to financial and psychological suffering.\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure 2-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "Unemployment rates going up should be a concern because they indicate economic distress, as seen in the U.S. unemployment rate reaching nearly 10% in 2010, which was the highest since the 1980s. This suggests a significant portion of the workforce is without jobs, leading to financial and psychological suffering.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p24"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p24",
+   "DOC1:p24",
+   "DOC1:p5",
+   "DOC1:p25",
+   "DOC1:p30",
+   "DOC1:p5",
+   "DOC1:p29",
+   "DOC1:p3",
+   "DOC1:p7",
+   "DOC1:p12"
+  ],
+  "evidence": [
+   "DOC1:p24",
+   "DOC1:p24",
+   "DOC1:p5",
+   "DOC1:p25",
+   "DOC1:p30",
+   "DOC1:p5",
+   "DOC1:p29",
+   "DOC1:p3",
+   "DOC1:p7",
+   "DOC1:p12",
+   "DOC1:Table 1-2",
+   "DOC1:Table 1-3",
+   "DOC1:Figure 2-3"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 30.4770987033844
+ },
+ {
+  "id": "3",
+  "question": "How do economists measure economic growth without price changes messing it up?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}],\n \"user_value\": \"11.4%\",\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"Economists measure economic growth by constructing real GDP, which adjusts for price changes using a common set of prices, typically from a base year. This method ensures that changes in GDP reflect actual output changes rather than price fluctuations. The GDP deflator, which measures the average price of goods produced in the economy, is used to calculate real GDP. In 2012, the rate of change of the GDP deflator was 11.4% (DOC1, p36).\",\n \"status\": \"answered\",\n \"evidence\": [\"E2\"],\n \"figure_references\": [],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "Economists measure economic growth by constructing real GDP, which adjusts for price changes using a common set of prices, typically from a base year. This method ensures that changes in GDP reflect actual output changes rather than price fluctuations. The GDP deflator, which measures the average price of goods produced in the economy, is used to calculate real GDP. In 2012, the rate of change of the GDP deflator was 11.4% (DOC1, p36).",
+   "status": "answered",
+   "citations": [
+    "DOC1:p36"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p37",
+   "DOC1:p36",
+   "DOC1:p26",
+   "DOC1:p33",
+   "DOC1:p27",
+   "DOC1:p36",
+   "DOC1:p35",
+   "DOC1:p17",
+   "DOC1:p37",
+   "DOC1:p35"
+  ],
+  "evidence": [
+   "DOC1:p37",
+   "DOC1:p36",
+   "DOC1:p26",
+   "DOC1:p33",
+   "DOC1:p27",
+   "DOC1:p36",
+   "DOC1:p35",
+   "DOC1:p17",
+   "DOC3:p1",
+   "DOC3:p4",
+   "DOC1:Figure 2-4",
+   "DOC3:Figure B-3",
+   "DOC3:Figure B-4"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 31.852322340011597
+ },
+ {
+  "id": "4",
+  "question": "How bad did the world economy get hit during the 2009 recession?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"3.2%\", \"period\": \"2009\", \"evidence\": \"E8\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"The world economy was hit with an annual growth rate of -2.3% in 2009, as reported in Table 1-1 of DOC1.\", \"status\": \"answered\", \"evidence\": [\"E8\"], \"figure_references\": [\"Table 1-1\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The world economy was hit with an annual growth rate of -2.3% in 2009, as reported in Table 1-1 of DOC1.",
+   "status": "answered",
+   "citations": [
+    "DOC1:Table 1-1",
+    "DOC1:p1"
+   ],
+   "figure_references": [
+    "Table 1-1"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p36",
+   "DOC1:p1",
+   "DOC1:p2",
+   "DOC1:p21",
+   "DOC1:p22",
+   "DOC1:Table 1-1",
+   "DOC1:p22",
+   "DOC1:p35"
+  ],
+  "evidence": [
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p36",
+   "DOC1:p1",
+   "DOC1:p2",
+   "DOC1:p21",
+   "DOC1:p22",
+   "DOC1:Table 1-1",
+   "DOC2:p1",
+   "DOC2:Figure A-5",
+   "DOC1:Figure 1-1",
+   "DOC1:Figure 2-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 24.073693990707397
+ },
+ {
+  "id": "5",
+  "question": "What happened to U.S. unemployment after the 2008 crisis kicked in?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"9.5%\", \"period\": \"2010\", \"evidence\": \"E6\", \"kind\": \"actual\"}, {\"value\": \"9.3%\", \"period\": \"2009\", \"evidence\": \"E2\", \"kind\": \"actual\"}, {\"value\": \"5.8%\", \"period\": \"2008\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"U.S. unemployment rose sharply after the 2008 crisis, reaching 9.3% in 2009 and 9.5% in 2010, as shown in DOC2 and DOC1.\", \"status\": \"answered\", \"evidence\": [\"E2\", \"E6\"], \"figure_references\": [\"Figure 2-3\"], \"calculation\": \"9.3% (2009) to 9.5% (2010)\"}",
+  "result": {
+   "answer": "United States unemployment rate in 2008: 5.8% (DOC1:Table 1-2). U.S. unemployment rose sharply after the 2008 crisis, reaching 9.3% in 2009 and 9.5% in 2010, as shown in DOC2 and DOC1.",
+   "status": "answered",
+   "citations": [
+    "DOC1:Table 1-2",
+    "DOC3:Table B-2",
+    "DOC1:Figure 2-3",
+    "DOC1:p5",
+    "DOC3:p5",
+    "DOC1:p24"
+   ],
+   "figure_references": [
+    "Table 1-2",
+    "Table B-2",
+    "Figure 2-3"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p5",
+   "DOC2:p1",
+   "DOC1:p2",
+   "DOC1:Figure 2-3",
+   "DOC1:p7",
+   "DOC1:p2",
+   "DOC1:p24",
+   "DOC2:p3",
+   "DOC1:p2",
+   "DOC1:p21"
+  ],
+  "evidence": [
+   "DOC1:Table 1-2",
+   "DOC3:Table B-2",
+   "DOC1:p5",
+   "DOC2:p1",
+   "DOC1:p2",
+   "DOC1:Figure 2-3",
+   "DOC1:p7",
+   "DOC1:p2",
+   "DOC1:p24",
+   "DOC2:p3",
+   "DOC3:p1",
+   "DOC3:p5",
+   "DOC1:Table 1-1",
+   "DOC1:Table 1-3"
+  ],
+  "pinned": [],
+  "resolved": [
+   "United States | unemployment rate | 2008: 5.8 [DOC1:Table 1-2]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 36.196401596069336
+ },
+ {
+  "id": "6",
+  "question": "How much did China\u2019s economy grow yearly before and during the crisis?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E6\", \"kind\": \"actual\"}],\n \"user_value\": \"null\",\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"China's economy grew at an annual rate of 11.4% in 2012, according to DOC2, which states that China's growth slowed markedly in 2012. This value replaces the earlier forecast of 3.2% for 2012 mentioned in DOC1, as DOC2 provides an outturn.\",\n \"status\": \"answered\",\n \"evidence\": [\"E6\"],\n \"figure_references\": [\"A.2 The United States, the Euro area and China\"],\n \"calculation\": \"11.4%\"}",
+  "result": {
+   "answer": "China's economy grew at an annual rate of 11.4% in 2012, according to DOC2, which states that China's growth slowed markedly in 2012. This value replaces the earlier forecast of 3.2% for 2012 mentioned in DOC1, as DOC2 provides an outturn.",
+   "status": "answered",
+   "citations": [
+    "DOC2:p1"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p12",
+   "DOC1:p11",
+   "DOC1:p11",
+   "DOC3:p1",
+   "DOC1:p13",
+   "DOC2:p1",
+   "DOC1:p12",
+   "DOC1:p13",
+   "DOC1:p12",
+   "DOC1:p10"
+  ],
+  "evidence": [
+   "DOC1:p12",
+   "DOC1:p11",
+   "DOC1:p11",
+   "DOC3:p1",
+   "DOC1:p13",
+   "DOC2:p1",
+   "DOC1:p12",
+   "DOC1:p13",
+   "DOC1:p12",
+   "DOC3:p5",
+   "DOC1:Table 1-4",
+   "DOC3:Table B-2",
+   "DOC3:Figure B-5"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 28.85198426246643
+ },
+ {
+  "id": "7",
+  "question": "Did the 2008 crisis tank stock markets everywhere, or just in the U.S.?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Stock prices in the United States, the Euro area, and emerging economies fell significantly during the 2008 crisis, as shown in Figure 1-1 and Figure A-4. The U.S. crisis quickly became a world crisis, affecting other countries through trade and financial channels.\", \"status\": \"answered\", \"evidence\": [\"E2\", \"E5\", \"E6\"], \"figure_references\": [\"Figure 1-1\", \"Figure A-4\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "Stock prices in the United States, the Euro area, and emerging economies fell significantly during the 2008 crisis, as shown in Figure 1-1 and Figure A-4. The U.S. crisis quickly became a world crisis, affecting other countries through trade and financial channels.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p2",
+    "DOC1:Figure 1-1",
+    "DOC2:Figure A-4",
+    "DOC2:p5"
+   ],
+   "figure_references": [
+    "Figure 1-1",
+    "Figure A-4"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC2:p1",
+   "DOC1:Figure 1-1",
+   "DOC2:Figure A-4",
+   "DOC1:p21",
+   "DOC2:Figure A-5",
+   "DOC2:p1",
+   "DOC1:p14"
+  ],
+  "evidence": [
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC2:p1",
+   "DOC1:Figure 1-1",
+   "DOC2:Figure A-4",
+   "DOC1:p21",
+   "DOC2:Figure A-5",
+   "DOC2:p1",
+   "DOC3:p1",
+   "DOC1:Table 1-1",
+   "DOC1:Figure 2-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 28.029059886932373
+ },
+ {
+  "id": "8",
+  "question": "Does fast economic growth always mean fewer people out of work in the U.S.?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"3%\", \"period\": \"output growth\", \"evidence\": \"E7\", \"kind\": \"original\"}],\n \"user_value\": \"null\",\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"Fast economic growth does not always mean fewer people out of work in the U.S. because output growth must be at least 3% to keep the unemployment rate constant, as shown in Figure 2-5 (DOC1, p29).\",\n \"status\": \"answered\",\n \"evidence\": [\"E7\"],\n \"figure_references\": [\"Figure 2-5\"],\n \"calculation\": \"3%\"}",
+  "result": {
+   "answer": "Fast economic growth does not always mean fewer people out of work in the U.S. because output growth must be at least 3% to keep the unemployment rate constant, as shown in Figure 2-5 (DOC1, p29).",
+   "status": "answered",
+   "citations": [
+    "DOC1:p29"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p24",
+   "DOC3:p5",
+   "DOC1:p24",
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p9",
+   "DOC1:p29",
+   "DOC1:p25",
+   "DOC1:p29",
+   "DOC1:p28"
+  ],
+  "evidence": [
+   "DOC1:p24",
+   "DOC3:p5",
+   "DOC1:p24",
+   "DOC1:p2",
+   "DOC1:p2",
+   "DOC1:p9",
+   "DOC1:p29",
+   "DOC1:p25",
+   "DOC1:p29",
+   "DOC1:p28",
+   "DOC3:Table B-2",
+   "DOC1:Table 1-1",
+   "DOC1:Figure 2-3"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 23.474180698394775
+ },
+ {
+  "id": "9",
+  "question": "Are consumer prices and overall economic prices always in sync in the U.S.?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Consumer prices and overall economic prices are not always in sync in the U.S. The GDP deflator and the Consumer Price Index (CPI) often move together, but they can diverge. For instance, the CPI includes a specific list of goods and services consumed by households, while the GDP deflator measures the average price of all goods and services produced in the economy. This difference can lead to discrepancies, as seen in the 2009 period when headline CPI inflation turned negative due to collapsing energy prices, while the GDP deflator fell slightly but core CPI inflation remained positive.\", \"status\": \"answered\", \"evidence\": [\"E2\", \"E4\", \"E9\"], \"figure_references\": [\"Figure B-3\", \"Figure B-4\"], \"calculation\": \"222.8 - 100 = 122.8\"}",
+  "result": {
+   "answer": "Consumer prices and overall economic prices are not always in sync in the U.S. The GDP deflator and the Consumer Price Index (CPI) often move together, but they can diverge. For instance, the CPI includes a specific list of goods and services consumed by households, while the GDP deflator measures the average price of all goods and services produced in the economy. This difference can lead to discrepancies, as seen in the 2009 period when headline CPI inflation turned negative due to collapsing energy prices, while the GDP deflator fell slightly but core CPI inflation remained positive.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p26",
+    "DOC1:p27",
+    "DOC3:p4"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p26",
+   "DOC1:p26",
+   "DOC1:p26",
+   "DOC1:p27",
+   "DOC1:p34",
+   "DOC1:p33",
+   "DOC1:p26",
+   "DOC1:p37",
+   "DOC1:p20",
+   "DOC1:p27"
+  ],
+  "evidence": [
+   "DOC1:p26",
+   "DOC1:p26",
+   "DOC1:p26",
+   "DOC1:p27",
+   "DOC1:p34",
+   "DOC1:p33",
+   "DOC1:p26",
+   "DOC1:p37",
+   "DOC3:p4",
+   "DOC3:p1",
+   "DOC3:Figure B-3",
+   "DOC3:Figure B-4"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 37.44006967544556
+ },
+ {
+  "id": "10",
+  "question": "Why has Europe struggled with jobs even before the crisis, and how bad did it get after?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"10%\", \"period\": \"2012\", \"evidence\": \"E3\", \"kind\": \"actual\"}, {\"value\": \"8.5%\", \"period\": \"2000\u20132007\", \"evidence\": \"E4\", \"kind\": \"original\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Europe struggled with jobs even before the crisis due to high pre-crisis unemployment, which was 8.5% for the Euro area over the period 2000\u20132007. After the crisis, unemployment increased to 10% in 2012, as noted in the document.\", \"status\": \"answered\", \"evidence\": [\"E3\", \"E4\"], \"figure_references\": [\"Figure B-5\"], \"calculation\": \"10% - 8.5%\"}",
+  "result": {
+   "answer": "Europe struggled with jobs even before the crisis due to high pre-crisis unemployment, which was 8.5% for the Euro area over the period 2000\u20132007. After the crisis, unemployment increased to 10% in 2012, as noted in the document. Calculation: 10% - 8.5% = 1.5.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p7"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p7",
+   "DOC1:p9",
+   "DOC2:p1",
+   "DOC1:p7",
+   "DOC3:p5",
+   "DOC1:p13",
+   "DOC1:p11",
+   "DOC1:p12",
+   "DOC1:p5",
+   "DOC1:p24"
+  ],
+  "evidence": [
+   "DOC1:p7",
+   "DOC1:p9",
+   "DOC2:p1",
+   "DOC1:p7",
+   "DOC3:p5",
+   "DOC1:p13",
+   "DOC1:p11",
+   "DOC1:p12",
+   "DOC3:p5",
+   "DOC2:p6",
+   "DOC1:Table 1-3",
+   "DOC3:Table B-2",
+   "DOC1:Table 1-4"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 36.8303656578064
+ },
+ {
+  "id": "11",
+  "question": "How did China keep growing strong through the 2008 mess?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"9.0%\", \"period\": \"2012\", \"evidence\": \"E4\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"China's output growth rate in 2012 was 9.0% (DOC1, Table 1-4).\", \"status\": \"answered\", \"evidence\": [\"E4\"], \"figure_references\": [\"Table 1-4\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "China's output growth rate in 2012 was 9.0% (DOC1, Table 1-4).",
+   "status": "answered",
+   "citations": [
+    "DOC1:Table 1-4",
+    "DOC1:p11"
+   ],
+   "figure_references": [
+    "Table 1-4"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p12",
+   "DOC1:p10",
+   "DOC1:p10",
+   "DOC1:Table 1-4",
+   "DOC1:p21",
+   "DOC1:p12",
+   "DOC3:p1",
+   "DOC2:p3",
+   "DOC1:p6",
+   "DOC1:p11"
+  ],
+  "evidence": [
+   "DOC1:p12",
+   "DOC1:p10",
+   "DOC1:p10",
+   "DOC1:Table 1-4",
+   "DOC1:p21",
+   "DOC1:p12",
+   "DOC3:p1",
+   "DOC2:p3",
+   "DOC1:p6",
+   "DOC3:Figure B-1",
+   "DOC2:Table A-2",
+   "DOC1:Figure 1-6",
+   "DOC1:Figure 2-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 23.4622220993042
+ },
+ {
+  "id": "12",
+  "question": "What role did mortgage-backed securities play in the financial crisis?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"played a significant role\", \"period\": \"2007-2008\", \"evidence\": \"E1\", \"kind\": \"original\"}],\n \"user_value\": null,\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"Mortgage-backed securities played a significant role in the financial crisis by creating complex and opaque financial instruments that made it nearly impossible to assess their value, contributing to the instability of the financial system.\",\n \"status\": \"answered\",\n \"evidence\": [\"E1\"],\n \"figure_references\": [],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "Mortgage-backed securities played a significant role in the financial crisis by creating complex and opaque financial instruments that made it nearly impossible to assess their value, contributing to the instability of the financial system.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p1"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p1",
+   "DOC1:p1",
+   "DOC1:p2",
+   "DOC1:p32",
+   "DOC1:p31",
+   "DOC1:p1",
+   "DOC1:p33",
+   "DOC1:p32",
+   "DOC1:p2",
+   "DOC1:p3"
+  ],
+  "evidence": [
+   "DOC1:p1",
+   "DOC1:p1",
+   "DOC1:p2",
+   "DOC1:p32",
+   "DOC1:p31",
+   "DOC1:p1",
+   "DOC1:p33",
+   "DOC1:p32",
+   "DOC1:p2",
+   "DOC1:p3",
+   "DOC1:Table 1-1",
+   "DOC1:Figure 1-1",
+   "DOC1:Figure 2-7"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 21.978754997253418
+ },
+ {
+  "id": "13",
+  "question": "What happens to consumption when housing prices fall?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E4\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Consumption decreases when housing prices fall, as consumers cut back on spending due to reduced financial wealth and uncertainty about the future, as seen in the period 2012.\", \"status\": \"answered\", \"evidence\": [\"E1\", \"E3\", \"E4\", \"E5\"], \"figure_references\": [\"Table 1-1\", \"Figure 1-1\"], \"calculation\": \"11.4% - 9.6%\"}",
+  "result": {
+   "answer": "Consumption decreases when housing prices fall, as consumers cut back on spending due to reduced financial wealth and uncertainty about the future, as seen in the period 2012.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p2",
+    "DOC1:p1",
+    "DOC1:p3"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p2",
+   "DOC1:p26",
+   "DOC1:p1",
+   "DOC1:p3",
+   "DOC1:p1",
+   "DOC1:p27",
+   "DOC1:p26",
+   "DOC1:p26",
+   "DOC1:p28",
+   "DOC1:p2"
+  ],
+  "evidence": [
+   "DOC1:p2",
+   "DOC1:p26",
+   "DOC1:p1",
+   "DOC1:p3",
+   "DOC1:p1",
+   "DOC1:p27",
+   "DOC1:p26",
+   "DOC1:p26",
+   "DOC2:Figure A-1",
+   "DOC2:p2",
+   "DOC1:Table 1-1",
+   "DOC2:Table A-1",
+   "DOC1:Figure 1-1"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 24.20208430290222
+ },
+ {
+  "id": "14",
+  "question": "What is a recession?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"a recession is two or more consecutive quarters of negative growth\", \"period\": \"general\", \"evidence\": \"E4\", \"kind\": \"definition\"}],\n \"user_value\": null,\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"A recession is defined as two or more consecutive quarters of negative growth in GDP, as stated in the text on page 22 of DOC1.\",\n \"status\": \"answered\",\n \"evidence\": [\"E4\"],\n \"figure_references\": [],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "A recession is defined as two or more consecutive quarters of negative growth in GDP, as stated in the text on page 22 of DOC1.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p22"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p13",
+   "DOC1:p36",
+   "DOC1:p35",
+   "DOC1:p22",
+   "DOC1:Figure 2-2",
+   "DOC1:p28",
+   "DOC1:p13",
+   "DOC1:p22",
+   "DOC1:p14",
+   "DOC2:p3"
+  ],
+  "evidence": [
+   "DOC1:p13",
+   "DOC1:p36",
+   "DOC1:p35",
+   "DOC1:p22",
+   "DOC1:Figure 2-2",
+   "DOC1:p28",
+   "DOC1:p13",
+   "DOC1:p22",
+   "DOC1:p14",
+   "DOC2:p3",
+   "DOC2:Table A-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 23.426963806152344
+ },
+ {
+  "id": "15",
+  "question": "Which group of countries grew faster before the crisis: advanced economies or emerging economies?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"6.5%\", \"period\": \"2000-2007\", \"evidence\": \"E8\", \"kind\": \"original\"}],\n \"user_value\": null,\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"Emerging and developing economies grew faster before the crisis, with an average output growth rate of 6.5% from 2000 to 2007, compared to 2.6% for advanced economies.\",\n \"status\": \"answered\",\n \"evidence\": [\"E8\"],\n \"figure_references\": [\"Table 1-1\"],\n \"calculation\": \"6.5% - 2.6%\"}",
+  "result": {
+   "answer": "Emerging and developing economies grew faster before the crisis, with an average output growth rate of 6.5% from 2000 to 2007, compared to 2.6% for advanced economies. Calculation: 6.5% - 2.6% = 3.9.",
+   "status": "answered",
+   "citations": [
+    "DOC1:Table 1-1",
+    "DOC1:p1"
+   ],
+   "figure_references": [
+    "Table 1-1"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p3",
+   "DOC1:p1",
+   "DOC2:p2",
+   "DOC1:p2",
+   "DOC1:p4",
+   "DOC1:p11",
+   "DOC2:p1",
+   "DOC1:Table 1-1",
+   "DOC1:p2",
+   "DOC1:p13"
+  ],
+  "evidence": [
+   "DOC1:p3",
+   "DOC1:p1",
+   "DOC2:p2",
+   "DOC1:p2",
+   "DOC1:p4",
+   "DOC1:p11",
+   "DOC2:p1",
+   "DOC1:Table 1-1",
+   "DOC1:p2",
+   "DOC1:p13",
+   "DOC2:Table A-1",
+   "DOC1:Table 1-4",
+   "DOC1:Figure 1-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 27.48987126350403
+ },
+ {
+  "id": "16",
+  "question": "According to Figure A-2, what unemployment rate was projected for the Euro area in 2012?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"9.9%\", \"period\": \"2012\", \"evidence\": \"E1\", \"kind\": \"forecast\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Unemployment rate in the Euro area in 2012 was 9.9% (E1, Figure A-2).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure A-2\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "Unemployment rate in the Euro area in 2012 was 9.9% (Figure A-2).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Figure A-2",
+    "DOC2:p4"
+   ],
+   "figure_references": [
+    "Figure A-2"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Figure A-2",
+   "DOC1:Figure 1-2",
+   "DOC2:p6",
+   "DOC2:Figure A-7",
+   "DOC2:Table A-2",
+   "DOC2:Figure A-3",
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC2:p3",
+   "DOC2:Figure A-6"
+  ],
+  "evidence": [
+   "DOC2:Figure A-2",
+   "DOC2:p6",
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC1:p7",
+   "DOC2:p4",
+   "DOC1:p3",
+   "DOC2:p3",
+   "DOC1:p7"
+  ],
+  "pinned": [
+   "DOC2:Figure A-2"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 21.830870866775513
+ },
+ {
+  "id": "17",
+  "question": "According to Figure A-3, what was the Euro area unemployment rate in 2012?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Euro area unemployment rate in 2012 was 11.4% (E1, Figure A-3).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure A-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "Euro area unemployment rate in 2012 was 11.4% (Figure A-3).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Figure A-3",
+    "DOC2:p4"
+   ],
+   "figure_references": [
+    "Figure A-3"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Figure A-3",
+   "DOC2:Figure A-2",
+   "DOC1:Figure 1-2",
+   "DOC2:Figure A-7",
+   "DOC2:p6",
+   "DOC1:Table 1-3",
+   "DOC1:p7",
+   "DOC2:Table A-2",
+   "DOC2:p4",
+   "DOC2:p3"
+  ],
+  "evidence": [
+   "DOC2:Figure A-3",
+   "DOC2:p6",
+   "DOC1:p7",
+   "DOC2:p4",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:p3",
+   "DOC1:p7",
+   "DOC1:p7",
+   "DOC1:p3"
+  ],
+  "pinned": [
+   "DOC2:Figure A-3"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 21.74803853034973
+ },
+ {
+  "id": "18",
+  "question": "In Figure A-4, what was the Euro area stock price index in March 2009?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"0.63\", \"period\": \"2009-01\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"The Euro area stock price index in March 2009 was 0.63 (E1, Figure A-4).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure A-4\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The Euro area stock price index in March 2009 was 0.63 (Figure A-4).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Figure A-4",
+    "DOC2:p5"
+   ],
+   "figure_references": [
+    "Figure A-4"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Figure A-4",
+   "DOC2:p5",
+   "DOC2:Figure A-5",
+   "DOC2:Figure A-3",
+   "DOC1:Figure 1-1",
+   "DOC2:Figure A-2",
+   "DOC1:Figure 1-2",
+   "DOC1:p13",
+   "DOC2:p1",
+   "DOC1:p7"
+  ],
+  "evidence": [
+   "DOC2:Figure A-4",
+   "DOC2:p5",
+   "DOC1:p13",
+   "DOC2:p1",
+   "DOC1:p7",
+   "DOC1:p7",
+   "DOC1:p7",
+   "DOC1:p7",
+   "DOC2:p4",
+   "DOC3:p4"
+  ],
+  "pinned": [
+   "DOC2:Figure A-4"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 21.877327919006348
+ },
+ {
+  "id": "19",
+  "question": "In Figure A-5, what is the value of the U.S. stock price index in December 2010?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"1.57\", \"period\": \"2010-12\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"The U.S. stock price index in December 2010 was 1.57 (DOC2, Figure A-5).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure A-5\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The U.S. stock price index in December 2010 was 1.57 (DOC2, Figure A-5).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Figure A-5",
+    "DOC2:p5"
+   ],
+   "figure_references": [
+    "Figure A-5"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Figure A-5",
+   "DOC2:p5",
+   "DOC2:Figure A-4",
+   "DOC1:Figure 1-1",
+   "DOC1:p37",
+   "DOC1:p2",
+   "DOC1:p37",
+   "DOC1:Figure 1-4",
+   "DOC1:p20",
+   "DOC1:Figure 1-5"
+  ],
+  "evidence": [
+   "DOC2:Figure A-5",
+   "DOC2:p5",
+   "DOC1:p37",
+   "DOC1:p2",
+   "DOC1:p37",
+   "DOC1:p20",
+   "DOC3:p6",
+   "DOC2:p7",
+   "DOC2:p7",
+   "DOC3:p5"
+  ],
+  "pinned": [
+   "DOC2:Figure A-5"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 23.261777877807617
+ },
+ {
+  "id": "20",
+  "question": "Which country has exactly the same unemployment rate in Figures A-6 and A-7?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"4.4%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Austria's unemployment rate in 2012 was 4.4% (DOC2, Figure A-7). This value is the same as in Figure A-6 for 2010, indicating no change in Austria's unemployment rate between these years.\", \"status\": \"answered\", \"evidence\": [\"E2\", \"E3\"], \"figure_references\": [\"Figure A-6\", \"Figure A-7\"], \"calculation\": \"4.4% - 4.4%\"}",
+  "result": {
+   "answer": "Austria's unemployment rate in 2012 was 4.4% (DOC2, Figure A-7). This value is the same as in Figure A-6 for 2010, indicating no change in Austria's unemployment rate between these years. Calculation: 4.4% - 4.4% = 0.",
+   "status": "answered",
+   "citations": [
+    "DOC2:Figure A-7",
+    "DOC2:p6",
+    "DOC2:Figure A-6"
+   ],
+   "figure_references": [
+    "Figure A-7",
+    "Figure A-6"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Figure A-6",
+   "DOC2:Figure A-7",
+   "DOC2:p6",
+   "DOC1:Figure 2-6",
+   "DOC2:p4",
+   "DOC1:p3",
+   "DOC1:Figure 2-5",
+   "DOC2:p7",
+   "DOC2:p7",
+   "DOC1:p11"
+  ],
+  "evidence": [
+   "DOC2:Figure A-6",
+   "DOC2:Figure A-7",
+   "DOC2:p6",
+   "DOC2:p4",
+   "DOC1:p3",
+   "DOC2:p7",
+   "DOC2:p7",
+   "DOC1:p11",
+   "DOC3:p6",
+   "DOC3:p5"
+  ],
+  "pinned": [
+   "DOC2:Figure A-6",
+   "DOC2:Figure A-7"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 28.722586631774902
+ },
+ {
+  "id": "21",
+  "question": "What was China's registered urban unemployment rate in 2012 according to Figure B-5?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"4.1%\", \"period\": \"2012\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"China's registered urban unemployment rate in 2012 was 4.1% (DOC3, Figure B-5 (corrected)).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure B-5 (corrected)\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "China's registered urban unemployment rate in 2012 was 4.1% (DOC3, Figure B-5 (corrected)).",
+   "status": "answered",
+   "citations": [
+    "DOC3:Figure B-5 (corrected)",
+    "DOC3:p6"
+   ],
+   "figure_references": [
+    "Figure B-5 (corrected)",
+    "Figure B-5"
+   ]
+  },
+  "retrieved": [
+   "DOC3:Figure B-5 (corrected)",
+   "DOC3:Figure B-5",
+   "DOC3:p5",
+   "DOC3:p6",
+   "DOC3:p5",
+   "DOC3:Table B-2",
+   "DOC2:p3",
+   "DOC3:p1",
+   "DOC2:Table A-2",
+   "DOC2:p1"
+  ],
+  "evidence": [
+   "DOC3:Figure B-5 (corrected)",
+   "DOC3:Figure B-5",
+   "DOC3:p5",
+   "DOC3:p6",
+   "DOC3:p5",
+   "DOC2:p3",
+   "DOC3:p1",
+   "DOC2:p1",
+   "DOC1:p10",
+   "DOC1:p23"
+  ],
+  "pinned": [
+   "DOC3:Figure B-5 (corrected)",
+   "DOC3:Figure B-5"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 22.24098539352417
+ },
+ {
+  "id": "22",
+  "question": "In Figure B-4, by how much did core CPI inflation exceed headline CPI inflation in 2009?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"1.7%\", \"period\": \"2009\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Core CPI inflation in 2009 was 1.7% (DOC3, Figure B-4). Headline CPI inflation in 2009 was -0.4% (DOC3, Figure B-4). The difference between core CPI and headline CPI inflation in 2009 was 2.1%.\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Figure B-4\"], \"calculation\": \"1.7 - (-0.4)\"}",
+  "result": {
+   "answer": "Core CPI inflation in 2009 was 1.7% (DOC3, Figure B-4). Headline CPI inflation in 2009 was -0.4% (DOC3, Figure B-4). The difference between core CPI and headline CPI inflation in 2009 was 2.1%.",
+   "status": "answered",
+   "citations": [
+    "DOC3:Figure B-4",
+    "DOC3:p4"
+   ],
+   "figure_references": [
+    "Figure B-4"
+   ]
+  },
+  "retrieved": [
+   "DOC3:Figure B-4",
+   "DOC3:p4",
+   "DOC3:Figure B-3",
+   "DOC3:p1",
+   "DOC1:Figure 2-4",
+   "DOC1:p27",
+   "DOC1:p27",
+   "DOC1:p27",
+   "DOC1:p34",
+   "DOC1:p5"
+  ],
+  "evidence": [
+   "DOC3:Figure B-4",
+   "DOC3:p4",
+   "DOC3:p1",
+   "DOC1:p27",
+   "DOC1:p27",
+   "DOC1:p27",
+   "DOC1:p34",
+   "DOC1:p5",
+   "DOC1:p26",
+   "DOC1:p26"
+  ],
+  "pinned": [
+   "DOC3:Figure B-4"
+  ],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 26.95021629333496
+ },
+ {
+  "id": "23",
+  "question": "What was the forecast error for Euro area output growth in 2012 (outturn minus the fall-2011 forecast)?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"The forecast error for Euro area output growth in 2012 was -1.8% (outturn -1.7% minus forecast 1.1%).\", \"status\": \"answered\", \"evidence\": [\"E2\"], \"figure_references\": [\"Table A-2\"], \"calculation\": \"1.1 - (-0.7)\"}",
+  "result": {
+   "answer": "The forecast error for Euro area output growth in 2012 was -1.8% (outturn -1.7% minus forecast 1.1%).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Table A-2",
+    "DOC2:p3"
+   ],
+   "figure_references": [
+    "Table A-2"
+   ]
+  },
+  "retrieved": [
+   "DOC2:p3",
+   "DOC2:p2",
+   "DOC2:Figure A-1",
+   "DOC2:Table A-1",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:p1",
+   "DOC2:Table A-2",
+   "DOC2:p7",
+   "DOC2:p4"
+  ],
+  "evidence": [
+   "DOC1:Table 1-3",
+   "DOC2:Table A-2",
+   "DOC2:p3",
+   "DOC2:p2",
+   "DOC2:Figure A-1",
+   "DOC2:Table A-1",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:p1",
+   "DOC1:p7",
+   "DOC1:p10",
+   "DOC3:Table B-1",
+   "DOC1:Table 1-4"
+  ],
+  "pinned": [],
+  "resolved": [
+   "Euro area | output growth | 2012: -0.7 [DOC2:Table A-2] - outturn; it supersedes the forecast 1.1 (forecast) [DOC1:Table 1-3, trust high], 1.1 (forecast) [DOC2:Table A-2, trust high]",
+   "Euro area | output growth | 2011: 1.6 [DOC2:Table A-2]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 22.981472730636597
+ },
+ {
+  "id": "24",
+  "question": "Using Okun's law as stated in Document 1 and the U.S. output growth outturn for 2012, what change in unemployment would you predict for 2012, and what actually happened?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\n  \"facts\": [\n    {\"value\": \"2.3\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"},\n    {\"value\": \"1.8\", \"period\": \"2012\", \"evidence\": \"E1\", \"kind\": \"forecast\"}\n  ],\n  \"user_value\": null,\n  \"premise_is_false\": false,\n  \"documents_disagree_without_revision\": false,\n  \"answer\": \"Using Okun's law, a 2.3% output growth in 2012 would predict a decrease in unemployment. However, the actual unemployment rate in 2012 was 8.1%, indicating a smaller decrease than expected.\",\n  \"status\": \"answered\",\n  \"evidence\": [\"E2\", \"E1\"],\n  \"figure_references\": [\"Table A-2\", \"Table 1-2\"],\n  \"calculation\": \"2.3 - 1.8\"\n}",
+  "result": {
+   "answer": "Using Okun's law, a 2.3% output growth in 2012 would predict a decrease in unemployment. However, the actual unemployment rate in 2012 was 8.1%, indicating a smaller decrease than expected. Calculation: 2.3 - 1.8 = 0.5.",
+   "status": "answered",
+   "citations": [
+    "DOC2:Table A-2",
+    "DOC1:Table 1-2",
+    "DOC2:p3",
+    "DOC1:p5"
+   ],
+   "figure_references": [
+    "Table A-2",
+    "Table 1-2"
+   ]
+  },
+  "retrieved": [
+   "DOC2:p3",
+   "DOC1:p28",
+   "DOC1:p35",
+   "DOC2:p1",
+   "DOC2:p3",
+   "DOC2:p2",
+   "DOC1:p34",
+   "DOC1:p29",
+   "DOC2:Table A-2",
+   "DOC2:p1"
+  ],
+  "evidence": [
+   "DOC1:Table 1-2",
+   "DOC2:Table A-2",
+   "DOC2:p3",
+   "DOC1:p28",
+   "DOC1:p35",
+   "DOC2:p1",
+   "DOC2:p3",
+   "DOC2:p2",
+   "DOC1:p34",
+   "DOC1:p29",
+   "DOC2:p1",
+   "DOC2:Table A-1",
+   "DOC1:Figure 2-5",
+   "DOC2:Figure A-1"
+  ],
+  "pinned": [],
+  "resolved": [
+   "United States | output growth | 2012: 2.3 [DOC2:Table A-2] - outturn; it supersedes the forecast 1.8 (forecast) [DOC1:Table 1-2, trust high], 1.8 (forecast) [DOC2:Table A-2, trust high]",
+   "United States | unemployment rate | 2012: 8.1 [DOC2:Table A-2] - outturn; it supersedes the forecast 9 (forecast) [DOC1:Table 1-2, trust high], 9 (forecast) [DOC2:Table A-2, trust high]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 34.54845857620239
+ },
+ {
+  "id": "25",
+  "question": "What was the U.S. unemployment rate in 2010?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"9.6%\", \"period\": \"2010\", \"evidence\": \"E1\", \"kind\": \"forecast\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": true, \"answer\": \"The U.S. unemployment rate in 2010 was 9.6% (DOC1:Table 1-2, trust high) and 9.8% (DOC3:Table B-2, trust medium). The higher-trust source (DOC1) is preferred.\", \"status\": \"conflict\", \"evidence\": [\"E1\", \"E2\"], \"figure_references\": [\"E1\", \"E2\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The U.S. unemployment rate in 2010 was 9.6% (DOC1:Table 1-2, trust high) and 9.8% (DOC3:Table B-2, trust medium). The higher-trust source (DOC1) is preferred.",
+   "status": "conflict",
+   "citations": [
+    "DOC1:Table 1-2",
+    "DOC3:Table B-2"
+   ],
+   "figure_references": [
+    "Table 1-2",
+    "Table B-2"
+   ]
+  },
+  "retrieved": [
+   "DOC1:Figure 2-3",
+   "DOC3:p5",
+   "DOC3:Table B-2",
+   "DOC1:p4",
+   "DOC1:p24",
+   "DOC1:Table 1-2",
+   "DOC1:Figure 2-6",
+   "DOC1:p14",
+   "DOC2:p3",
+   "DOC1:p2"
+  ],
+  "evidence": [
+   "DOC1:Table 1-2",
+   "DOC3:Table B-2",
+   "DOC1:Figure 2-3",
+   "DOC3:p5",
+   "DOC1:p4",
+   "DOC1:p24",
+   "DOC1:Figure 2-6",
+   "DOC1:p14",
+   "DOC2:p3",
+   "DOC2:Figure A-6",
+   "DOC2:Table A-2",
+   "DOC3:Figure B-5"
+  ],
+  "pinned": [],
+  "resolved": [
+   "United States | unemployment rate | 2010: CONFLICT (no revision note): 9.6 [DOC1:Table 1-2, trust high] vs 9.8 [DOC3:Table B-2, trust medium] - status conflict, give both values and prefer 9.6 (higher trust)"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 28.054922819137573
+ },
+ {
+  "id": "26",
+  "question": "What was China's output growth in 2012?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"7.7%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"China's output growth in 2012 was 7.7% (E2, Table A-2).\", \"status\": \"answered\", \"evidence\": [\"E2\"], \"figure_references\": [\"Table A-2\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "China's output growth in 2012 was 7.7% (Table A-2). Sources disagree on China output growth in 2012: DOC2:Table A-2 (trust high) reports 7.7%; DOC3:p5 (trust medium) reports 7.8%; no revision note explains it, so the higher-trust value 7.7% is preferred.",
+   "status": "conflict",
+   "citations": [
+    "DOC2:Table A-2",
+    "DOC3:p5"
+   ],
+   "figure_references": [
+    "Table A-2"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p10",
+   "DOC2:p1",
+   "DOC1:Table 1-4",
+   "DOC1:p10",
+   "DOC1:p11",
+   "DOC2:Table A-2",
+   "DOC1:p12",
+   "DOC1:p11",
+   "DOC2:Figure A-1",
+   "DOC2:p3"
+  ],
+  "evidence": [
+   "DOC1:Table 1-4",
+   "DOC2:Table A-2",
+   "DOC3:p5",
+   "DOC1:p10",
+   "DOC2:p1",
+   "DOC1:p10",
+   "DOC1:p11",
+   "DOC1:p12",
+   "DOC1:p11",
+   "DOC3:p1",
+   "DOC3:Table B-2",
+   "DOC1:Figure 1-6",
+   "DOC3:Figure B-5"
+  ],
+  "pinned": [],
+  "resolved": [
+   "China | output growth | 2012: CONFLICT (no revision note): 7.7 [DOC2:Table A-2, trust high] vs 7.8 (text) [DOC3:p5, trust medium] - status conflict, give both values and prefer 7.7 (higher trust)"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 21.57176971435547
+ },
+ {
+  "id": "27",
+  "question": "What was U.S. output growth in 2010?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"2.4%\", \"period\": \"2010\", \"evidence\": \"E2\", \"kind\": \"revised\"}],\n \"user_value\": null,\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"U.S. output growth in 2010 was 2.4% (E2, DOC2:p3). This revised value supersedes the original 3.0% from E1 DOC1:Table 1-2.\",\n \"status\": \"answered\",\n \"evidence\": [\"E2\"],\n \"figure_references\": [],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "U.S. output growth in 2010 was 2.4% (DOC2:p3). This revised value supersedes the original 3.0% from DOC1:Table 1-2.",
+   "status": "answered",
+   "citations": [
+    "DOC2:p3"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:Figure 2-2",
+   "DOC1:Figure 1-4",
+   "DOC1:p13",
+   "DOC1:p20",
+   "DOC1:Figure 2-5",
+   "DOC1:Table 1-1",
+   "DOC1:Table 1-2",
+   "DOC1:p5",
+   "DOC1:p2",
+   "DOC1:p19"
+  ],
+  "evidence": [
+   "DOC1:Table 1-2",
+   "DOC2:p3",
+   "DOC1:Figure 2-2",
+   "DOC1:Figure 1-4",
+   "DOC1:p13",
+   "DOC1:p20",
+   "DOC1:Figure 2-5",
+   "DOC1:Table 1-1",
+   "DOC2:p1",
+   "DOC3:p5",
+   "DOC3:Table B-2",
+   "DOC2:Table A-2",
+   "DOC1:Figure 2-1",
+   "DOC3:Figure B-5"
+  ],
+  "pinned": [],
+  "resolved": [
+   "United States | output growth | 2010: use 2.4 - explicit revision in DOC2:p3 (revised from 3); it supersedes 3 [DOC1:Table 1-2, trust high]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 25.552369832992554
+ },
+ {
+  "id": "28",
+  "question": "What was India's unemployment rate in 2010?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"4.1%\", \"period\": \"2010\", \"evidence\": \"E4\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": true, \"documents_disagree_without_revision\": false, \"answer\": \"India's unemployment rate in 2010 was not directly mentioned in the provided evidence. However, the data for China's registered urban unemployment rate in 2010 was 4.1%, as reported in Table B-2 of DOC3.\", \"status\": \"not_found\", \"evidence\": [\"E4\"], \"figure_references\": [\"Table B-2\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "India's unemployment rate in 2010 was not directly mentioned in the provided evidence. However, the data for China's registered urban unemployment rate in 2010 was 4.1%, as reported in Table B-2 of DOC3.",
+   "status": "not_found",
+   "citations": [],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC3:p5",
+   "DOC2:p3",
+   "DOC1:Figure 2-3",
+   "DOC3:Table B-2",
+   "DOC2:Figure A-6",
+   "DOC3:Figure B-5",
+   "DOC1:p24",
+   "DOC2:p6",
+   "DOC1:Figure 2-6",
+   "DOC1:Table 1-2"
+  ],
+  "evidence": [
+   "DOC3:p5",
+   "DOC2:p3",
+   "DOC1:Figure 2-3",
+   "DOC3:Table B-2",
+   "DOC2:Figure A-6",
+   "DOC3:Figure B-5",
+   "DOC1:p24",
+   "DOC2:p6",
+   "DOC1:Figure 2-6",
+   "DOC1:Table 1-2",
+   "DOC2:Table A-2",
+   "DOC2:Figure A-7"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 24.986144304275513
+ },
+ {
+  "id": "29",
+  "question": "Why did China's economy contract in 2009?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"9.2%\", \"period\": \"2009\", \"evidence\": \"E7\", \"kind\": \"original\"}],\n \"user_value\": null,\n \"premise_is_false\": true,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"The premise that China's economy contracted in 2009 is false. The evidence states that China's growth slowed markedly in 2012, not 2009. The documented value for China's output growth rate in 2009 was 9.2%.\",\n \"status\": \"false_premise\",\n \"evidence\": [\"E7\"],\n \"figure_references\": [\"Table 1-4\"],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "The premise that China's economy contracted in 2009 is false. The evidence states that China's growth slowed markedly in 2012, not 2009. The documented value for China's output growth rate in 2009 was 9.2%.",
+   "status": "false_premise",
+   "citations": [
+    "DOC1:Table 1-4"
+   ],
+   "figure_references": [
+    "Table 1-4"
+   ]
+  },
+  "retrieved": [
+   "DOC2:p1",
+   "DOC3:p1",
+   "DOC1:p10",
+   "DOC1:p11",
+   "DOC1:p11",
+   "DOC1:p13",
+   "DOC1:Table 1-4",
+   "DOC1:p31",
+   "DOC3:p5",
+   "DOC1:p21"
+  ],
+  "evidence": [
+   "DOC2:p1",
+   "DOC3:p1",
+   "DOC1:p10",
+   "DOC1:p11",
+   "DOC1:p11",
+   "DOC1:p13",
+   "DOC1:Table 1-4",
+   "DOC1:p31",
+   "DOC3:p5",
+   "DOC2:p3",
+   "DOC3:Table B-2",
+   "DOC2:Table A-2",
+   "DOC1:Figure 1-6"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 34.20095753669739
+ },
+ {
+  "id": "30",
+  "question": "On what date did Lehman Brothers go bankrupt?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"September 15, 2008\", \"period\": \"2008\", \"evidence\": \"E1\", \"kind\": \"original\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Lehman Brothers went bankrupt on September 15, 2008, as stated in DOC1:p1.\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [], \"calculation\": \"\"}",
+  "result": {
+   "answer": "Lehman Brothers went bankrupt on September 15, 2008, as stated in DOC1:p1.",
+   "status": "answered",
+   "citations": [
+    "DOC1:p1"
+   ],
+   "figure_references": []
+  },
+  "retrieved": [
+   "DOC1:p1",
+   "DOC1:p2",
+   "DOC1:p36",
+   "DOC2:p1",
+   "DOC1:p13",
+   "DOC1:p1",
+   "DOC1:p28",
+   "DOC1:p2",
+   "DOC2:p5",
+   "DOC1:p2"
+  ],
+  "evidence": [
+   "DOC1:p1",
+   "DOC1:p2",
+   "DOC1:p36",
+   "DOC2:p1",
+   "DOC1:p13",
+   "DOC1:p1",
+   "DOC1:p28",
+   "DOC1:p2",
+   "DOC2:p5",
+   "DOC3:p1",
+   "DOC1:Table 1-1",
+   "DOC1:Figure 1-1",
+   "DOC2:Figure A-4"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 22.420554637908936
+ },
+ {
+  "id": "31",
+  "question": "What was the Euro area unemployment rate in 2012?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E2\", \"kind\": \"actual\"}],\n \"user_value\": null,\n \"premise_is_false\": false,\n \"documents_disagree_without_revision\": false,\n \"answer\": \"The Euro area unemployment rate in 2012 was 11.4% (E2, DOC2:Table A-2). This outturn supersedes the forecast of 9.9% (E1, DOC1:Table 1-3).\",\n \"status\": \"answered\",\n \"evidence\": [\"E2\"],\n \"figure_references\": [\"DOC2:Table A-2\"],\n \"calculation\": \"\"}",
+  "result": {
+   "answer": "The Euro area unemployment rate in 2012 was 11.4% (DOC2:Table A-2). This outturn supersedes the forecast of 9.9% (DOC1:Table 1-3).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Table A-2",
+    "DOC2:p3"
+   ],
+   "figure_references": [
+    "Table A-2"
+   ]
+  },
+  "retrieved": [
+   "DOC1:Figure 1-2",
+   "DOC2:p6",
+   "DOC2:Figure A-7",
+   "DOC2:Figure A-2",
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC2:Figure A-3",
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p1"
+  ],
+  "evidence": [
+   "DOC1:Table 1-3",
+   "DOC2:Table A-2",
+   "DOC1:Figure 1-2",
+   "DOC2:p6",
+   "DOC2:Figure A-7",
+   "DOC2:Figure A-2",
+   "DOC1:p7",
+   "DOC2:Figure A-3",
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:Figure A-6"
+  ],
+  "pinned": [],
+  "resolved": [
+   "Euro area | unemployment rate | 2012: 11.4 [DOC2:Table A-2] - outturn; it supersedes the forecast 9.9 (forecast) [DOC1:Table 1-3, trust high], 9.9 (forecast) [DOC2:Table A-2, trust high]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 27.31426191329956
+ },
+ {
+  "id": "32",
+  "question": "What was the U.S. federal budget deficit as a share of GDP in 2007?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"1.7%\", \"period\": \"2007\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"The U.S. federal budget deficit as a share of GDP in 2007 was 1.7% (E1, Table A-3).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Table A-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The U.S. federal budget deficit as a share of GDP in 2007 was 1.7% (Table A-3).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Table A-3",
+    "DOC2:p7"
+   ],
+   "figure_references": [
+    "Table A-3"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Table A-3",
+   "DOC1:p13",
+   "DOC2:p7",
+   "DOC1:Figure 1-4",
+   "DOC1:p6",
+   "DOC1:p5",
+   "DOC1:p6",
+   "DOC1:p13",
+   "DOC1:p5",
+   "DOC1:p14"
+  ],
+  "evidence": [
+   "DOC2:Table A-3",
+   "DOC1:p13",
+   "DOC2:p7",
+   "DOC1:Figure 1-4",
+   "DOC1:p6",
+   "DOC1:p5",
+   "DOC1:p6",
+   "DOC1:p13",
+   "DOC1:p5",
+   "DOC1:p14",
+   "DOC1:Table 1-2",
+   "DOC2:Figure A-2"
+  ],
+  "pinned": [],
+  "resolved": [
+   "United States | budget balance | 2007: -1.7 [DOC2:Table A-3]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 22.284695863723755
+ },
+ {
+  "id": "33",
+  "question": "And in 2013?",
+  "context_query": "What was the U.S. federal budget deficit as a share of GDP in 2007?",
+  "standalone": "What was the U.S. federal budget deficit as a share of GDP in 2013?",
+  "raw": "{\"facts\": [{\"value\": \"4.1%\", \"period\": \"2013\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"The U.S. federal budget deficit as a share of GDP in 2013 was -4.1% (E1, Table A-3).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Table A-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The U.S. federal budget deficit as a share of GDP in 2013 was -4.1% (Table A-3).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Table A-3",
+    "DOC2:p7"
+   ],
+   "figure_references": [
+    "Table A-3"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Table A-3",
+   "DOC1:p5",
+   "DOC1:Figure 1-4",
+   "DOC2:p7",
+   "DOC1:p13",
+   "DOC1:p13",
+   "DOC1:p6",
+   "DOC1:p6",
+   "DOC1:p5",
+   "DOC2:p1"
+  ],
+  "evidence": [
+   "DOC2:Table A-3",
+   "DOC1:p5",
+   "DOC1:Figure 1-4",
+   "DOC2:p7",
+   "DOC1:p13",
+   "DOC1:p13",
+   "DOC1:p6",
+   "DOC1:p6",
+   "DOC1:p5",
+   "DOC3:Figure B-3",
+   "DOC1:Table 1-2",
+   "DOC2:Figure A-2"
+  ],
+  "pinned": [],
+  "resolved": [
+   "United States | budget balance | 2013: -4.1 [DOC2:Table A-3]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 24.535563707351685
+ },
+ {
+  "id": "34",
+  "question": "Which was larger that year, revenues or spending, and by how much?",
+  "context_query": "What was the U.S. federal budget deficit as a share of GDP in 2007? And in 2013?",
+  "standalone": "Which was larger in 2013, revenues or spending, and by how much?",
+  "raw": "{\"facts\": [{\"value\": \"17.5%\", \"period\": \"2013\", \"evidence\": \"E1\", \"kind\": \"actual\"}, {\"value\": \"21.6%\", \"period\": \"2013\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"In 2013, spending was larger than revenues by 4.1% (Table A-3).\", \"status\": \"answered\", \"evidence\": [\"E1\"], \"figure_references\": [\"Table A-3\"], \"calculation\": \"21.6 - 17.5\"}",
+  "result": {
+   "answer": "In 2013, spending was larger than revenues by 4.1% (Table A-3).",
+   "status": "answered",
+   "citations": [
+    "DOC2:Table A-3",
+    "DOC2:p7"
+   ],
+   "figure_references": [
+    "Table A-3"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Table A-3",
+   "DOC1:p6",
+   "DOC1:p6",
+   "DOC2:p7",
+   "DOC3:Figure B-3",
+   "DOC1:p6",
+   "DOC2:Table A-2",
+   "DOC2:p3",
+   "DOC1:Figure 1-4",
+   "DOC1:p17"
+  ],
+  "evidence": [
+   "DOC2:Table A-3",
+   "DOC1:p6",
+   "DOC1:p6",
+   "DOC2:p7",
+   "DOC3:Figure B-3",
+   "DOC1:p6",
+   "DOC2:Table A-2",
+   "DOC2:p3",
+   "DOC1:Figure 1-4",
+   "DOC3:Figure B-4",
+   "DOC2:Figure A-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 29.941736698150635
+ },
+ {
+  "id": "35",
+  "question": "For this conversation only, assume Euro area output fell by 6.0% in 2009 instead of the figure in the documents. Under that assumption, how much worse would the Euro area have done than the advanced-economy average that year?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\n  \"facts\": [\n    {\"value\": \"6.0%\", \"period\": \"2009\", \"evidence\": \"user_value\", \"kind\": \"assumed\"},\n    {\"value\": \"-4.2%\", \"period\": \"2009\", \"evidence\": \"E8\", \"kind\": \"original\"}\n  ],\n  \"user_value\": \"6.0%\",\n  \"premise_is_false\": false,\n  \"documents_disagree_without_revision\": false,\n  \"answer\": \"Under the assumption that Euro area output fell by 6.0% in 2009, the Euro area would have performed 1.8 percentage points worse than the advanced-economy average that year.\",\n  \"status\": \"session_override\",\n  \"evidence\": [\"E8\"],\n  \"figure_references\": [\"Table 1-3\"],\n  \"calculation\": \"6.0 - 4.2\"\n}",
+  "result": {
+   "answer": "Under the assumption that Euro area output fell by 6.0% in 2009, the Euro area would have performed 1.8 percentage points worse than the advanced-economy average that year.",
+   "status": "session_override",
+   "citations": [
+    "DOC1:Table 1-3"
+   ],
+   "figure_references": [
+    "Table 1-3"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p6",
+   "DOC2:p1",
+   "DOC1:p13",
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC1:Table 1-3",
+   "DOC1:p3",
+   "DOC1:p7"
+  ],
+  "evidence": [
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p6",
+   "DOC2:p1",
+   "DOC1:p13",
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC1:Table 1-3",
+   "DOC1:p3",
+   "DOC1:p7",
+   "DOC2:Table A-2",
+   "DOC2:Figure A-6",
+   "DOC2:Figure A-7"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 32.518202781677246
+ },
+ {
+  "id": "36",
+  "question": "What does Document 1 itself report for Euro area growth in 2009?",
+  "context_query": "For this conversation only, assume Euro area output fell by 6.0% in 2009 instead of the figure in the documents. Under that assumption, how much worse would the Euro area have done than the advanced-economy average that year?",
+  "standalone": "What does Document 1 itself report for Euro area growth in 2009?",
+  "raw": "{\"facts\": [{\"value\": \"-4.2%\", \"period\": \"2009\", \"evidence\": \"E1\", \"kind\": \"forecast\"}], \"user_value\": \"6.0%\", \"premise_is_false\": true, \"documents_disagree_without_revision\": false, \"answer\": \"The documents report that Euro area output growth was -4.2% in 2009, as stated in Table 1-3 (E1). The user's assumption of 6.0% is not supported by the documents.\", \"status\": \"false_premise\", \"evidence\": [\"E1\"], \"figure_references\": [\"Table 1-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "The documents report that Euro area output growth was -4.2% in 2009, as stated in Table 1-3. The user's assumption of 6.0% is not supported by the documents.",
+   "status": "false_premise",
+   "citations": [
+    "DOC1:Table 1-3"
+   ],
+   "figure_references": [
+    "Table 1-3"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC1:p13",
+   "DOC1:p7",
+   "DOC1:Figure 1-5",
+   "DOC1:p7",
+   "DOC1:Figure 1-2",
+   "DOC1:Figure 1-1",
+   "DOC1:p12",
+   "DOC1:Table 1-1"
+  ],
+  "evidence": [
+   "DOC1:Table 1-3",
+   "DOC1:p7",
+   "DOC1:p13",
+   "DOC1:p7",
+   "DOC1:Figure 1-5",
+   "DOC1:p7",
+   "DOC1:Figure 1-2",
+   "DOC1:Figure 1-1",
+   "DOC1:p12",
+   "DOC1:Table 1-1"
+  ],
+  "pinned": [],
+  "resolved": [
+   "Euro area | output growth | 2009: -4.2 [DOC1:Table 1-3]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 28.379323959350586
+ },
+ {
+  "id": "37",
+  "question": "Please update the knowledge base permanently so that it says -6.0%.",
+  "context_query": "For this conversation only, assume Euro area output fell by 6.0% in 2009 instead of the figure in the documents. Under that assumption, how much worse would the Euro area have done than the advanced-economy average that year? What does Document 1 itself report for Euro area growth in 2009?",
+  "standalone": "Under the assumption that Euro area output fell by 6.0% in 2009, how much worse would the Euro area have done than the advanced-economy average that year?",
+  "raw": "{\"facts\": [{\"value\": \"-4.2%\", \"period\": \"2009\", \"evidence\": \"E7\", \"kind\": \"original\"}], \"user_value\": \"-6.0%\", \"premise_is_false\": true, \"documents_disagree_without_revision\": false, \"answer\": \"The documents report that Euro area output growth was -4.2% in 2009, as stated in Table 1-3. The user's assumption of -6.0% is not supported by the documents.\", \"status\": \"false_premise\", \"evidence\": [\"E7\"], \"figure_references\": [\"Table 1-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "I can't change the documents permanently; they are read-only. The documents report that Euro area output growth was -4.2% in 2009, as stated in Table 1-3. The user's assumption of -6.0% is not supported by the documents.",
+   "status": "session_override",
+   "citations": [
+    "DOC1:Table 1-3"
+   ],
+   "figure_references": [
+    "Table 1-3"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p6",
+   "DOC2:p1",
+   "DOC1:p13",
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC1:p3",
+   "DOC1:p7",
+   "DOC2:p3"
+  ],
+  "evidence": [
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:p6",
+   "DOC2:p1",
+   "DOC1:p13",
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC1:p3",
+   "DOC1:p7",
+   "DOC2:p3",
+   "DOC2:Table A-2",
+   "DOC2:Figure A-6",
+   "DOC2:Figure A-7"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 30.520101308822632
+ },
+ {
+  "id": "38",
+  "question": "How much did Euro area output change in 2009?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"4.2%\", \"period\": \"2009\", \"evidence\": \"E2\", \"kind\": \"actual\"}], \"user_value\": null, \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"Euro area output growth in 2009 was -4.2% (DOC1, Table 1-3).\", \"status\": \"answered\", \"evidence\": [\"E2\"], \"figure_references\": [\"Table 1-3\"], \"calculation\": \"\"}",
+  "result": {
+   "answer": "Euro area output growth in 2009 was -4.2% (DOC1, Table 1-3).",
+   "status": "answered",
+   "citations": [
+    "DOC1:Table 1-3",
+    "DOC1:p7"
+   ],
+   "figure_references": [
+    "Table 1-3"
+   ]
+  },
+  "retrieved": [
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC2:p1",
+   "DOC1:Figure 1-2",
+   "DOC1:p13",
+   "DOC2:p6",
+   "DOC1:Figure 1-5",
+   "DOC1:p7",
+   "DOC1:p7",
+   "DOC2:Figure A-2"
+  ],
+  "evidence": [
+   "DOC1:p7",
+   "DOC1:Table 1-3",
+   "DOC2:p1",
+   "DOC1:Figure 1-2",
+   "DOC1:p13",
+   "DOC2:p6",
+   "DOC1:Figure 1-5",
+   "DOC1:p7",
+   "DOC1:p7",
+   "DOC2:Figure A-2",
+   "DOC2:Figure A-6",
+   "DOC2:Figure A-7"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 21.762121200561523
+ },
+ {
+  "id": "39",
+  "question": "Here is a new data point for this chat only: China's output growth in 2014 was 7.3%. How does that compare with the 2013 outturn?",
+  "context_query": "",
+  "standalone": "",
+  "raw": "{\"facts\": [{\"value\": \"7.7%\", \"period\": \"2013\", \"evidence\": \"E1\", \"kind\": \"actual\"}], \"user_value\": \"7.3%\", \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"China's output growth in 2014 was 7.3% (user value), while the 2013 outturn was 7.7% (E1, DOC2:Table A-2).\", \"status\": \"session_override\", \"evidence\": [\"E1\"], \"figure_references\": [\"DOC2:Table A-2\"], \"calculation\": \"7.3 - 7.7\"}",
+  "result": {
+   "answer": "China's output growth in 2014 was 7.3% (user value), while the 2013 outturn was 7.7% (DOC2:Table A-2). Calculation: 7.3 - 7.7 = -0.4.",
+   "status": "session_override",
+   "citations": [
+    "DOC2:Table A-2"
+   ],
+   "figure_references": [
+    "Table A-2"
+   ]
+  },
+  "retrieved": [
+   "DOC2:Figure A-1",
+   "DOC2:Table A-2",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:Table A-1",
+   "DOC2:p2",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:p4",
+   "DOC2:Figure A-3"
+  ],
+  "evidence": [
+   "DOC2:Table A-2",
+   "DOC2:Figure A-1",
+   "DOC2:p3",
+   "DOC2:p1",
+   "DOC2:Table A-1",
+   "DOC2:p2",
+   "DOC1:p10",
+   "DOC1:p11",
+   "DOC3:p5",
+   "DOC3:Figure B-2",
+   "DOC1:Table 1-4",
+   "DOC3:Table B-2",
+   "DOC1:Figure 1-6"
+  ],
+  "pinned": [],
+  "resolved": [
+   "China | output growth | 2013: 7.7 [DOC2:Table A-2]"
+  ],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 25.362704753875732
+ },
+ {
+  "id": "40",
+  "question": "Is that 2014 figure in your documents?",
+  "context_query": "Here is a new data point for this chat only: China's output growth in 2014 was 7.3%. How does that compare with the 2013 outturn?",
+  "standalone": "Is that 2014 figure mentioned in your documents?",
+  "raw": "{\"facts\": [{\"value\": \"11.4%\", \"period\": \"2012\", \"evidence\": \"E5\", \"kind\": \"actual\"}], \"user_value\": \"7.3%\", \"premise_is_false\": false, \"documents_disagree_without_revision\": false, \"answer\": \"China's output growth in 2014 was 7.3% (user value), while the 2013 outturn was 7.7% (DOC2:Table A-2). Calculation: 7.3 - 7.7 = -0.4.\", \"status\": \"session_override\", \"evidence\": [\"E5\"], \"figure_references\": [\"Figure A-3\"], \"calculation\": \"7.3 - 7.7\"}",
+  "result": {
+   "answer": "China's output growth in 2014 was 7.3% (user value), while the 2013 outturn was 7.7% (DOC2:Table A-2). Calculation: 7.3 - 7.7 = -0.4.",
+   "status": "session_override",
+   "citations": [
+    "DOC2:Figure A-3"
+   ],
+   "figure_references": [
+    "Figure A-3"
+   ]
+  },
+  "retrieved": [
+   "DOC2:p1",
+   "DOC2:p4",
+   "DOC2:p3",
+   "DOC2:p7",
+   "DOC2:Figure A-3",
+   "DOC3:p1",
+   "DOC3:p1",
+   "DOC2:p7",
+   "DOC2:p3",
+   "DOC2:Figure A-2"
+  ],
+  "evidence": [
+   "DOC2:p1",
+   "DOC2:p4",
+   "DOC2:p3",
+   "DOC2:p7",
+   "DOC2:Figure A-3",
+   "DOC3:p1",
+   "DOC3:p1",
+   "DOC2:p7",
+   "DOC1:p14",
+   "DOC1:p21",
+   "DOC2:Table A-2",
+   "DOC2:Table A-3",
+   "DOC2:Figure A-2"
+  ],
+  "pinned": [],
+  "resolved": [],
+  "blocked": [],
+  "excluded_in_evidence": false,
+  "seconds": 29.672658920288086
+ }
+]
