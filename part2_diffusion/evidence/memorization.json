@@ -1,0 +1,122 @@
+[
+  {
+    "model": "run1",
+    "generated_file": "run1_00_0.png",
+    "training_file": "4ba0635a33d10bf88bd23b2e8f3b0da00d8370e32e26aa7de1907ff47d7dd886.png",
+    "clip_cosine": 0.8729573488235474
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_01_0.png",
+    "training_file": "ca8ddc98decf795fef7e2eec6bcfddaf647310e02d103cc6026edf3adbfbf66c.png",
+    "clip_cosine": 0.8529369235038757
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_02_0.png",
+    "training_file": "fe0c8d89dc0f2b06d0aa097c4853c39afcf0f54e774cfe22215e441ff0db50b5.png",
+    "clip_cosine": 0.7518118619918823
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_03_0.png",
+    "training_file": "949a81a4f488a16c3139a93ff07db9026b2623c95099e272e7357303f67ecefa.png",
+    "clip_cosine": 0.5960410833358765
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_04_0.png",
+    "training_file": "9e7cfede5150fe87c3bf5f3a8035df0a1005ad4a64f1924afcd1fef2abefd66e.png",
+    "clip_cosine": 0.7162944078445435
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_05_0.png",
+    "training_file": "3f2e9ae72188bfbdad3a1f645b8590b12824caa0f5fe3f08f9d071fdac0525de.png",
+    "clip_cosine": 0.6864171624183655
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_06_0.png",
+    "training_file": "3f2e9ae72188bfbdad3a1f645b8590b12824caa0f5fe3f08f9d071fdac0525de.png",
+    "clip_cosine": 0.6864171624183655
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_07_0.png",
+    "training_file": "87a4fd44fb7346e414c2dfe81a2249074ba177d13b12b73a6dd86d5d63c5c3a3.png",
+    "clip_cosine": 0.8368880748748779
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_08_0.png",
+    "training_file": "5fd96deb5000323c7eaa3357d6ed31a8004ea76ad0936610af3cb2084630856c.png",
+    "clip_cosine": 0.7375794649124146
+  },
+  {
+    "model": "run1",
+    "generated_file": "run1_09_0.png",
+    "training_file": "a0281df8eefec54c4d1c0f5df50d6e425196868b99ec77fd5117ca5ab70dcea8.png",
+    "clip_cosine": 0.7659209966659546
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_00_0.png",
+    "training_file": "3f2e9ae72188bfbdad3a1f645b8590b12824caa0f5fe3f08f9d071fdac0525de.png",
+    "clip_cosine": 0.6864171624183655
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_01_0.png",
+    "training_file": "e81e11cefbcabf5c61638a1eec9915f4491717e50768c5d59363e83e85897155.png",
+    "clip_cosine": 0.8993987441062927
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_02_0.png",
+    "training_file": "fe0c8d89dc0f2b06d0aa097c4853c39afcf0f54e774cfe22215e441ff0db50b5.png",
+    "clip_cosine": 0.8170708417892456
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_03_0.png",
+    "training_file": "949a81a4f488a16c3139a93ff07db9026b2623c95099e272e7357303f67ecefa.png",
+    "clip_cosine": 0.6674762964248657
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_04_0.png",
+    "training_file": "d61fb4470e86360c6c8d14c6bb5f6a0268be9e99b2ecbd1d37eb275dd0f72b69.png",
+    "clip_cosine": 0.7744139432907104
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_05_0.png",
+    "training_file": "3f2e9ae72188bfbdad3a1f645b8590b12824caa0f5fe3f08f9d071fdac0525de.png",
+    "clip_cosine": 0.6864171624183655
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_06_0.png",
+    "training_file": "3ec5aeba64d1d031d92d764a6e79b4383312977264ca1abfa5b3f71ef812148e.png",
+    "clip_cosine": 0.8624382615089417
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_07_0.png",
+    "training_file": "30bc86cedc0b0889b548925b358e0361625ab3f04230bb607fd41460389cc7f2.png",
+    "clip_cosine": 0.8101353645324707
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_08_0.png",
+    "training_file": "98d842d3b9c1516c3ab75ab4e912463387cea085dd1c12aaff291ebceb4fa245.png",
+    "clip_cosine": 0.815590500831604
+  },
+  {
+    "model": "run2",
+    "generated_file": "run2_09_0.png",
+    "training_file": "b71793ac7dac654782cea12aeb82d8f30a45b62a320735d3070ca8378936cc1f.png",
+    "clip_cosine": 0.5862522125244141
+  }
+]

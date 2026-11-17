@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "scope": "Offline packaging, syntax, immutable-source and saved-output integrity only",
+  "selected_v6_unchanged": true,
+  "embedded_v6_files_verified": 34,
+  "canonical_notebooks_checked": 5,
+  "part3_real_states": 25,
+  "part3_real_traces": 25,
+  "no_human_scores_generated": true,
+  "submission_ready": false
+}

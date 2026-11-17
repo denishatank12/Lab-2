@@ -1,0 +1,8 @@
+{
+  "pages": 9,
+  "renderer": "Poppler pdftoppm",
+  "visual_review": "All nine pages inspected as a contact sheet; tables and image pages checked at larger size. Two-column layout balanced; no clipping observed.",
+  "colour": "Black-and-white text/diagrams; saved visual examples converted to grayscale for the report only.",
+  "original_notebooks_unchanged": true,
+  "ready_for_submission": false
+}

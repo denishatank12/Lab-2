@@ -2,7 +2,7 @@
   {
     "system": "baseline",
     "scenario_id": "S01",
-    "rubric": "Caption and object list agree with visible content; no invented major subject.",
+    "rubric": "PASS if it reads STOP and transcribes the graffiti (YOU CANT ... THE REDSOX) or names the Pepsi bottle; no image generated.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -13,7 +13,7 @@
   {
     "system": "baseline",
     "scenario_id": "S02",
-    "rubric": "Answer the requested visual question from the image; unsupported routing is a failure.",
+    "rubric": "PASS if the order is fork, apple, orange, onion (all four named, order correct); no image generated.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -24,7 +24,7 @@
   {
     "system": "baseline",
     "scenario_id": "S03",
-    "rubric": "Answer the requested visual question from the image; unsupported routing is a failure.",
+    "rubric": "PASS if it says two giraffes standing on grass/a grassy field; no image generated.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -35,7 +35,7 @@
   {
     "system": "baseline",
     "scenario_id": "S04",
-    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "rubric": "PASS if it looks like a watercolor and the train on the bridge above the beach is still recognisable in the same layout.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -46,7 +46,7 @@
   {
     "system": "baseline",
     "scenario_id": "S05",
-    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "rubric": "PASS if visible swirling oil-paint strokes and the brick building with its clock tower is still recognisable.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -57,7 +57,7 @@
   {
     "system": "baseline",
     "scenario_id": "S06",
-    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "rubric": "PASS if mostly grey-scale pencil-sketch look and the bananas and apples on the plate are still recognisable.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -68,7 +68,7 @@
   {
     "system": "baseline",
     "scenario_id": "S07",
-    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "rubric": "PASS if the hydrant is clearly blue while the street, grass and water spray are essentially unchanged.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -79,7 +79,7 @@
   {
     "system": "baseline",
     "scenario_id": "S08",
-    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "rubric": "PASS if snow is visible and the turquoise car with surfboards is still the same car.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -90,7 +90,7 @@
   {
     "system": "baseline",
     "scenario_id": "S09",
-    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "rubric": "PASS if the room is clearly brighter/sharper with the same furniture and windows (no new objects).",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -101,7 +101,7 @@
   {
     "system": "baseline",
     "scenario_id": "S10",
-    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "rubric": "PASS if the output is in the fine-tuned Naruto anime style and keeps the person with a surfboard at the sea; the Part 2 LoRA is recorded in the trace.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -112,7 +112,7 @@
   {
     "system": "baseline",
     "scenario_id": "S11",
-    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "rubric": "PASS if a Naruto-style ninja on a cliff with a sunset sky is shown; LoRA recorded.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -123,7 +123,7 @@
   {
     "system": "baseline",
     "scenario_id": "S12",
-    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "rubric": "PASS if the zebras in the grass are redrawn in the Naruto anime style and are still recognisable as zebras.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -134,7 +134,7 @@
   {
     "system": "baseline",
     "scenario_id": "S13",
-    "rubric": "Ask for clarification or clearly explain the unsupported operation; do not silently generate.",
+    "rubric": "PASS if the system asks a clear clarification question listing the options and does not generate or crash.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -145,7 +145,7 @@
   {
     "system": "baseline",
     "scenario_id": "S14",
-    "rubric": "Reject missing, corrupt or empty input with an actionable message and no image generation.",
+    "rubric": "PASS if a clear message says the file is not a readable image; no crash, no generation.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -156,7 +156,7 @@
   {
     "system": "baseline",
     "scenario_id": "S15",
-    "rubric": "Reject missing, corrupt or empty input with an actionable message and no image generation.",
+    "rubric": "PASS if a clear message says the image is too small (20x20) and asks for a bigger one; no crash.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -167,7 +167,7 @@
   {
     "system": "critique",
     "scenario_id": "S01",
-    "rubric": "Caption and object list agree with visible content; no invented major subject.",
+    "rubric": "PASS if it reads STOP and transcribes the graffiti (YOU CANT ... THE REDSOX) or names the Pepsi bottle; no image generated.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -178,7 +178,7 @@
   {
     "system": "critique",
     "scenario_id": "S02",
-    "rubric": "Answer the requested visual question from the image; unsupported routing is a failure.",
+    "rubric": "PASS if the order is fork, apple, orange, onion (all four named, order correct); no image generated.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -189,7 +189,7 @@
   {
     "system": "critique",
     "scenario_id": "S03",
-    "rubric": "Answer the requested visual question from the image; unsupported routing is a failure.",
+    "rubric": "PASS if it says two giraffes standing on grass/a grassy field; no image generated.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -200,7 +200,7 @@
   {
     "system": "critique",
     "scenario_id": "S04",
-    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "rubric": "PASS if it looks like a watercolor and the train on the bridge above the beach is still recognisable in the same layout.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -211,7 +211,7 @@
   {
     "system": "critique",
     "scenario_id": "S05",
-    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "rubric": "PASS if visible swirling oil-paint strokes and the brick building with its clock tower is still recognisable.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -222,7 +222,7 @@
   {
     "system": "critique",
     "scenario_id": "S06",
-    "rubric": "Requested visual style is recognizable while retaining the main subject and composition.",
+    "rubric": "PASS if mostly grey-scale pencil-sketch look and the bananas and apples on the plate are still recognisable.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -233,7 +233,7 @@
   {
     "system": "critique",
     "scenario_id": "S07",
-    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "rubric": "PASS if the hydrant is clearly blue while the street, grass and water spray are essentially unchanged.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -244,7 +244,7 @@
   {
     "system": "critique",
     "scenario_id": "S08",
-    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "rubric": "PASS if snow is visible and the turquoise car with surfboards is still the same car.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -255,7 +255,7 @@
   {
     "system": "critique",
     "scenario_id": "S09",
-    "rubric": "Apply the requested edit or lighting enhancement while preserving unrelated image content.",
+    "rubric": "PASS if the room is clearly brighter/sharper with the same furniture and windows (no new objects).",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -266,7 +266,7 @@
   {
     "system": "critique",
     "scenario_id": "S10",
-    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "rubric": "PASS if the output is in the fine-tuned Naruto anime style and keeps the person with a surfboard at the sea; the Part 2 LoRA is recorded in the trace.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -277,7 +277,7 @@
   {
     "system": "critique",
     "scenario_id": "S11",
-    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "rubric": "PASS if a Naruto-style ninja on a cliff with a sunset sky is shown; LoRA recorded.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -288,7 +288,7 @@
   {
     "system": "critique",
     "scenario_id": "S12",
-    "rubric": "Use the pinned Part 2 Hub adapter and produce recognizable domain styling while retaining the subject.",
+    "rubric": "PASS if the zebras in the grass are redrawn in the Naruto anime style and are still recognisable as zebras.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -299,7 +299,7 @@
   {
     "system": "critique",
     "scenario_id": "S13",
-    "rubric": "Ask for clarification or clearly explain the unsupported operation; do not silently generate.",
+    "rubric": "PASS if the system asks a clear clarification question listing the options and does not generate or crash.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -310,7 +310,7 @@
   {
     "system": "critique",
     "scenario_id": "S14",
-    "rubric": "Reject missing, corrupt or empty input with an actionable message and no image generation.",
+    "rubric": "PASS if a clear message says the file is not a readable image; no crash, no generation.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",
@@ -321,7 +321,7 @@
   {
     "system": "critique",
     "scenario_id": "S15",
-    "rubric": "Reject missing, corrupt or empty input with an actionable message and no image generation.",
+    "rubric": "PASS if a clear message says the image is too small (20x20) and asks for a bigger one; no crash.",
     "member_a": null,
     "member_b": null,
     "member_a_comment": "",

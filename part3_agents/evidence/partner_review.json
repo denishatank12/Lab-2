@@ -6,15 +6,21 @@
   "executed_code_cells": 24,
   "saved_error_outputs": 0,
   "reported_hardware": "NVIDIA GeForce RTX 4090",
-  "reported_auto_proxy_checks": {"baseline": "15/15", "critique_loop": "15/15"},
+  "reported_auto_proxy_checks": {
+    "baseline": "15/15",
+    "critique_loop": "15/15"
+  },
   "reported_final_redteam_attack_success": "0/10",
   "human_ratings_completed": false,
-  "denisha_baseline_completed": false,
-  "single_16gb_compatibility_verified": false,
+  "denisha_baseline_completed": true,
+  "single_16gb_compatibility_verified": true,
   "adapter": "Shibin22/sd15-naruto-run1-lora-r4",
   "adapter_access": "Owner made the repo public; independently verified HTTP 200 anonymously, private=false, gated=false. No token required.",
   "public_adapter_revision": "88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5",
-  "source_differences": ["agents/agents.py", "agents/backends.py"],
+  "source_differences": [
+    "agents/agents.py",
+    "agents/backends.py"
+  ],
   "new_notebook": "notebooks/Part3_Partner_Baseline_Standalone.ipynb",
   "baseline_condition": "No revision loop; diagnostic critic and safety retained",
   "declared_runtime_patches": [
@@ -28,9 +34,26 @@
     "Use a clean environment without host package inheritance; enforce pip check and CUDA NF4 preflight"
   ],
   "local_checks": {
-    "tools/test_partner_baseline.py": {"passed": 21, "scope": "Offline software, optional hidden auth/public access, pure ensurepip-free environment creation, offline target installation and explicit mock CPU notebook execution"},
-    "tools/test_part1_kaggle.py": {"passed": 11, "scope": "Existing Part 1 regression tests"},
-    "tools/test_part2_submission.py": {"passed": 20, "scope": "Existing Part 2 recovery, validation and report fixtures"}
+    "tools/test_partner_baseline.py": {
+      "passed": 21,
+      "scope": "Offline software, optional hidden auth/public access, pure ensurepip-free environment creation, offline target installation and explicit mock CPU notebook execution"
+    },
+    "tools/test_part1_kaggle.py": {
+      "passed": 11,
+      "scope": "Existing Part 1 regression tests"
+    },
+    "tools/test_part2_submission.py": {
+      "passed": 20,
+      "scope": "Existing Part 2 recovery, validation and report fixtures"
+    }
   },
-  "not_claimed": ["New pretrained GPU execution", "Human task success", "Grader access", "Finished team report", "Final submission readiness"]
+  "not_claimed": [
+    "Human task success",
+    "Human critic agreement",
+    "Grader access",
+    "Finished team report review",
+    "Final submission readiness"
+  ],
+  "compatibility_scope": "Completed baseline on one Tesla T4; does not certify Part 2 training or the partner final on T4.",
+  "baseline_evidence": "denisha_baseline/IMPORT.json"
 }

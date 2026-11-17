@@ -1,4 +1,4 @@
-"""Create blank real-rating forms and clearly synthetic format examples, never scores."""
+"""Create blank real-rating forms, never scores."""
 import argparse
 import json
 from pathlib import Path
@@ -22,23 +22,13 @@ def prepare():
         rows=[dict(rater_id='',role='external' if role=='external_rater' else 'team_member',pair_id=i,
                    domain_style=None,prompt_match=None,comment='') for i in range(25)]
         write_if_absent(forms/f'part2_{role}_blank.json',rows)
-    scenarios=json.loads((ROOT/'part3_agents/eval/scenarios.json').read_text())
+    scenarios=json.loads((ROOT/'part3_agents/partner_snapshot/source/eval/scenarios.json').read_text())['scenarios']
     rows=[dict(system=system,scenario_id=s['id'],rubric=s['rubric'],member_a=None,member_b=None,
                member_a_comment='',member_b_comment='',resolved_pass=None,resolution_note='')
           for system in ['baseline','critique'] for s in scenarios]
     write_if_absent(forms/'part3_blank.json',rows)
-    examples=dict(sample_only=True,do_not_submit=True,
-        explanation='These invented format examples are not observations or human-evaluation results. '
-                    'They are intentionally outside the machine-read ratings schema.',
-        part1_format=dict(id='EXAMPLE_ONLY',member_a=4,member_b=5,
-            member_a_comment='Example only: a 4 would mean the answer is mostly supported but needs a small citation correction.'),
-        part2_format=dict(sample_only=True,rater_id='EXAMPLE_ONLY',role='external',pair_id=0,
-            domain_style='A',prompt_match='tie',comment='Example only: choose A for style only if it actually matches the domain better; use tie if both match the request equally.'),
-        part3_format=dict(scenario_id='EXAMPLE_ONLY',system='critique',member_a=True,member_b=False,
-            resolved_pass=False,resolution_note='Example only: after discussing the real rubric, the members could agree that a requested edit was not visible.'))
-    write_if_absent(forms/'sample_formats_DO_NOT_SUBMIT.json',examples)
     print('Prepared blank forms:',forms)
-    print('No observed score or human judgment has been generated. The synthetic example is not an input rating file.')
+    print('No observed score or human judgment has been generated.')
     return forms
 
 

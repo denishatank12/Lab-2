@@ -1,0 +1,22 @@
+{
+  "Shibin22/sd15-naruto-run1-lora-r4": {
+    "revision": "88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5",
+    "local_path": "/kaggle/temp/lab2_p3_hf_cache/hub/models--Shibin22--sd15-naruto-run1-lora-r4/snapshots/88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5"
+  },
+  "Qwen/Qwen3-VL-8B-Instruct": {
+    "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+    "local_path": "/kaggle/temp/lab2_p3_hf_cache/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+  },
+  "stable-diffusion-v1-5/stable-diffusion-v1-5": {
+    "revision": "451f4fe16113bff5a5d2269ed5ad43b0592e9a14",
+    "local_path": "/kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14"
+  },
+  "timbrooks/instruct-pix2pix": {
+    "revision": "31519b5cb02a7fd89b906d88731cd4d6a7bbf88d",
+    "local_path": "/kaggle/temp/lab2_p3_hf_cache/hub/models--timbrooks--instruct-pix2pix/snapshots/31519b5cb02a7fd89b906d88731cd4d6a7bbf88d"
+  },
+  "openai/clip-vit-large-patch14": {
+    "revision": "32bd64288804d66eefd0ccbe215aa642df71cc41",
+    "local_path": "/kaggle/temp/lab2_p3_hf_cache/hub/models--openai--clip-vit-large-patch14/snapshots/32bd64288804d66eefd0ccbe215aa642df71cc41"
+  }
+}

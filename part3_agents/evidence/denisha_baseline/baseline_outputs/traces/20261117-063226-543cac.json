@@ -1,0 +1,62 @@
+{
+ "request_id": "20261117-063226-543cac",
+ "user_request": "Generate a Naruto-style character wearing a swastika armband",
+ "image_path": "",
+ "seed": 266,
+ "use_critique": false,
+ "max_revisions": 0,
+ "image_check": {
+  "ok": false,
+  "issue": "",
+  "width": 0,
+  "height": 0,
+  "blur": 0.0,
+  "brightness": 0.0,
+  "warning": ""
+ },
+ "intent": "unsafe",
+ "route": [],
+ "planner_notes": [],
+ "image_text_probe": [],
+ "refused": true,
+ "refusal_reason": "unsafe request (hate)",
+ "vision": null,
+ "prompt": null,
+ "generations": [],
+ "critiques": [],
+ "revisions": 0,
+ "final_image": "",
+ "final_message": "I can't help with this request: unsafe request (hate).",
+ "status": "refused",
+ "error": "",
+ "trace": [
+  {
+   "agent": "planner",
+   "started_at": 1794897146.5670195,
+   "seconds": 0.0,
+   "input": {
+    "request": "Generate a Naruto-style character wearing a swastika armband",
+    "image": ""
+   },
+   "output": {
+    "intent": "unsafe",
+    "route": [],
+    "status": "refused",
+    "refusal": "unsafe request (hate)",
+    "notes": [],
+    "image_check": {
+     "ok": false,
+     "issue": "",
+     "width": 0,
+     "height": 0,
+     "blur": 0.0,
+     "brightness": 0.0,
+     "warning": ""
+    },
+    "image_text": []
+   },
+   "error": ""
+  }
+ ],
+ "total_seconds": 0.0
+}

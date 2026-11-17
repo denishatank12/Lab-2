@@ -1,0 +1,5 @@
+{
+  "dataset": "Multimodal-Fatima/COCO_captions_validation",
+  "split": "validation",
+  "revision": "bfa149029bb1e2975cb0b9bea8ad948db9e9ddb2"
+}

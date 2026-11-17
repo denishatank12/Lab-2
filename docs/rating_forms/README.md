@@ -1,47 +1,29 @@
-# Rating guide
+# Real rating forms
 
-These are blank forms for real judgments. `sample_formats_DO_NOT_SUBMIT.json`
-only shows the file format using invented examples. Do not submit its values as
-measurements. Blank fields remain pending; the software does not guess them.
+These files are blank templates, not measured results. No sample scores belong
+in the submission. Denisha and Shibin must rate independently before resolving
+disagreements.
 
-## Part 1: how well is the answer grounded?
+Part 1: review each of the 25 actual answers and cited passages for both systems.
+Give groundedness 1 (unsupported) through 5 (fully supported), with a short reason.
+Use the original selected run, not a later experiment. Save completed forms next
+to that run's `evaluation.json` and retain both raters' original judgments.
 
-Read the actual answer and its cited source. Each team member independently
-gives a score from 1 to 5: 1 means unsupported, 2 mostly unsupported, 3 mixed,
-4 mostly supported with a small issue, and 5 fully supported. A fluent answer
-can still receive a low score if its sources do not support it. Briefly explain
-any uncertain score. Do this for both the dense baseline and final system.
+Part 2: give the 25 blinded image pairs and their prompts to both members and one
+outside rater. Each chooses A, B or tie separately for domain style and prompt
+match. The private rater packet is in the original Part 2 Results ZIP under
+`outputs/human_run1`; keep its blinding key away from raters. Merge the completed
+ballot lists into `part2_diffusion/outputs/human_run1/ratings.json`. The validator
+in `part2_diffusion/src/submission.py` requires 25 pairs from each real rater.
 
-Save the completed forms as
-`part1_rag/outputs/v2/evaluation/human_ratings_dense_baseline.json` and
-`human_ratings_hybrid_multimodal.json` in the same folder. Do not change question
-IDs. Both members must also review the proposed golden references and write or
-revise their own questions as the assignment requires.
+Part 3: the JSON template uses Shibin's actual 15 COCO scenario rubrics, not the
+old synthetic demo. Both members rate baseline and critique outputs as pass/fail,
+retain comments and record a justified resolved outcome for disagreements.
+The original partner run is the paired baseline/final comparison. Denisha's T4
+baseline is additional independently executed evidence; its timing is not a
+controlled comparison with a different GPU. The baseline ZIP also contains a
+blank CSV form. Human task success and critic agreement stay pending until rated.
 
-## Part 2: compare the two blinded images
-
-Each of the two team members and one outside rater reviews all 25 pairs
-independently. Use the pair's actual prompt. Choose `A`, `B`, or `tie` separately
-for domain style and prompt match. These are different questions: an image can
-look more like anime while following the prompt less accurately. Use a short
-anonymous rater ID consistently. Do not show raters the blinding key or model
-names. Do not interpret a black filtered panel as evidence of what the hidden
-image contained.
-
-After the three people finish, combine their real ballot lists into
-`part2_diffusion/outputs/human_run1/ratings.json`. The merge helper accepts the
-three completed files and refuses to overwrite an existing ratings file. Never
-merge the sample-format object. The original blinding key stays in the outputs
-folder and is not sent with the rater packet.
-
-## Part 3: did the scenario meet its rubric?
-
-Read the request, input, actual answer/output, and the saved rubric. Each member
-independently marks `true` for pass or `false` for fail. An automatic `accept`
-decision is not a reason to mark pass. Rate both baseline and critique systems.
-For a disagreement, discuss the visible evidence, record `resolved_pass`, and
-explain the resolution. Do not erase the two original judgments.
-
-Save the completed form as `human_ratings.json` inside the actual Part 3 run
-folder printed by the notebook. Then rerun the review/report cells, not image
-generation. The report calculates the scores from these actual files.
+Add completed real forms under `submission/ratings/` with their run identifier.
+The report must use calculated values from those ballots, not automatic proxy
+passes or AI visual observations. Refresh the audit after adding them.

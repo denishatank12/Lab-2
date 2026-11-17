@@ -1,0 +1,19 @@
+{
+  "partner_commit": "a79529d1d59a6efb05bf0524ce6d60bda9bf6c09",
+  "baseline_runner_sha256": "b46919ad036f9758bb9e7fa8288d8d1cac9d021d9cad4f38a3071341a0c52825",
+  "python": "3.13.16 (main, Oct  1 2026, 15:40:24) [GCC 13.3.0]",
+  "torch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "gpu": "Tesla T4",
+  "vram_bytes": 15636037632,
+  "seed": 266,
+  "versions": {
+    "transformers": "5.22.2",
+    "diffusers": "0.43.0",
+    "accelerate": "1.15.0",
+    "peft": "0.21.2",
+    "bitsandbytes": "0.50.2",
+    "pydantic": "2.14.3",
+    "datasets": "5.2.0"
+  }
+}

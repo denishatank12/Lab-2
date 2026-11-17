@@ -1,9 +1,10 @@
 {
   "student_name": "Denisha Ketan Tank",
-  "partner_name": null,
-  "team_number": null,
+  "partner_name": "Shibin Biji Thomas Lnu",
+  "team_number": "09",
   "hugging_face_namespace": "denishatank",
   "human_ratings_status": "Pending: collect real judgments later; never generate ratings.",
   "account_setup": "Authenticated Hugging Face session verified as denishatank. Both adapters and the 120-image dataset are uploaded privately. Grader access remains to be arranged.",
-  "license_status": "The selected Naruto dataset has no explicit license field. Verify rights with the instructor before redistribution."
+  "license_status": "The selected Naruto dataset has no explicit license field. Verify rights with the instructor before redistribution.",
+  "team_name": "Pair_Programming_Team_09"
 }

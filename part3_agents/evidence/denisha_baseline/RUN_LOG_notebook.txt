@@ -1,0 +1,11 @@
+Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ModuleNotFoundError: No module named 'wrapt'
+Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ModuleNotFoundError: No module named 'wrapt'
+[IsolatedApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+Executing baseline cell 1
+Executing baseline cell 2
+Executing baseline cell 3
+Saved executed notebook: /kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/Part3_Baseline_Executed.ipynb
+RESULT ZIP: /kaggle/working/Lab2_Part3_Baseline_20261117T063231Z_915291.zip 
+SHA256: 5242d0353b2898e0f9288dd9b3f3918df3e44bc5de7b8d0273b8cd2ad3a0e87f

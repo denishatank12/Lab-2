@@ -1,124 +1,66 @@
-# DATA 266 Lab 2
+# DATA 266 Lab 2 · Team 09
 
-This repository contains the three lab implementations and their run notebooks.
+Denisha Ketan Tank and Shibin Biji Thomas Lnu
 
-## Open these notebooks
+This is the submission working tree. The selected notebooks and genuine results
+are listed below. Older launchers and experiments are recoverable from Git
+history; they are not alternative submissions.
 
-For **Part 1**, keep
-[Lab2_Part1_Kaggle_Final.ipynb](part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb).
-This is the unchanged independent v6 source, not v8 renamed as v6. The user's
-leaderboard screenshot reports **0.510**. The original executed v6 notebook and
-ZIP are not currently available in this checkout; please restore that original
-evidence rather than copying later outputs into it. The selected source and
-score provenance are recorded in [selected_run.json](part1_rag/selected_run.json).
-The later v7/v8 experiments remain for history but are not recommended.
+| Part | Files to review | Current evidence |
+| :--- | :--- | :--- |
+| 1: multimodal RAG | [Selected v6 notebook](part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb) | User's leaderboard screenshot: **0.510**. Original executed v6 notebook/ZIP still needs restoring. |
+| 2: diffusion LoRA | [Executed notebook](part2_diffusion/notebooks/Part2_FineTune_Run.ipynb) | Both 1,200-step RTX 4090 trainings, 120 images and measured KID/CLIP/LPIPS. No retraining needed for those results. |
+| 3: agents baseline | [Denisha's executed T4 notebook](part3_agents/notebooks/Part3_Baseline_Executed.ipynb) | Full real baseline: 15 scenarios, 10 red-team cases, no saved cell errors. |
+| 3: agents final | [Shibin's executed notebook](part3_agents/partner_snapshot/Partner_Part3_Executed.ipynb) | Paired baseline/final automatic results on RTX 4090, with attribution. |
+| 3: reproduction | [Standalone baseline](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb) | One-file Kaggle entry point. The public partner adapter needs no token. |
 
-For **Denisha's Part 3 baseline**, use
-[Part3_Partner_Baseline_Standalone.ipynb](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb).
-Import that one file into a fresh Kaggle GPU notebook, enable Internet and
-Run All. Shibin's run1 adapter is now public, so no Hugging Face token or
-PowerShell command is needed. Setup checks public access before large downloads.
-It creates a clean dependency environment without Kaggle/Colab host packages,
-checks dependencies and tests CUDA 4-bit execution before real model loading.
-It uses Shibin's actual adapter and the source
-embedded in his executed notebook, with declared download/safety safeguards.
-It runs only the no-revision-loop baseline, saves an executed notebook and
-exports a ZIP. Real CUDA execution is still required; local CPU checks do not
-establish GPU compatibility or scores.
+The 15/15 Part 3 automatic check is not a human quality score. For example, the
+saved baseline pencil-sketch request still looks like a colour photograph.
+Both members must independently rate the actual results before human success
+and critic-agreement scores can be reported.
 
-Shibin's [executed Part 3 notebook](part3_agents/partner_snapshot/Partner_Part3_Executed.ipynb)
-is preserved separately with attribution. Its saved RTX 4090 outputs report
-15/15 automatic scenario checks for both conditions and 0/10 red-team attacks
-against the final system. Those are automatic proxies, not completed human
-ratings or Denisha's own baseline execution. See the [Part 3 review](part3_agents/README.md).
+## Submission files
 
-The older all-parts launchers below remain available for recovery and history.
-They are not the selected Part 1 source or the new partner-based Part 3 baseline.
+* [Findings](REPORT.md), [requirement audit](SUBMISSION_STATUS.md) and [audit data](submission/audit.json)
+* [Contributions and recording log](CONTRIBUTIONS.md), [AI disclosure](AI_USAGE.md) and [links](links.txt)
+* [Blank rating forms](docs/rating_forms/README.md), [Part 2 model cards](part2_diffusion/model_cards/run1.md)
+* The combined report PDF and `Pair_Programming_Team_09.zip` are generated locally
+  by `python tools/build_combined_report.py`. PDFs, image datasets and weights
+  are excluded from new Git commits as the assignment requests.
 
-For **opening just one file in Colab**, use
-[Lab2_Colab_Standalone.ipynb](part1_rag/notebooks/Lab2_Colab_Standalone.ipynb).
-It contains its helper code, creates its internal files automatically and
-downloads the course inputs. No clone, separate Python uploads or result ZIP
-is needed. Choose a GPU runtime and Run All. A hidden Hugging Face read-token
-prompt restores your original private Part 2 adapters and 120 images. Those
-results stay labeled as original RTX 4090 measurements. The corrected Part 1
-and Part 3 experiments then run on the GPU actually assigned to this notebook.
+## What still needs real evidence
 
-For the RTX 4090, use [Lab2_RTX4090_Run_All.ipynb](Lab2_RTX4090_Run_All.ipynb).
-It verifies the real GPU, reuses the completed Part 2 result folder or original
-ZIP, restores missing dataset images, preflights the models, then executes
-Parts 1 and 3 sequentially. It saves the executed notebooks and offers one
-combined result ZIP. Put the original Part 2 ZIP on that runtime before starting
-if its results folder is not already present. Training is not repeated.
+1. Restore the original selected Part 1 executed v6 notebook and Results ZIP.
+   The later file with the same notebook name is v8; its results are not used as v6.
+2. Finish the team's golden-reference review and real ratings: both members for
+   Parts 1 and 3, and three people for Part 2, including someone outside the team.
+3. Add actual meeting recording links, confirm grader access to private Hub
+   artifacts and publish the Part 3 input/output artifact package.
+4. Confirm the final Kaggle selection/team name, GPU compatibility evidence for
+   the remaining workloads, report review and live demo. Create the three part
+   tags after the missing evidence is integrated.
 
-For the RTX 4050 overnight run, open [Lab2_Overnight_Run.ipynb](Lab2_Overnight_Run.ipynb).
-It preflights both real model paths before the long work, then runs Parts 1 and 3
-sequentially and autosaves their executed notebooks. It does not repeat Part 2
-training. Do not leave until both real GPU preflights pass on that PC.
+The repository keeps the name `Lab-2` and stays public at Denisha's request.
+The assignment asks for a private `data266-lab2-team09` repository, so this remains
+an explicit requirement difference. There is no claim that the whole submission
+is ready while these items remain open.
 
-Afterward, use the final **Download one ZIP with all available lab results** cell.
-It creates one integrity-checked ZIP for all three parts and offers a browser
-download through the Colab notebook connection, including local runtimes. No
-localhost file link or extra web server is needed. Missing results stay listed
-in its manifest. You can run only this cell after a failure without repeating
-GPU work. See the rerun guide for the contents and download details.
+## Reproducing and checking
 
-| Part | Notebook | What needs running now? |
-| --- | --- | --- |
-| 1 | [Selected v6](part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb) | Restore the genuine 0.510 executed notebook/ZIP; do not replace with v8 outputs |
-| 2 | [Fine-tuning](part2_diffusion/notebooks/Part2_FineTune_Run.ipynb) | Reuse completed training; refresh the last review cell when evidence changes |
-| 3 | [Partner baseline](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb) | Denisha's real baseline run, then both members' human ratings |
+Do not rerun completed GPU work just to rebuild the report. Part 1's selected
+source is entirely inside its frozen notebook; it unpacks its own exact helper
+files. Part 2 uses the root pinned Python 3.12 requirements. The Part 3 standalone
+uses its own clean, pinned CUDA environment; do not mix these dependency sets.
 
-Read [RERUN_GUIDE.md](RERUN_GUIDE.md) before running. The setup creates an isolated,
-pinned environment. Run one notebook at a time in a fresh kernel. A first full
-run needs internet and roughly 40 GB of free disk overall. Private adapter download asks
-for a token securely; do not put tokens in source code or notebook outputs.
+On an existing development environment:
 
-The lab specifies a single 16-GB GPU. The saved Part 2 run used a 24-GB RTX 4090.
-That result is preserved honestly, not renamed as a 16-GB run. A 6-GB RTX 4050
-is not the grading target and the revised large-model paths have not been fully
-tested on it. The new low-VRAM profile uses CPU weight offload and a 512-pixel
-image budget; it still needs an actual successful preflight and full GPU run.
+```bash
+python tools/check_submission_evidence.py
+python tools/test_part2_submission.py
+python tools/test_partner_baseline.py
+python tools/final_submission_audit.py
+python tools/build_combined_report.py
+```
 
-## What changed
-
-Part 1 now extracts numbered figure/table images as well as text, stores dense
-and CLIP vectors in local Qdrant, combines dense search with BM25 and image
-retrieval, and uses a local vision-language model for grounded JSON answers.
-Memory is isolated per conversation; Appendix C is quarantined. The 25 proposed
-golden references still need the team's own review and revision.
-
-Part 2 retains the actual two 1,200-update LoRA runs, 120 images and measured
-KID/CLIP/LPIPS results. The private Hugging Face upload records are tied to the
-actual adapter and image-manifest hashes. Existing GPU cells are unchanged.
-
-The older local Part 3 implementation has image question answering/text transcription, prompt rewriting,
-separate style and instruction-editing models, a pinned Hub adapter, visual
-critique and image-based safety cases. Fifteen rubric-defined scenarios run with
-and without critique. Automatic acceptance is not counted as human task success.
-Its default inputs are held-out anime frames. The newly selected partner-based
-baseline instead uses Shibin's fixed COCO photo scenarios. These experiments
-must not be mixed into one measured comparison without noting that difference.
-
-## Ratings and reports
-
-[Blank forms and rating instructions](docs/rating_forms/README.md) are provided.
-The separate `sample_formats_DO_NOT_SUBMIT.json` illustrates the format only.
-Its invented examples are not measurements and are rejected as an input ballot.
-Real ratings must come from the required people looking at the actual outputs.
-
-[Final_Lab_Report_DRAFT.pdf](docs/Final_Lab_Report_DRAFT.pdf) combines the three
-parts and keeps unmeasured values marked pending. It is not a finished report
-until the revised runs, human review and team details are complete.
-
-See [VALIDATION.md](VALIDATION.md) for the precise scope of local checks and
-[AI_USAGE.md](AI_USAGE.md) for the assistance disclosure. CPU smoke outputs in
-Parts 1 and 3 are deliberately labeled and are not final GPU experiments.
-
-## Submission status
-
-The final audit also checks team details, grader access, the required repository
-name/privacy, human ratings, final Kaggle selection, recordings, contributions,
-demo rehearsal and final part tags. Those actions need real evidence; the
-software does not invent them. No new final tag is created by this repair.
-Weights and generated-image datasets belong on Hugging Face, not in Git.
+An audit reporting pending human or access items is not a Python failure.
+It distinguishes completed computation from remaining submission obligations.

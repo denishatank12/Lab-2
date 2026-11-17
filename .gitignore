@@ -24,3 +24,8 @@ models/
 *.safetensors
 *.db
 .DS_Store
+# The assignment asks for report PDFs in the Canvas ZIP, not Git.
+*.pdf
+*.zip
+part1_rag/data/Questions.csv
+part1_rag/data/sample_submission.csv

@@ -66,7 +66,7 @@ def export_all(repository=ROOT):
     def add(path,name=None):
         if path.is_file() and not path.is_symlink():
             members[name or path.relative_to(repository).as_posix()]=path
-    for name in ['README.md','RERUN_GUIDE.md','AI_USAGE.md','CONTRIBUTIONS.md','links.txt',
+    for name in ['README.md','REPORT.md','SUBMISSION_STATUS.md','RERUN_GUIDE.md','AI_USAGE.md','CONTRIBUTIONS.md','links.txt',
                  'requirements.txt','team_review.json','Lab2_Overnight_Run.ipynb','Lab2_RTX4090_Run_All.ipynb',
                  'Lab2_Colab_Standalone.ipynb','Lab2_Kaggle_Standalone.ipynb','STANDALONE_MANIFEST.json']:
         add(repository/name)
@@ -78,7 +78,7 @@ def export_all(repository=ROOT):
     notebook_status={}
     for part in PARTS:
         root=repository/part
-        for folder in ['src','eval','evidence']:
+        for folder in ['src','eval','evidence','partner_snapshot','model_cards']:
             for path in (root/folder).rglob('*'):
                 if allowed_result(path,path.relative_to(root)):
                     add(path)
@@ -118,7 +118,7 @@ def export_all(repository=ROOT):
         'part2_diffusion/outputs/run1/pytorch_lora_weights.safetensors',
         'part2_diffusion/outputs/run2/pytorch_lora_weights.safetensors',
         'part2_diffusion/outputs/generations/manifest.json',
-        'part3_agents/outputs/v2/latest_run.json','CONTRIBUTIONS.md','links.txt']
+        'part3_agents/evidence/denisha_baseline/IMPORT.json','CONTRIBUTIONS.md','links.txt']
     manifest=dict(created_utc=datetime.now(timezone.utc).isoformat(),
         purpose='All available Lab 2 evidence for review; missing items are not fabricated.',
         runtime_repository=str(repository),notebooks=notebook_status,

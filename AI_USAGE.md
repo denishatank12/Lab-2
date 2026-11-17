@@ -1,142 +1,45 @@
-# AI assistance used for the runtime repair
+# AI assistance disclosure
 
-The standalone Colab revision embeds the helper source so only one notebook
-needs opening. AI assistance added integrity-checked extraction, automatic
-course-input downloads, recovery of the original private Hub artifacts and an
-isolated installer fallback for newer kernels or missing `ensurepip`. Saved
-Part 2 measurements retain their original RTX 4090 provenance; they are not
-invented new Colab timings or human ratings. Synthetic recovery fixtures and
-CPU-only clean-folder tests are labeled developer checks. No new full GPU run
-or grader access is claimed by those tests.
+Team 09: Denisha Ketan Tank and Shibin Biji Thomas Lnu.
 
-The ZIP follow-up found a copied paragraph under `text`, with the required answer
-fields missing. AI assistance implemented schema-constrained token decoding,
-restored the real notebook computation cells, preserved the original runtime
-patches without adopting their relaxed reference checks, and added 17 grammar,
-recovery and tiny-model integration tests. The decoding schemas contain field
-types and retrieved source IDs, not gold answers or question-specific values.
-These checks do not replace a real pretrained-model GPU evaluation or human
-judgments. Part 2 training was not repeated or relabeled.
+Codex assisted with code generation, debugging, dependency isolation, notebook
+packaging, regression tests, artifact validation and report drafting. Assistance
+covered retrieval and structured answers, diffusion LoRA training/evaluation,
+the standalone GPU entry points, result recovery and the submission audit.
+The team must understand and review the assisted code and conclusions.
 
-The November 9 repair traced the uploaded Part 1 failure to dictionary-valued
-citations, added strict field validation and bounded schema retries for Parts 1
-and 3, and added 16 regression tests. Both notebooks were rerun only in labeled
-CPU smoke mode. The original Part 2 GPU notebook, adapters and measurements were
-preserved. No real ratings or successful GPU evaluations were manufactured.
+Denisha ran the supplied GPU notebooks and returned their recorded results.
+Shibin supplied the partner Part 3 implementation and executed comparison.
+His notebook and source are imported with attribution and content hashes. The
+Part 3 baseline uses his public rank-4 Naruto adapter, which is separate from
+Denisha's own rank-4 Part 2 checkpoint.
 
-AI assistance added a combined evidence ZIP and a notebook-channel download
-button. Packaging tests use temporary synthetic files. The frontend test mocks
-the Colab comms API; it is not a claim that a real browser download or GPU run
-has completed. Common credentials are redacted in archive copies, not in original
-files, and missing evidence remains explicitly listed.
+AI inspected saved images to help describe attribute-binding, counting and
+filtered-output failures in Part 2, and the failed pencil-sketch transformation
+in Part 3. Those observations are explicitly AI-assisted analysis. They are
+not the required independent human ratings, votes or agreement measurements.
+No sample judgment is included as a measured result.
 
-## November 6 cross-part revision
+The cleanup preserves the selected v6 Part 1 source byte for byte and the
+completed Part 2 and Part 3 notebook outputs unchanged. The 0.510 Part 1 public
+score comes from Denisha's leaderboard screenshot. The original selected run
+files are not currently available; later v8 outputs are not substituted for
+them. Missing scores, timings, ballots and submissions are not reconstructed
+or invented.
 
-The overnight follow-up added fingerprinted per-item checkpoints, restored
-conversation state, atomic notebook autosaves, an actual-GPU preflight and a
-sequential launcher. The RTX 4050 VLM profile uses CPU weight offload, not invented
-GPU measurements. Interruption and autosave tests use clearly synthetic fixtures;
-the user still has to run and pass the real preflight on their own hardware.
+Local smoke tests use clearly fictional fixtures and tiny interfaces. They
+check software behaviour and packaging, not pretrained model quality. The
+completed T4 baseline ZIP supplies separate real GPU evidence. The Mac cleanup
+did not repeat a full GPU experiment or silently relabel RTX 4090 measurements
+as 16-GB results.
 
-AI assistance mapped the full PDF rubric to code, implemented the missing
-multimodal retrieval and local vision-language answering path, rewrote the agent
-model runtime and evaluation scripts, and added draft reporting, evidence exports
-and regression tests. The proposed 25 golden references and scenario rubrics are
-AI-assisted drafts; the team must review, revise and understand them rather than
-claiming independent authorship. Their verification flags remain unset.
+AI prepared a combined findings report, the exact Canvas review ZIP and an
+audit identifying missing human ratings, recording links, artifact permissions,
+compatibility evidence and final submission confirmations. It did not invent
+team meetings, impersonate raters, select a Kaggle final submission or submit
+to Canvas. Denisha supplied the names and Team 09 identity and requested keeping
+the current public repository name despite the assignment's private-repo rule.
 
-The revised Part 1 and Part 3 notebooks were executed locally only in explicit
-CPU smoke mode. Their pretrained-model GPU measurements remain pending.
-The successful earlier Part 2 GPU results were preserved, not regenerated or
-altered. New upload checks bind to the actual original artifact hashes.
-
-At the user's request, AI prepared blank real-rating forms and a separate
-synthetic format example marked sample-only and do-not-submit. The examples are
-not human observations, are not installed as rating files, and do not populate
-the report's human measurements. Required real raters, contributions, access
-permissions and live-demo confirmations cannot be invented by the assistant.
-
-## Completed-run review and artifact upload
-
-AI assistance also inspected the later successful GPU notebook and the original
-result ZIP, imported actual saved results with backups, checked adapter tensors,
-reviewed original image comparisons and the three closest training pairs, and
-updated the Part 2 findings PDF. The selected rank-4 model and failure analysis
-are AI-assisted interpretations of real measurements and images, not independent
-human-rating results. The notebook's original GPU cells and outputs are preserved;
-the appended review was actually run separately on CPU and is labeled that way.
-
-With the user's authorization, both original adapters and the 120 generated
-images were uploaded to private repositories under the verified Hugging Face
-account `denishatank`. No passwords, tokens, original training-image dataset or
-rater identities were published. Team details, real human judgments, sharing
-permissions and grader access remain unresolved. The older failed-run account
-below is historical and is superseded for Part 2 by this successful result bundle.
-
-AI assistance was used to inspect the notebooks and requirements, identify setup
-and memory problems, rewrite the shared environment setup, repair the data split,
-implement cached LoRA training and actual metric calculations, repair agent image
-handling and errors, and write executable smoke tests.
-
-The validation distinguishes real dense retrieval from tiny-model tests and
-model-disabled agent tests. A randomly initialized miniature diffusion model was
-used to test backward passes, checkpoint resume, adapter loading and generation.
-It is not presented as trained Stable Diffusion or as evidence of RTX 4050 speed,
-memory usage or image quality. No human ratings or full-training scores were made up.
-
-The corrected code still needs its full CUDA run on the student's machine.
-Both members must inspect, run and understand the code and complete the external
-and human-evaluation requirements. This repair is not a declaration that all
-parts of the graded lab are finished.
-
-The November 5 follow-up inspected the user's two executed notebooks. AI helped
-repair the failed shared-environment installation, add an installation lock and
-import-integrity checks, produce Part 2 report/audit code, validate real-rating
-input schemas, and prepare opt-in Hugging Face uploads. The supplied Part 1 run
-completed its 40-row validator on an RTX 4090. The supplied Part 2 run failed
-during installation and did not train. The generated PDF is labeled a draft,
-not a measured training report. Human ratings, team details and account setup
-were explicitly deferred by the user.
-
-## RTX 4090 launcher
-
-AI assistance added a dedicated RTX 4090 entry point, verified reuse of the
-original Part 2 adapters and 120-image cohort, and repaired dataset restoration
-when imported metadata exists without its image files. The launcher runs Parts
-1 and 3 sequentially, autosaves their notebooks, checks for saved model errors,
-and exports the available evidence. It does not automatically repeat Part 2
-training, invent ratings or claim submission readiness from a completed script.
-The new regression fixtures are synthetic and are not experimental measurements.
-
-## November 16 partner review
-
-AI helped inspect Shibin's public Part 3 repository and executed notebook, import
-the unchanged notebook with attribution and hashes, and compare the executed
-source with later edits. AI also prepared Denisha's standalone baseline runner
-with strict input downloads, secure adapter access, fail-closed safety,
-checkpoints and a result ZIP containing a genuinely executed notebook when run.
-Local tests use explicit mocks, not trained-model or human-evaluation evidence.
-Shibin's measured results are not presented as Denisha's own execution.
-
-The original Part 1 v6 source associated with the user's 0.510 leaderboard
-screenshot is preserved. Later v8 outputs are not transplanted into v6. The
-completed Part 2 notebook and original measurements are unchanged. Missing
-human ratings and original v6 execution files remain pending rather than invented.
-
-The follow-up adds hidden interactive token entry when Kaggle Secrets is not
-configured. AI did not embed the user's disclosed token in the repository.
-Authentication regression tests use fictional values and check that credentials
-are not printed; unattended runs still require an enabled notebook secret.
-
-AI repaired the Kaggle `ensurepip` setup failure by creating an unseeded venv
-and installing through host pip's target-interpreter option. The repair adds
-interpreter identity and partial-environment recovery checks without changing
-the partner model source or existing Part 1/Part 2 results. Tests exercised the
-actual bootstrap and an offline wheel install on the Mac, not a full CUDA run.
-
-The next repair replaced inherited host packages with a completely separate
-environment, pinned the compatible Torch/torchvision and Hub/Tokenizers pairs,
-and added dependency/isolation and GPU NF4 checks before the experiment. A full
-clean-folder CPU execution of the standalone notebook passed; it is explicitly
-mock-only and does not claim T4 model quality. Anonymous Hub metadata verified
-that Shibin's adapter is now public, so the default no longer requests a token.
+No access token is hard-coded in the notebooks or newly imported evidence.
+The public partner adapter requires no token. Private artifact access still
+requires the actual account owner to grant access through the permitted channel.

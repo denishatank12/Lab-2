@@ -1,1 +1,4 @@
--r ../requirements.txt
+# Exact environment from the completed Tesla T4 baseline.
+# The standalone notebook creates this in isolation; do not mix with Part 2.
+--extra-index-url https://download.pytorch.org/whl/cu128
+-r evidence/denisha_baseline/requirements.resolved.txt

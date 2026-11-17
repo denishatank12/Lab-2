@@ -1,0 +1,7 @@
+{
+  "report": "output/pdf/Lab2_Team09_Report.pdf",
+  "canvas_review_zip": "output/Pair_Programming_Team_09.zip",
+  "zip_sha256": "c4b6d84a24cd9591a17844714e3a2ea0705e6ff7cc686d8423c3d3e55a40c532",
+  "ready_for_submission": false,
+  "note": "Review package only. Missing evidence stays pending; no training, inference or external submission performed."
+}

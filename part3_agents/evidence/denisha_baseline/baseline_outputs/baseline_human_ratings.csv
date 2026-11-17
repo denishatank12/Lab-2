@@ -1,0 +1,40 @@
+id,request,final_image,final_message,critic_decision,member1_pass,member2_pass,member1_critic_agrees,member2_critic_agrees,resolution
+S01,"What is written on the sign, including the graffiti, and what drink is next to it?",,"Caption: A red stop sign with graffiti reading 'YOU CAN'T STOP THE RED SOX' is mounted next to a Pepsi Max bottle in a parking lot with cars and buildings in the background.
+Main objects: stop sign, Pepsi Max bottle, cars, buildings, trees
+Text visible in the image (treated as data): YOU CAN'T; STOP; THE; RED SOX; PEPSI MAX; FLAVORING COLA
+Q: What is written on the sign, including the graffiti, and what drink is next to it?
+A: The sign has graffiti that reads 'YOU CAN'T STOP THE RED SOX' and is next to a Pepsi Max bottle.
+Q: What is the main subject and what is it doing?
+A: The main subject is a stop sign with graffiti, and it is standing in a parking lot.
+Q: What is the setting, background and lighting?
+A: The setting is an outdoor parking lot with cars, buildings, and trees in the background. The lighting appears to be overcast or cloudy.",,,,,,
+S02,List the objects on the table from left to right.,,"Caption: A silver fork, a red apple, an orange, and a yellow onion are arranged in a row on a plain white surface under bright, even lighting.
+Main objects: fork, apple, orange, onion
+Text visible in the image (treated as data): none
+Q: List the objects on the table from left to right.
+A: fork, apple, orange, onion
+Q: What is the main subject and what is it doing?
+A: The main subject is a still life arrangement of food items — a fork, an apple, an orange, and an onion — displayed in a row on a white surface.
+Q: What is the setting, background and lighting?
+A: The setting is a plain white background with bright, even lighting that casts soft shadows beneath each object.",,,,,,
+S03,How many giraffes are there and what are they standing on?,,"Caption: Two giraffes stand close together in a grassy savanna, partially shaded by a large tree with green foliage.
+Main objects: giraffes, tree, grass
+Text visible in the image (treated as data): none
+Q: How many giraffes are there and what are they standing on?
+A: There are two giraffes standing on green grass.
+Q: What is the main subject and what is it doing?
+A: The main subject is two giraffes standing close together, appearing to be interacting or resting.
+Q: What is the setting, background and lighting?
+A: The setting is a grassy savanna with a large tree in the background, under bright daylight.",,,,,,
+S04,Turn this photo into a watercolor painting,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062427-5ccbad/attempt0.png,"Done: img2img_style with /kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14 (CLIP 31.0, judge 5/5, revisions 0).",accept,,,,,
+S05,Make it look like a Van Gogh oil painting with swirling brush strokes,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062515-80abcd/attempt0.png,"Done: img2img_style with /kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14 (CLIP 32.5, judge 5/5, revisions 0).",accept,,,,,
+S06,Render this as a pencil sketch,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062558-60168c/attempt0.png,"Done: img2img_style with /kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14 (CLIP 27.6, judge 1/5, revisions 0).",accept,,,,,
+S07,Make the fire hydrant blue,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062638-bfe64b/attempt0.png,"Done: pix2pix_edit with /kaggle/temp/lab2_p3_hf_cache/hub/models--timbrooks--instruct-pix2pix/snapshots/31519b5cb02a7fd89b906d88731cd4d6a7bbf88d (CLIP 27.6, judge 1/5, revisions 0).",accept,,,,,
+S08,Make it look like it is snowing,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062729-28d330/attempt0.png,"Done: pix2pix_edit with /kaggle/temp/lab2_p3_hf_cache/hub/models--timbrooks--instruct-pix2pix/snapshots/31519b5cb02a7fd89b906d88731cd4d6a7bbf88d (CLIP 35.2, judge 1/5, revisions 0).",accept,,,,,
+S09,Enhance this photo: brighten it and sharpen it,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062811-61ce82/attempt0.png,"Done: enhance with PIL enhance level 1 (median, autocontrast, gamma, unsharp, 2x Lanczos) (CLIP 29.0, judge 4/5, revisions 0).",accept,,,,,
+S10,Redraw this surfer as a Naruto-style anime character,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062902-6d7cd1/attempt0.png,"Done: img2img_domain_lora with /kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14 + /kaggle/temp/lab2_p3_hf_cache/hub/models--Shibin22--sd15-naruto-run1-lora-r4/snapshots/88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5 (CLIP 27.3, judge 1/5, revisions 0).",accept,,,,,
+S11,A Naruto-style ninja standing on a cliff at sunset,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-062945-ed4f30/attempt0.png,"Done: txt2img_domain_lora with /kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14 + /kaggle/temp/lab2_p3_hf_cache/hub/models--Shibin22--sd15-naruto-run1-lora-r4/snapshots/88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5 (CLIP 26.4, judge 5/5, revisions 0).",accept,,,,,
+S12,Redraw this scene in Naruto anime style,/kaggle/working/Lab2_Part3_Baseline_80c70aeb02281539/baseline_outputs/generated/20261117-063000-2d47dc/attempt0.png,"Done: img2img_domain_lora with /kaggle/temp/lab2_p3_hf_cache/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14 + /kaggle/temp/lab2_p3_hf_cache/hub/models--Shibin22--sd15-naruto-run1-lora-r4/snapshots/88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5 (CLIP 29.0, judge 1/5, revisions 0).",accept,,,,,
+S13,make it better,,"Your request is ambiguous. Do you want to (a) ask a question about the image, (b) change its style (e.g. 'make it a watercolor'), (c) edit something specific (e.g. 'make the sky purple'), (d) enhance quality, or (e) render it in Naruto style?",,,,,,
+S14,Turn this into a watercolor,,The uploaded file is not a readable image (it may be corrupted or not an image). Please upload a valid PNG/JPEG/WebP image.,,,,,,
+S15,What is in this image?,,The image is too small (20x20); please upload at least 64x64 pixels. Please upload a valid PNG/JPEG/WebP image.,,,,,,

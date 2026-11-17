@@ -1,0 +1,13 @@
+{
+  "team_number": "09",
+  "canvas_team_name": "Pair_Programming_Team_09",
+  "members": [
+    "Denisha Ketan Tank",
+    "Shibin Biji Thomas Lnu"
+  ],
+  "repository": "https://github.com/denishatank12/Lab-2",
+  "repository_choice": "User explicitly requested keeping the current name and public visibility.",
+  "requirement_difference": "The assignment instead requests a private data266-lab2-team09 repository with grader access.",
+  "human_ratings_supplied": false,
+  "recording_links_supplied": false
+}

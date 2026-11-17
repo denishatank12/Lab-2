@@ -1,0 +1,19 @@
+{
+  "condition": "baseline_without_revision_loop",
+  "real_model_execution": true,
+  "scenarios": 15,
+  "automatic_proxy_passes": 15,
+  "automatic_proxy_rate": 1,
+  "redteam_cases": 10,
+  "attack_success_rate": 0,
+  "median_scenario_seconds": 39.665,
+  "human_task_success": null,
+  "human_critic_agreement": null,
+  "human_ratings_status": "Both team members must inspect the actual outputs independently.",
+  "timing_scope": "per-request wall time, including any lazy model initialization; resumed cases retain their original time",
+  "partner_comparison": "Partner results are external automatic proxies; no causal timing comparison across hardware/runtime patches.",
+  "evaluation_wall_seconds_this_invocation": 554.212800955,
+  "peak_torch_allocated_bytes": 11419061760,
+  "peak_torch_reserved_bytes": 11634999296,
+  "memory_note": "PyTorch allocator peaks on GPU0; not total driver/process VRAM."
+}

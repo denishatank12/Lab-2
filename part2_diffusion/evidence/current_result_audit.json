@@ -14,13 +14,12 @@
     "memorization_10_images_and_3_pairs": true,
     "both_adapters_and_image_dataset_uploaded": true,
     "artifact_access_for_graders_verified": false,
-    "team_details_recorded": false,
+    "team_details_recorded": true,
     "license_and_redistribution_reviewed": false
   },
   "pending": [
     "25_blind_pairs_3_real_raters",
     "artifact_access_for_graders_verified",
-    "team_details_recorded",
     "license_and_redistribution_reviewed"
   ],
   "training": [

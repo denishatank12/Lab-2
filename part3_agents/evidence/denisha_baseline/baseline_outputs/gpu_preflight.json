@@ -1,0 +1,5 @@
+{
+  "passed": true,
+  "adapter_loaded": true,
+  "note": "Loads and CLIP inference passed. Full generation is evaluated in the cases below."
+}
