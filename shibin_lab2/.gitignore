@@ -1,0 +1,44 @@
+# data, weights and generated artifacts never go to GitHub (C1.6 / S.6)
+data/*
+!data/README.md
+artifacts/
+outputs/
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+chroma/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+part1/tests/fixtures/
+part3/eval/images/portrait.png
+.env
+*.zip
+# files the notebooks write next to themselves when run locally (nbconvert runs in notebooks/)
+notebooks/rag/
+notebooks/agents/
+notebooks/eval/
+notebooks/app.py
+notebooks/artifacts_p1/
+notebooks/p3_outputs/
+notebooks/p3_traces/
+notebooks/p3_images/
+notebooks/submission.csv
+notebooks/p1_*.csv
+notebooks/p1_*.json
+notebooks/p3_*.csv
+notebooks/p3_*.json
+logs/
+.venv/
+# Part 3 inputs are fetched from Hugging Face at run time (lab: inputs go to Hugging Face, not GitHub)
+part3/eval/images/
+# Part 2 artefacts (weights and generated images go to Hugging Face)
+notebooks/p2/
+notebooks/eval_p2/
+notebooks/artifacts_p2/
+notebooks/p2_human_eval/*.png
+notebooks/p2_*.csv
+notebooks/p2_*.json
+notebooks/p2_grid.png

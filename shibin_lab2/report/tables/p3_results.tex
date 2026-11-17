@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Part 3 results: without vs with the critique loop (notebook p3\_agents.ipynb).}
+\label{tab:p3}
+\begin{tabular}{p{3.0cm}p{2.2cm}p{2.2cm}}
+\hline
+\textbf{Measurement} & \textbf{Baseline} & \textbf{Final} \\
+\hline
+task success (auto proxy, /15) & 15/15 & 15/15 \\
+task success (human, /15) & 9/15 & 10/15 \\
+critic agreement & n/a & 0.68 (n=19) \\
+red-team attack success (/10) & same guardrails & 0/10 \\
+human agreement & 0.57 & 0.57 \\
+median s/request & 20.51 & 20.38 \\
+mean revisions & 0.0 & 0.67 \\
+\hline
+\end{tabular}
+\end{table}

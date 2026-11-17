@@ -1,0 +1,15 @@
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Part 2 results: base model (baseline) vs the two LoRA runs.}
+\label{tab:p2}
+\begin{tabular}{lccccccccccc}
+\hline
+\textbf{model} & \textbf{KID in-domain (x1e3, lower=better)} & \textbf{CLIP score all} & \textbf{CLIP in-domain} & \textbf{CLIP out-of-domain} & \textbf{CLIP compositional} & \textbf{LPIPS diversity} & \textbf{images used / 40} & \textbf{NSFW filtered (classifier)} & \textbf{SD checker would flag} & \textbf{GPU-hours (training)} & \textbf{peak GPU memory GB (training)} \\
+\hline
+base & 132.50 +- 10.09 & 26.12 & 25.19 & 25.74 & 28.37 & 0.689 & 40/40 & 0 & 1 & - & - \\
+run1\_lora\_r4 & 10.47 +- 4.23 & 24.58 & 23.53 & 25.01 & 26.26 & 0.684 & 40/40 & 0 & 9 & 0.145 & 3.8 \\
+run2\_lora\_r32 & 18.17 +- 5.67 & 24.75 & 23.19 & 25.1 & 27.51 & 0.682 & 40/40 & 0 & 11 & 0.145 & 3.86 \\
+\hline
+\end{tabular}
+\end{table*}

@@ -1,0 +1,118 @@
+{
+ "final_run": "run1_lora_r4",
+ "summary": [
+  {
+   "model": "base",
+   "KID in-domain (x1e3, lower=better)": "132.50 +- 10.09",
+   "CLIP score all": 26.12,
+   "CLIP in-domain": 25.19,
+   "CLIP out-of-domain": 25.74,
+   "CLIP compositional": 28.37,
+   "LPIPS diversity": 0.689,
+   "images used / 40": "40/40",
+   "NSFW filtered (classifier)": 0,
+   "SD checker would flag": 1,
+   "GPU-hours (training)": "-",
+   "peak GPU memory GB (training)": "-"
+  },
+  {
+   "model": "run1_lora_r4",
+   "KID in-domain (x1e3, lower=better)": "10.47 +- 4.23",
+   "CLIP score all": 24.58,
+   "CLIP in-domain": 23.53,
+   "CLIP out-of-domain": 25.01,
+   "CLIP compositional": 26.26,
+   "LPIPS diversity": 0.684,
+   "images used / 40": "40/40",
+   "NSFW filtered (classifier)": 0,
+   "SD checker would flag": 9,
+   "GPU-hours (training)": 0.145,
+   "peak GPU memory GB (training)": 3.8
+  },
+  {
+   "model": "run2_lora_r32",
+   "KID in-domain (x1e3, lower=better)": "18.17 +- 5.67",
+   "CLIP score all": 24.75,
+   "CLIP in-domain": 23.19,
+   "CLIP out-of-domain": 25.1,
+   "CLIP compositional": 27.51,
+   "LPIPS diversity": 0.682,
+   "images used / 40": "40/40",
+   "NSFW filtered (classifier)": 0,
+   "SD checker would flag": 11,
+   "GPU-hours (training)": 0.145,
+   "peak GPU memory GB (training)": 3.86
+  }
+ ],
+ "training": [
+  {
+   "run": "run1_lora_r4",
+   "method": "LoRA rank 4 (alpha 4) on UNet attention",
+   "trainable_params": 797184,
+   "learning_rate": 0.0001,
+   "steps": 1500,
+   "batch_size": 4,
+   "epochs": 5.46,
+   "resolution": 512,
+   "peak_gpu_memory_gb": 3.8,
+   "train_time_s": 520.9,
+   "gpu_hours": 0.145,
+   "final_loss_avg100": 0.0634,
+   "device": "NVIDIA GeForce RTX 4090"
+  },
+  {
+   "run": "run2_lora_r32",
+   "method": "LoRA rank 32 (alpha 32) on UNet attention",
+   "trainable_params": 6377472,
+   "learning_rate": 0.0001,
+   "steps": 1500,
+   "batch_size": 4,
+   "epochs": 5.46,
+   "resolution": 512,
+   "peak_gpu_memory_gb": 3.86,
+   "train_time_s": 521.9,
+   "gpu_hours": 0.145,
+   "final_loss_avg100": 0.0632,
+   "device": "NVIDIA GeForce RTX 4090"
+  }
+ ],
+ "human": {
+  "win_rate_style": 0.4,
+  "votes_style": 75,
+  "per_rater_style": {
+   "rater1": "10/25",
+   "rater2": "8/25",
+   "rater3": "12/25"
+  },
+  "win_rate_prompt": 0.507,
+  "votes_prompt": 75,
+  "per_rater_prompt": {
+   "rater1": "14/25",
+   "rater2": "14/25",
+   "rater3": "10/25"
+  }
+ },
+ "memorization_top3": [
+  {
+   "generated": ".\\artifacts_p2\\generated\\run1_lora_r4__in05__s0.png",
+   "nearest_train": ".\\artifacts_p2\\data\\train\\01040.png",
+   "cosine": 0.8926251530647278
+  },
+  {
+   "generated": ".\\artifacts_p2\\generated\\run1_lora_r4__in07__s0.png",
+   "nearest_train": ".\\artifacts_p2\\data\\train\\00807.png",
+   "cosine": 0.8738284111022949
+  },
+  {
+   "generated": ".\\artifacts_p2\\generated\\run1_lora_r4__in08__s0.png",
+   "nearest_train": ".\\artifacts_p2\\data\\train\\00526.png",
+   "cosine": 0.8485106229782104
+  }
+ ],
+ "repos": {
+  "run1_lora_r4": "Shibin22/sd15-naruto-run1-lora-r4",
+  "run2_lora_r32": "Shibin22/sd15-naruto-run2-lora-r32"
+ },
+ "images_repo": "Shibin22/lab2-p2-generated-images",
+ "local_final_adapter": "C:\\Users\\shibin\\data266-lab2\\notebooks\\artifacts_p2\\lora\\run1_lora_r4"
+}

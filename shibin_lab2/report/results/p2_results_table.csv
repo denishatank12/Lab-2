@@ -1,0 +1,4 @@
+model,"KID in-domain (x1e3, lower=better)",CLIP score all,CLIP in-domain,CLIP out-of-domain,CLIP compositional,LPIPS diversity,images used / 40,NSFW filtered (classifier),SD checker would flag,GPU-hours (training),peak GPU memory GB (training)
+base,132.50 +- 10.09,26.12,25.19,25.74,28.37,0.689,40/40,0,1,-,-
+run1_lora_r4,10.47 +- 4.23,24.58,23.53,25.01,26.26,0.684,40/40,0,9,0.145,3.8
+run2_lora_r32,18.17 +- 5.67,24.75,23.19,25.1,27.51,0.682,40/40,0,11,0.145,3.86

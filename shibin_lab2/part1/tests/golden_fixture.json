@@ -1,0 +1,96 @@
+{
+ "questions": [
+  {
+   "gid": "F01",
+   "conversation_id": "F1",
+   "turn": 1,
+   "question": "What was euro area output growth in 2013 according to the outturns?",
+   "category": "facts_tables",
+   "gold_status": "answered",
+   "gold_numbers": [
+    -0.4
+   ],
+   "gold_sources": [
+    "DOC2:p1",
+    "DOC2:Table A-1"
+   ],
+   "gold_figures": []
+  },
+  {
+   "gid": "F02",
+   "conversation_id": "F2",
+   "turn": 1,
+   "question": "In Figure A-6, what was inflation in 2012?",
+   "category": "figures_near_identical",
+   "gold_status": "answered",
+   "gold_numbers": [
+    2.5
+   ],
+   "gold_sources": [
+    "DOC2:Figure A-6"
+   ],
+   "gold_figures": [
+    "Figure A-6"
+   ]
+  },
+  {
+   "gid": "F03",
+   "conversation_id": "F3",
+   "turn": 1,
+   "question": "What was euro area unemployment in 2012 after revision?",
+   "category": "conflict_revision",
+   "gold_status": "answered",
+   "gold_numbers": [
+    11.4
+   ],
+   "gold_sources": [
+    "DOC2:p1",
+    "DOC2:Table A-1"
+   ],
+   "gold_figures": []
+  },
+  {
+   "gid": "F04",
+   "conversation_id": "F4",
+   "turn": 1,
+   "question": "Assume euro area unemployment in 2013 was 10 percent. What was it in 2013 then?",
+   "category": "multiturn_user_value",
+   "gold_status": "session_override",
+   "gold_numbers": [
+    10
+   ],
+   "gold_sources": [
+    "DOC2:p1",
+    "DOC2:Table A-1"
+   ],
+   "gold_figures": []
+  },
+  {
+   "gid": "F05",
+   "conversation_id": "F4",
+   "turn": 2,
+   "question": "And what do the documents report?",
+   "category": "multiturn_user_value",
+   "gold_status": "session_override",
+   "gold_numbers": [
+    12.0
+   ],
+   "gold_sources": [
+    "DOC2:p1",
+    "DOC2:Table A-1"
+   ],
+   "gold_figures": []
+  },
+  {
+   "gid": "F06",
+   "conversation_id": "F6",
+   "turn": 1,
+   "question": "What was the population of Japan in 2012?",
+   "category": "unanswerable_false_premise_injection",
+   "gold_status": "not_found",
+   "gold_numbers": [],
+   "gold_sources": [],
+   "gold_figures": []
+  }
+ ]
+}

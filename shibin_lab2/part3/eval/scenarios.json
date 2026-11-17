@@ -1,0 +1,199 @@
+{
+ "note": "Revised on 2026-11-13 to use real COCO photos (eval/inputs.json) instead of procedural drawings; still written before any evaluation run on the GPU (see git log). Pass/fail is judged by both members with the rubric; 'expected' holds the machine-checkable part.",
+ "scenarios": [
+  {
+   "id": "S01",
+   "category": "caption_question",
+   "image": "coco_stop_sign.jpg",
+   "request": "What is written on the sign, including the graffiti, and what drink is next to it?",
+   "expected": {
+    "status": "answered",
+    "intent": "caption_question",
+    "any_text": [
+     "stop"
+    ],
+    "any_text2": [
+     "red sox",
+     "redsox",
+     "pepsi"
+    ]
+   },
+   "rubric": "PASS if it reads STOP and transcribes the graffiti (YOU CANT ... THE REDSOX) or names the Pepsi bottle; no image generated."
+  },
+  {
+   "id": "S02",
+   "category": "caption_question",
+   "image": "coco_fork_fruit.jpg",
+   "request": "List the objects on the table from left to right.",
+   "expected": {
+    "status": "answered",
+    "intent": "caption_question",
+    "any_text": [
+     "fork"
+    ],
+    "any_text2": [
+     "onion",
+     "orange"
+    ]
+   },
+   "rubric": "PASS if the order is fork, apple, orange, onion (all four named, order correct); no image generated."
+  },
+  {
+   "id": "S03",
+   "category": "caption_question",
+   "image": "coco_giraffes.jpg",
+   "request": "How many giraffes are there and what are they standing on?",
+   "expected": {
+    "status": "answered",
+    "intent": "caption_question",
+    "any_text": [
+     "two",
+     "2"
+    ],
+    "any_text2": [
+     "grass",
+     "field"
+    ]
+   },
+   "rubric": "PASS if it says two giraffes standing on grass/a grassy field; no image generated."
+  },
+  {
+   "id": "S04",
+   "category": "style_change",
+   "image": "coco_train_bridge.jpg",
+   "request": "Turn this photo into a watercolor painting",
+   "expected": {
+    "status": "done",
+    "intent": "style_change",
+    "mode": "img2img_style"
+   },
+   "rubric": "PASS if it looks like a watercolor and the train on the bridge above the beach is still recognisable in the same layout."
+  },
+  {
+   "id": "S05",
+   "category": "style_change",
+   "image": "coco_clock_tower.jpg",
+   "request": "Make it look like a Van Gogh oil painting with swirling brush strokes",
+   "expected": {
+    "status": "done",
+    "intent": "style_change",
+    "mode": "img2img_style"
+   },
+   "rubric": "PASS if visible swirling oil-paint strokes and the brick building with its clock tower is still recognisable."
+  },
+  {
+   "id": "S06",
+   "category": "style_change",
+   "image": "coco_fruit_plate.jpg",
+   "request": "Render this as a pencil sketch",
+   "expected": {
+    "status": "done",
+    "intent": "style_change",
+    "mode": "img2img_style"
+   },
+   "rubric": "PASS if mostly grey-scale pencil-sketch look and the bananas and apples on the plate are still recognisable."
+  },
+  {
+   "id": "S07",
+   "category": "edit_enhance",
+   "image": "coco_hydrant.jpg",
+   "request": "Make the fire hydrant blue",
+   "expected": {
+    "status": "done",
+    "intent": "edit",
+    "mode": "pix2pix_edit"
+   },
+   "rubric": "PASS if the hydrant is clearly blue while the street, grass and water spray are essentially unchanged."
+  },
+  {
+   "id": "S08",
+   "category": "edit_enhance",
+   "image": "coco_vintage_car.jpg",
+   "request": "Make it look like it is snowing",
+   "expected": {
+    "status": "done",
+    "intent": "edit",
+    "mode": "pix2pix_edit"
+   },
+   "rubric": "PASS if snow is visible and the turquoise car with surfboards is still the same car."
+  },
+  {
+   "id": "S09",
+   "category": "edit_enhance",
+   "image": "coco_dark_living_room.jpg",
+   "request": "Enhance this photo: brighten it and sharpen it",
+   "expected": {
+    "status": "done",
+    "intent": "enhancement",
+    "mode": "enhance"
+   },
+   "rubric": "PASS if the room is clearly brighter/sharper with the same furniture and windows (no new objects)."
+  },
+  {
+   "id": "S10",
+   "category": "domain_style",
+   "image": "coco_surfer.jpg",
+   "request": "Redraw this surfer as a Naruto-style anime character",
+   "expected": {
+    "status": "done",
+    "intent": "domain_style",
+    "mode": "img2img_domain_lora"
+   },
+   "rubric": "PASS if the output is in the fine-tuned Naruto anime style and keeps the person with a surfboard at the sea; the Part 2 LoRA is recorded in the trace."
+  },
+  {
+   "id": "S11",
+   "category": "domain_style",
+   "image": "",
+   "request": "A Naruto-style ninja standing on a cliff at sunset",
+   "expected": {
+    "status": "done",
+    "intent": "domain_style",
+    "mode": "txt2img_domain_lora"
+   },
+   "rubric": "PASS if a Naruto-style ninja on a cliff with a sunset sky is shown; LoRA recorded."
+  },
+  {
+   "id": "S12",
+   "category": "domain_style",
+   "image": "coco_zebras.jpg",
+   "request": "Redraw this scene in Naruto anime style",
+   "expected": {
+    "status": "done",
+    "intent": "domain_style",
+    "mode": "img2img_domain_lora"
+   },
+   "rubric": "PASS if the zebras in the grass are redrawn in the Naruto anime style and are still recognisable as zebras."
+  },
+  {
+   "id": "S13",
+   "category": "ambiguous_broken",
+   "image": "coco_clock_sign.jpg",
+   "request": "make it better",
+   "expected": {
+    "status": "needs_clarification"
+   },
+   "rubric": "PASS if the system asks a clear clarification question listing the options and does not generate or crash."
+  },
+  {
+   "id": "S14",
+   "category": "ambiguous_broken",
+   "image": "broken.png",
+   "request": "Turn this into a watercolor",
+   "expected": {
+    "status": "error"
+   },
+   "rubric": "PASS if a clear message says the file is not a readable image; no crash, no generation."
+  },
+  {
+   "id": "S15",
+   "category": "ambiguous_broken",
+   "image": "tiny.png",
+   "request": "What is in this image?",
+   "expected": {
+    "status": "error"
+   },
+   "rubric": "PASS if a clear message says the image is too small (20x20) and asks for a bigger one; no crash."
+  }
+ ]
+}

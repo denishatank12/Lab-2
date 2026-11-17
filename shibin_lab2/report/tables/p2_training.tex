@@ -1,0 +1,14 @@
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Part 2 training runs (same data, steps, batch size and LR; all values printed by notebook p2\_finetune.ipynb).}
+\label{tab:p2train}
+\begin{tabular}{lccccccc}
+\hline
+\textbf{run} & \textbf{trainable\_params} & \textbf{learning\_rate} & \textbf{steps} & \textbf{batch\_size} & \textbf{peak\_gpu\_memory\_gb} & \textbf{train\_time\_s} & \textbf{gpu\_hours} \\
+\hline
+run1\_lora\_r4 & 797184 & 0.0001 & 1500 & 4 & 3.8 & 520.9 & 0.145 \\
+run2\_lora\_r32 & 6377472 & 0.0001 & 1500 & 4 & 3.86 & 521.9 & 0.145 \\
+\hline
+\end{tabular}
+\end{table*}

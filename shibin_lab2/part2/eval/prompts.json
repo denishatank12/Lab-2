@@ -1,0 +1,125 @@
+{
+ "note": "Fixed before training (git timestamp). In-domain prompts = the first 10 distinct captions of the test split (seed 266) in dataset-index order; out-of-domain and compositional prompts written by the team. Generated with seeds 0 and 1 for the base model and both runs, same sampler settings.",
+ "grid_prompts": [
+  "in01",
+  "in03",
+  "in05",
+  "in07",
+  "ood1",
+  "ood3",
+  "comp1",
+  "comp3"
+ ],
+ "prompts": [
+  {
+   "id": "in01",
+   "kind": "in_domain",
+   "prompt": "a man with a red hair and a black shirt",
+   "test_index": 2
+  },
+  {
+   "id": "in02",
+   "kind": "in_domain",
+   "prompt": "a dog with a banda around its neck",
+   "test_index": 7
+  },
+  {
+   "id": "in03",
+   "kind": "in_domain",
+   "prompt": "an older man wearing sunglasses and a hat",
+   "test_index": 19
+  },
+  {
+   "id": "in04",
+   "kind": "in_domain",
+   "prompt": "a man in a black hoodie with two other men in the background",
+   "test_index": 34
+  },
+  {
+   "id": "in05",
+   "kind": "in_domain",
+   "prompt": "a man with a big smile on his face",
+   "test_index": 46
+  },
+  {
+   "id": "in06",
+   "kind": "in_domain",
+   "prompt": "a woman with long black hair and red eyes",
+   "test_index": 65
+  },
+  {
+   "id": "in07",
+   "kind": "in_domain",
+   "prompt": "a person with long hair and a white shirt",
+   "test_index": 93
+  },
+  {
+   "id": "in08",
+   "kind": "in_domain",
+   "prompt": "a man with a hoodie and a hoodie",
+   "test_index": 111
+  },
+  {
+   "id": "in09",
+   "kind": "in_domain",
+   "prompt": "a man with blonde hair and blue eyes",
+   "test_index": 116
+  },
+  {
+   "id": "in10",
+   "kind": "in_domain",
+   "prompt": "a man with a gun in his hand",
+   "test_index": 118
+  },
+  {
+   "id": "ood1",
+   "kind": "out_of_domain",
+   "prompt": "a red sports car parked on a city street at night"
+  },
+  {
+   "id": "ood2",
+   "kind": "out_of_domain",
+   "prompt": "a bowl of fruit on a wooden kitchen table"
+  },
+  {
+   "id": "ood3",
+   "kind": "out_of_domain",
+   "prompt": "a lighthouse on a rocky cliff at sunset"
+  },
+  {
+   "id": "ood4",
+   "kind": "out_of_domain",
+   "prompt": "a cat sleeping on a sofa next to a window"
+  },
+  {
+   "id": "ood5",
+   "kind": "out_of_domain",
+   "prompt": "a mountain lake surrounded by pine trees"
+  },
+  {
+   "id": "comp1",
+   "kind": "compositional",
+   "prompt": "two characters, one in red and one in blue"
+  },
+  {
+   "id": "comp2",
+   "kind": "compositional",
+   "prompt": "a girl with pink hair standing to the left of a boy with black hair"
+  },
+  {
+   "id": "comp3",
+   "kind": "compositional",
+   "prompt": "three ninjas standing on a rooftop under a full moon"
+  },
+  {
+   "id": "comp4",
+   "kind": "compositional",
+   "prompt": "a man holding a sword in his left hand and a scroll in his right hand"
+  },
+  {
+   "id": "comp5",
+   "kind": "compositional",
+   "prompt": "a blue fox sitting on top of a red box"
+  }
+ ]
+}

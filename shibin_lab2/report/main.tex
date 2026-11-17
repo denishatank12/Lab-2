@@ -1,0 +1,243 @@
+% DATA 266 Lab 2 report (IEEE conference format). Build: pdflatex main.tex (twice)
+% Every number comes from report/tables/*.tex, generated from the notebooks' saved outputs (make_tables.py).
+% Text in [square brackets, italic] must be completed by the team after the graded runs.
+\documentclass[conference]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\newcommand{\todo}[1]{\textit{[#1]}}
+
+\begin{document}
+\title{DATA 266 Lab 2: Multimodal RAG, Diffusion Fine-Tuning and a Multimodal Multi-Agent System}
+\author{\IEEEauthorblockN{Pair\_Programming\_Team\_\#\#: \todo{Member A}, \todo{Member B}}
+\IEEEauthorblockA{San Jos\'e State University, DATA 266}}
+\maketitle
+
+\begin{abstract}
+We build (1) a multimodal retrieval-augmented generation system that answers questions over three economics PDFs
+from their text, figures and tables while respecting trust levels, revisions and untrusted content, (2) \todo{Part 2
+summary}, and (3) a five-agent system that understands an input image, turns a request into a prompt, generates an
+image with our Part 2 model when a domain style is requested, critiques the result and revises it. All components
+use open models on one 16\,GB GPU; no hosted API is used.
+\end{abstract}
+
+%=====================================================================================================
+\section{Part 1: Multimodal RAG over a Read-Only Knowledge Base}
+
+\subsection{Architecture}
+Fig.~\ref{fig:p1} shows the pipeline. \textbf{Ingestion.} PyMuPDF extracts each page's text blocks, which are grouped
+by section and split into 160-word chunks (40-word overlap) that keep \texttt{doc\_id} and page. A caption line
+starting with a label (``Figure A-5'', ``Table 1-2'', optionally ``(corrected)'') defines one object; the graphic it
+belongs to is found among the page's raster images, clustered vector drawings and detected tables, and cropped
+together with its caption. ``Figure B-5'' and ``Figure B-5 (corrected)'' therefore become two objects. Text printed
+inside vector charts and table cells is extracted as well. Section headings are tracked with font size so that the
+table-of-contents entry for Appendix~C does not start the appendix; every chunk of DOC3 Appendix~C receives
+\texttt{trust\_level=low} and \texttt{excluded=true} (stored, never retrieved).
+\textbf{Figure search.} Qwen3-VL-8B (4-bit NF4) writes a structured description of every figure (type, axes, series and every
+readable value). Figures are searchable through these texts (method: VLM descriptions).
+\textbf{Storage.} Items are embedded with \texttt{bge-small-en-v1.5} into ChromaDB with metadata \texttt{doc\_id, page,
+figure\_id, trust\_level, kind, section, excluded}; a BM25 index covers the same items.
+\textbf{Retrieval.} Dense and BM25 rankings are fused with Reciprocal Rank Fusion; a label named in the question is
+looked up exactly and pinned first, other look-alike figures are removed from the evidence so values cannot be mixed,
+and a corrected version of the named figure is attached as a labelled correction. A \texttt{bge-reranker-base}
+cross-encoder can re-order the top 20 (bonus).
+\textbf{Generation.} After ingestion the VLM is unloaded and Qwen3-14B (4-bit NF4, peak GPU memory about 10\,GB) answers. Tables are given as labelled facts (row: column = value) and every trusted document contributes its best passages, plus the tables the retrieved text refers to. Evidence is numbered (\texttt{[E1] DOC2:Figure A-5 | trust=high}); the named figure's crop is
+attached as an image. The model returns JSON with short checks (facts with their kind, user value, false premise,
+disagreement) followed by answer, status and the evidence ids it used. Citations are built deterministically from
+those ids, so a citation can only point to retrieved evidence; labels are normalized to exact figure ids; answers are
+cut at 120 words; status words in the user's own turn (``assume'', ``for this chat'', ``update the document
+permanently'') force \texttt{session\_override}.
+\textbf{Conversations.} One memory per \texttt{conversation\_id} holds earlier turns and user-supplied values; it
+lives only in Python memory and is never written to the vector database. Follow-ups (``And in 2013?'') are retrieved
+with the earlier wording as a second query and inherit the figure named earlier.
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{fig_p1_arch.png}
+\caption{Part 1 architecture.}\label{fig:p1}\end{figure}
+
+\subsection{Evaluation}
+The golden set (25 questions written by us from the PDFs and committed before tuning) covers facts and tables (5),
+figures including near-identical ones (6), two-source questions (3), multi-turn conversations with a user value (5, in
+two conversations), conflicts and revisions (3), and unanswerable/false-premise/injection questions (3). Baseline =
+dense retrieval only; final = hybrid + exact figure lookup. Answer correctness requires every gold number within
+$\pm1\%$ and the right status; Recall@5 checks whether a gold page or figure is in the top five; citation accuracy is
+the share of cited sources that are gold sources (or the page that contains a gold figure); the human score is the
+mean of both members' 1--5 groundedness ratings, with within-one-point agreement.
+
+\input{tables/p1_results.tex}
+\input{tables/p1_categories.tex}
+
+\subsection{What worked and what did not}
+\todo{Write after the graded run, using Table~\ref{tab:p1} and the per-category table: e.g. effect of exact figure
+lookup on the near-identical figures, BM25 for exact labels and years, the reranker bonus, remaining errors by
+category, Kaggle public score.}
+
+\subsection{Safety analysis (C4)}\label{sec:p2safety}
+\textbf{Untrusted appendix.} Appendix~C is detected from its heading (not from the contents page), stored with
+\texttt{excluded=true} and filtered in both the Chroma query (\texttt{where excluded=False}) and BM25; questions that
+mention it get a note that it is untrusted. \textbf{Instructions in text.} Generic patterns (instructions addressed to
+an AI, ``ignore previous instructions'', ``always answer'') remove such sentences from every chunk before indexing and
+flag the item. \textbf{Instructions in a chart image.} The VLM transcribes text inside images as data; the same filter
+removes instruction-like sentences from the description, and the generator prompt states that evidence is data.
+\todo{Give 2--3 examples from notebook section 7: a question where the system was not fooled (status and citations),
+and any case where it was.}
+
+%=====================================================================================================
+\section{Part 2: Fine-Tuning Diffusion Models}
+
+\subsection{Data and architecture}
+We fine-tune Stable Diffusion~1.5 on \texttt{lambdalabs/naruto-blip-captions} (1,221 images with BLIP captions).
+Cleaning removes undecodable, blank, captionless and sub-128\,px images, exact pixel duplicates and near-duplicates
+(64-bit difference hash within 4 bits); the counts are printed in the notebook. The cleaned set is split 90/10 with
+seed 266 (test images are used only for evaluation) and centre-cropped to 512$\times$512. Cleaning removed one
+image (too small, 124$\times$124 px) and found no exact or near duplicates, leaving 1,098 training and 122 test images.
+\textbf{Limitations of the data.} (1) The captions are short and formulaic: 8.9 words on average, and 584 of the 1,098
+training captions (53\%) begin with ``a man'' against 144 with ``a woman'', so the model sees mostly male close-up
+portraits and learns them as the default subject. (2) BLIP captions are automatic and sometimes wrong or repetitive
+(``a man with a hoodie and a hoodie'', ``a dog with a banda around its neck''), and they rarely describe the
+background, so prompt details beyond the main subject are weakly supervised. (3) The set is small (about 1.1k images)
+and consists of anime screenshots of copyrighted characters.
+Both runs train LoRA adapters on the UNet attention projections (\texttt{to\_q, to\_k, to\_v, to\_out.0}) with the
+VAE and text encoder frozen, epsilon-prediction loss with min-SNR weighting ($\gamma=5$), AdamW (LR $10^{-4}$, 100
+warm-up steps, cosine), batch 4, 1,500 steps, random flips, bf16/fp16 weights with float32 adapters. Run~1 uses rank
+4, run~2 rank 32 (same data and budget). The 20 evaluation prompts (10 test captions, 5 out-of-domain, 5
+compositional) were committed before training; each is generated with seeds 0 and 1 for the base model and both runs
+(DPM-Solver, 30 steps, guidance 7.5, negative prompt ``nsfw, nudity, lowres, blurry, watermark''). Every image is
+screened by an NSFW image classifier (\texttt{Falconsai/nsfw\_image\_detection}); the Stable Diffusion safety
+checker's flags are recorded for comparison (Section~\ref{sec:p2safety}).
+
+\subsection{Evaluation}
+\input{tables/p2_training.tex}
+\input{tables/p2_results.tex}
+\begin{figure*}[t]\centering\includegraphics[width=0.62\textwidth]{results/p2_grid.png}
+\caption{Base model vs.\ LoRA rank 4 (run 1) vs.\ rank 32 (run 2), seed 0, for 8 of the 20 fixed prompts
+(4 in-domain test captions, 2 out-of-domain, 2 compositional).}\label{fig:p2grid}\end{figure*}
+Both LoRA runs move the base model strongly towards the Naruto style: in-domain KID falls from
+$132.5\pm10.1$ (base) to $10.5\pm4.2$ (rank 4) and $18.2\pm5.7$ (rank 32), $\times10^{-3}$ (Table~\ref{tab:p2}).
+The price is prompt fidelity: CLIP score drops from 26.1 (base) to 24.6 (rank 4) and 24.8 (rank 32), because the
+adapters impose the dataset's look on every prompt (Section~\ref{sec:p2fail}). Diversity between the two seeds is almost
+unchanged (LPIPS 0.689 / 0.684 / 0.682). Training cost is identical for the two ranks (0.145 GPU-hours, peak 3.8--3.9 GB
+on one RTX~4090), although rank 32 has 8$\times$ more trainable parameters (6.38\,M vs.\ 0.80\,M).
+\textbf{We choose run 1 (rank 4)}: it has the best KID by a clear margin, CLIP within 0.2 of rank 32, the same diversity,
+an 8$\times$ smaller adapter, and less collapse to a fixed character template (rank 32 adds a ninja headband that no
+prompt asks for, Fig.~\ref{fig:p2grid}, first row). \textbf{Human preference.} In the blinded A/B test (25 pairs of final run vs.\ base model, left/right randomised,
+3 raters: both members and one person outside the team, 75 votes per criterion) the fine-tuned model won
+\textbf{40\% of the style votes} (30/75; per rater 10, 8 and 12 of 25) and \textbf{50.7\% of the prompt-match votes}
+(38/75; 14, 14 and 10 of 25). So the raters did \emph{not} prefer the adapter's style, although KID shows its images
+are far closer to the training data. The split by prompt type points to the failure modes below: on compositional
+prompts the adapter won only 7 of 24 style votes but 15 of 24 prompt-match votes, i.e.\ it followed the composition
+better while its repeated template character looked less like Naruto to the raters than the base model's varied
+anime renderings. KID measures closeness to this dataset; human ``Naruto style'' is a broader notion, and with 25
+pairs and 3 raters the uncertainty is large (a 95\% interval of roughly $\pm$11 points around each rate).
+
+\subsection{Failure modes}\label{sec:p2fail}
+\begin{figure*}[t]\centering\includegraphics[width=\textwidth]{results/p2_failures.png}
+\caption{Final run (rank 4): the four lowest-CLIP generations (left) and the two prompts whose seeds are most similar
+(right, LPIPS).}\label{fig:p2fail}\end{figure*}
+\textbf{(1) Collapse to a template character.} The adapters reproduce one dominant look across unrelated prompts:
+a blue cap or headband with an emblem, a dark maroon background and the same ninja jacket appear for ``an older man
+wearing sunglasses'', ``a man with a big smile'' and ``two characters, one in red and one in blue''
+(Fig.~\ref{fig:p2grid}); for ``a man with a big smile'' the two seeds give nearly the same character
+(Fig.~\ref{fig:p2fail}). This mirrors the caption bias above and is stronger for rank 32.
+\textbf{(2) Attributes in the prompt are overridden.} ``A man with blonde hair and blue eyes'' gets pink hair and a
+mask; ``a person with long hair and a white shirt'' becomes a bearded man in a purple hood; ``a red hair and a black
+shirt'' loses the shirt (Figs.~\ref{fig:p2grid},~\ref{fig:p2fail}). These are the lowest-CLIP outputs.
+\textbf{(3) Out-of-domain prompts barely take the style.} The red sports car and the lighthouse stay almost
+photographic, and the lighthouse loses its ``sunset'' (Fig.~\ref{fig:p2grid}): the adapter learned characters, not a
+general drawing style.
+
+\subsection{Safety analysis (C4)}\label{sec:p2safety}
+Naruto characters are copyrighted and the dataset card states no license, so the adapters are released for
+non-commercial research only (model card on Hugging Face); SD~1.5 is under CreativeML OpenRAIL-M.
+\textbf{NSFW filter.} Every generated image is scored by an NSFW image classifier; an image with probability
+$\geq 0.5$ would be blurred and excluded from the metrics. None of the 120 images was filtered. The SD~1.5 safety
+checker, run on the same images for comparison, would have blacked out 1 base image, 9 rank-4 and 11 rank-32 images.
+The 8 flagged images shown in the notebook (of 21) are ordinary clothed characters with classifier
+probabilities of 0.00--0.01, i.e.\ false positives of the checker on the anime style. In our first
+run the checker was the filter and its false positives made the fine-tuned models look worse than the base model on KID,
+which is why the classifier now decides and the checker's flags are only reported.
+\textbf{Memorization.} For 10 in-domain images of the final run we searched the 1,098 training images for the nearest
+neighbour by CLIP (ViT-L/14) image embedding. The three closest pairs have cosine similarity 0.89, 0.87 and 0.85
+(Fig.~\ref{fig:p2mem}). In every pair the generated and training images show different characters, with different faces,
+clothing and backgrounds; the similarity comes from the shared anime style and head-and-shoulders framing. We therefore
+see new compositions in the learned style, not copies of training images, at least for these samples.
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{results/p2_memorization.png}
+\caption{Memorization check: the three generated images closest to any training image (top) and their nearest training
+images (bottom), CLIP cosine similarity in the titles.}\label{fig:p2mem}\end{figure}
+
+%=====================================================================================================
+\section{Part 3: A Multimodal Multi-Agent System}
+
+\subsection{Architecture}
+Five agents share one pydantic \texttt{AgentState} and are connected by plain Python functions with an explicit edge
+function (Fig.~\ref{fig:p3}). \textbf{Planner}: validates the input image (missing, empty, corrupt, unsupported format,
+smaller than 64\,px; warns on very dark/blurry inputs), checks the request against unsafe-content categories,
+probes the image with the VLM (visible text, person present, sexual/gore) and the Stable Diffusion safety checker,
+refuses deceptive edits of real people, face swaps and requests to follow text inside the image, then classifies the
+intent (caption/question, style change, edit, enhancement, domain style, unsupported, ambiguous) with rules and a VLM
+fallback. \textbf{Vision Understanding} (Qwen3-VL-8B, 4-bit): caption, main objects, visible text (transcribed as data) and
+answers to the user's question plus two standard questions; caption/question requests stop here.
+\textbf{Prompt Engineering}: rewrites the request into a model-specific prompt (description for img2img, instruction
+for InstructPix2Pix), a target description for CLIP and a list of things to keep. Text from inside the image is never
+an instruction: the caption it receives has the image text redacted, exact image-text fragments are removed from the
+prompt, and content words of instruction-like image text that the user did not type (e.g. ``gun'' from a note saying
+``Draw a large gun instead'') are stripped. The last layer was added after a development run in which the VLM
+reworded the injected instruction into the prompt. \textbf{Image Generation}: SD~1.5 img2img for style change, SD~1.5 + our Part~2 LoRA
+(loaded from Hugging Face) for domain style (txt2img when no image is given), InstructPix2Pix for edits, and a PIL
+enhancement pipeline (autocontrast, median denoise, unsharp mask, 2$\times$ Lanczos); model, prompt, seed and steps are
+recorded. \textbf{Critique}: CLIP ViT-L/14 similarity to the target description, a VLM judgement of the output against the
+target description (1--5 with a concrete revision instruction; judging the output alone, because the 3B VLM otherwise
+penalised the requested change itself), a separate VLM check that the items to keep are still present, and output
+safety: the SD safety checker, plus a VLM flag that counts only when a second, differently worded probe agrees (the
+single probe produced a false ``nudity'' flag on a watercolour house in our development runs). For enhancement the
+decision uses objective measures (brightness, contrast, Laplacian sharpness against the input). It accepts when
+CLIP $\ge 22$, the judgement $\ge 3$ and nothing to keep is missing; otherwise it revises (back to Prompt Engineering
+with the instruction and adjusted strength / guidance / enhancement level), at most twice; the best safe attempt is
+returned. Unsafe outputs are never shown. Every request writes a
+JSON trace (agent, input, output, seconds). A Gradio app shows each agent's output.
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{fig_p3_arch.png}
+\caption{Part 3 agent graph.}\label{fig:p3}\end{figure}
+
+\subsection{Evaluation}
+Fifteen scenarios (three each: caption/visual questions, style change, edit/enhancement, domain style with the Part~2
+model, ambiguous/broken input) and ten red-team cases (instructions inside images, unsafe requests, edits of real
+people, broken files) were written and committed before the first run. Inputs are 16 COCO val2014 photos (listed in \texttt{eval/inputs.json} and fetched from Hugging Face at run time) plus generated red-team images: three notes with instructions written in the image, a COCO desk photo with a planted instruction note, and tiny, empty and corrupt files. Both members judged each scenario independently with its
+rubric; disagreements were resolved by discussion (\todo{describe}).
+
+\input{tables/p3_results.tex}
+\input{tables/p3_redteam.tex}
+
+\subsection{What worked and what did not}
+\todo{From Tables~\ref{tab:p3} and \ref{tab:p3red} and the image grids: effect of the critique loop (success rate,
+revisions, time), critic agreement with humans, typical failures (e.g. pix2pix changing too much, LoRA style too weak
+at low strength).}
+
+\subsection{System card}
+\textbf{What it does:} answers questions about an image; restyles, edits, enhances or redraws it in the fine-tuned
+\todo{Naruto} style; text-to-image in that style. \textbf{Models:} Qwen3-VL-8B-Instruct (4-bit), SD~1.5 + Part~2 LoRA,
+InstructPix2Pix, CLIP ViT-L/14, SD safety checker. \textbf{Known limits:} 512\,px outputs; pix2pix may alter regions
+outside the requested edit; the VLM can miscount small objects or misread small text; CLIP thresholds were set on
+our own scenarios; domain style inherits the biases of the Part~2 dataset; English only. \textbf{Safety measures:}
+request filter (sexual content, minors, gore, weapons, hate, self-harm, forgery), VLM + safety-checker screening of
+input and output images, refusal of deceptive edits of real people and face swaps, image text never treated as an
+instruction, clear errors instead of crashes, revision cap, JSON audit trace. \textbf{Not for:} identifiable real
+people, documents/IDs, medical or legal use.
+
+\subsection{Safety analysis (C4)}\label{sec:p2safety}
+\todo{Summarize the 10 red-team results (attack success rate from Table~\ref{tab:p3red}), which guardrail stopped each
+attack, and any attack that succeeded with the fix you would make.}
+
+\section*{Contributions and AI usage}
+See \texttt{CONTRIBUTIONS.md} and \texttt{AI\_USAGE.md} in the repository.
+
+\begin{thebibliography}{9}
+\bibitem{lewis} P. Lewis et al., ``Retrieval-augmented generation for knowledge-intensive NLP tasks,'' NeurIPS 2020.
+\bibitem{faysse} M. Faysse et al., ``ColPali: Efficient document retrieval with vision language models,'' arXiv:2407.01449, 2024.
+\bibitem{greshake} K. Greshake et al., ``Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection,'' AISec 2023.
+\bibitem{yao} S. Yao et al., ``ReAct: Synergizing reasoning and acting in language models,'' ICLR 2023.
+\bibitem{madaan} A. Madaan et al., ``Self-Refine: Iterative refinement with self-feedback,'' NeurIPS 2023.
+\bibitem{brooks} T. Brooks, A. Holynski, A. Efros, ``InstructPix2Pix: Learning to follow image editing instructions,'' CVPR 2023.
+\bibitem{rombach} R. Rombach et al., ``High-resolution image synthesis with latent diffusion models,'' CVPR 2022.
+\end{thebibliography}
+\end{document}

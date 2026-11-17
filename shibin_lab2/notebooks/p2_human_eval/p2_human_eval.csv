@@ -1,0 +1,26 @@
+pair,image,prompt,rater1_style,rater1_prompt,rater2_style,rater2_prompt,rater3_style,rater3_prompt
+1,pair_01.png,three ninjas standing on a rooftop under a full moon,B,A,B,A,A,B
+2,pair_02.png,a lighthouse on a rocky cliff at sunset,A,A,A,B,A,A
+3,pair_03.png,a man holding a sword in his left hand and a scroll in his right hand,B,B,B,A,B,B
+4,pair_04.png,a man with a gun in his hand,A,A,B,B,A,B
+5,pair_05.png,a dog with a banda around its neck,B,B,B,A,B,B
+6,pair_06.png,a man with a hoodie and a hoodie,A,B,A,B,B,A
+7,pair_07.png,a man with blonde hair and blue eyes,B,B,B,A,B,B
+8,pair_08.png,a girl with pink hair standing to the left of a boy with black hair,A,B,A,B,B,A
+9,pair_09.png,a cat sleeping on a sofa next to a window,B,B,B,A,B,B
+10,pair_10.png,a girl with pink hair standing to the left of a boy with black hair,A,A,A,B,A,A
+11,pair_11.png,a mountain lake surrounded by pine trees,B,B,B,A,B,B
+12,pair_12.png,a man with a hoodie and a hoodie,A,B,A,A,B,A
+13,pair_13.png,a man in a black hoodie with two other men in the background,B,A,B,B,A,B
+14,pair_14.png,a bowl of fruit on a wooden kitchen table,A,B,A,A,B,A
+15,pair_15.png,"two characters, one in red and one in blue",B,B,B,A,A,B
+16,pair_16.png,a man with a big smile on his face,A,A,A,B,B,A
+17,pair_17.png,a man with a red hair and a black shirt,B,B,A,A,A,B
+18,pair_18.png,a red sports car parked on a city street at night,A,B,B,B,B,A
+19,pair_19.png,a man with a gun in his hand,B,A,A,A,A,A
+20,pair_20.png,a red sports car parked on a city street at night,A,A,B,B,A,B
+21,pair_21.png,"two characters, one in red and one in blue",B,A,A,A,B,A
+22,pair_22.png,a blue fox sitting on top of a red box,A,A,B,B,A,B
+23,pair_23.png,three ninjas standing on a rooftop under a full moon,B,A,A,A,A,A
+24,pair_24.png,a mountain lake surrounded by pine trees,A,A,B,B,B,B
+25,pair_25.png,an older man wearing sunglasses and a hat,B,B,A,A,A,A

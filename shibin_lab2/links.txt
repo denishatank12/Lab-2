@@ -1,0 +1,8 @@
+GitHub repository: https://github.com/<owner>/data266-lab2-team##
+  p1-v1.0 commit: <sha>
+  p2-v1.0 commit: <sha>
+  p3-v1.0 commit: <sha>
+Hugging Face - Part 2 models: https://huggingface.co/<hf-user>/<run1-lora>  https://huggingface.co/<hf-user>/<run2>
+Hugging Face - Part 2 image dataset: https://huggingface.co/datasets/<hf-user>/<images>
+Hugging Face Space (Part 3, optional bonus): https://huggingface.co/spaces/<hf-user>/<app>
+Kaggle final notebook: https://www.kaggle.com/code/<user>/<notebook>

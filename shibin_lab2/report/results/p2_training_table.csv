@@ -1,0 +1,3 @@
+run,method,trainable_params,learning_rate,steps,batch_size,epochs,resolution,peak_gpu_memory_gb,train_time_s,gpu_hours,final_loss_avg100,device
+run1_lora_r4,LoRA rank 4 (alpha 4) on UNet attention,797184,0.0001,1500,4,5.46,512,3.8,520.9,0.145,0.0634,NVIDIA GeForce RTX 4090
+run2_lora_r32,LoRA rank 32 (alpha 32) on UNet attention,6377472,0.0001,1500,4,5.46,512,3.86,521.9,0.145,0.0632,NVIDIA GeForce RTX 4090
