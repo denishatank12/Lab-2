@@ -378,3 +378,29 @@ target through host pip, and the generated notebook's installer command. The
 fresh environment also imported the same host PyTorch version. The mock-only
 executed notebook/export test passed again. Kaggle Python 3.13 and CUDA are not
 available on this Mac, so a successful full Kaggle run remains to be observed.
+
+### Clean dependency environment and public adapter
+
+The next user run imported its packages but showed unrelated host conflicts:
+Colab, nbconvert, cuDF, kernel-gateway and old torchao were inherited. The final
+setup removes system-site-package inheritance and the parent-package bridge.
+It uses a new profile-hashed environment and installs the matching official
+PyTorch 2.11.0 / torchvision 0.26.0 CUDA 12.8 pair. Setup requires `pip check`,
+absence of foreign site-package paths, expected pipeline-class imports, a
+torchvision compiled-op check and a real CUDA NF4 forward-pass check. CPU smoke
+mode uses separate CPU wheels and does not run or claim CUDA checks.
+
+The initial clean install caught a real Hub/Tokenizers conflict. Hub was corrected
+to 1.32.0, satisfying Diffusers' minimum and Tokenizers 0.23.1's `hub<2` bound.
+The complete standalone CPU smoke then installed into a clean folder, passed
+`pip check`, imported the actual pinned libraries, executed its four outer code
+cells and two inner mock-only code cells without saved errors, and exported
+integrity-checked ZIPs. It did not download pretrained models or produce a GPU
+baseline. The 21 baseline regression tests also passed.
+
+Shibin confirmed public visibility, independently verified by an anonymous model
+API response: HTTP 200, `private=false`, `gated=false`, revision
+`88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5`. The default notebook needs no token;
+it checks the requested adapter before large downloads and never substitutes a
+base model. No PowerShell launcher is required in Kaggle. The full T4 model run,
+human ratings and original v6 execution evidence remain separate requirements.

@@ -133,3 +133,10 @@ and installing through host pip's target-interpreter option. The repair adds
 interpreter identity and partial-environment recovery checks without changing
 the partner model source or existing Part 1/Part 2 results. Tests exercised the
 actual bootstrap and an offline wheel install on the Mac, not a full CUDA run.
+
+The next repair replaced inherited host packages with a completely separate
+environment, pinned the compatible Torch/torchvision and Hub/Tokenizers pairs,
+and added dependency/isolation and GPU NF4 checks before the experiment. A full
+clean-folder CPU execution of the standalone notebook passed; it is explicitly
+mock-only and does not claim T4 model quality. Anonymous Hub metadata verified
+that Shibin's adapter is now public, so the default no longer requests a token.

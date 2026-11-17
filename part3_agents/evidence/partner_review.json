@@ -11,22 +11,24 @@
   "human_ratings_completed": false,
   "denisha_baseline_completed": false,
   "single_16gb_compatibility_verified": false,
-  "private_adapter": "Shibin22/sd15-naruto-run1-lora-r4",
-  "adapter_access": "User confirmed their account has read access. A real notebook run must verify the enabled secret.",
+  "adapter": "Shibin22/sd15-naruto-run1-lora-r4",
+  "adapter_access": "Owner made the repo public; independently verified HTTP 200 anonymously, private=false, gated=false. No token required.",
+  "public_adapter_revision": "88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5",
   "source_differences": ["agents/agents.py", "agents/backends.py"],
   "new_notebook": "notebooks/Part3_Partner_Baseline_Standalone.ipynb",
   "baseline_condition": "No revision loop; diagnostic critic and safety retained",
   "declared_runtime_patches": [
     "Require real COCO photos; never score download-fallback placeholders",
-    "Require the actual private adapter",
+    "Require the actual adapter, now publicly accessible",
     "Pin resolved model/dataset revisions and hash inputs",
     "Block unchecked outputs on safety-checker failures",
     "Check generated images before saving",
     "Enable diffusion CPU offload",
-    "Checkpoint per case and export the genuinely executed notebook"
+    "Checkpoint per case and export the genuinely executed notebook",
+    "Use a clean environment without host package inheritance; enforce pip check and CUDA NF4 preflight"
   ],
   "local_checks": {
-    "tools/test_partner_baseline.py": {"passed": 17, "scope": "Offline software, hidden authentication input, ensurepip-free environment creation/recovery, actual offline target installation and explicit mock CPU notebook execution"},
+    "tools/test_partner_baseline.py": {"passed": 21, "scope": "Offline software, optional hidden auth/public access, pure ensurepip-free environment creation, offline target installation and explicit mock CPU notebook execution"},
     "tools/test_part1_kaggle.py": {"passed": 11, "scope": "Existing Part 1 regression tests"},
     "tools/test_part2_submission.py": {"passed": 20, "scope": "Existing Part 2 recovery, validation and report fixtures"}
   },

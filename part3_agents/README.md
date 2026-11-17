@@ -4,25 +4,30 @@
 
 Use [Part3_Partner_Baseline_Standalone.ipynb](notebooks/Part3_Partner_Baseline_Standalone.ipynb)
 for Denisha's baseline. Import only that file into a fresh Kaggle GPU session,
-enable Internet and the `HF_TOKEN` secret with read access to
-`Shibin22/sd15-naruto-run1-lora-r4`, then Run All. The user confirmed access;
-the notebook checks it securely. No separate Python uploads or repository clone
-are needed. Do not run the older all-parts launcher for this baseline.
+enable Internet and Run All. Shibin made
+[`Shibin22/sd15-naruto-run1-lora-r4`](https://huggingface.co/Shibin22/sd15-naruto-run1-lora-r4)
+public. Anonymous access returned HTTP 200 at revision
+`88fa0cf4426c3950d1d8a7378c43a20a23f6cdb5`, with the expected safetensors weights.
+No token or PowerShell command is needed for the default run. No separate Python
+uploads or repository clone are needed. Do not run the older all-parts launcher
+for this baseline.
 
-If the Kaggle secret is missing, the setup cell now offers a hidden token input
-when run interactively. Paste the value only into that input box, not into code.
-For a background Save & Run All job, enable `HF_TOKEN` in Secrets instead; a
-background job cannot respond to the hidden prompt. Credentials remain in the
-runtime environment, not in the notebook source or result ZIP.
+Leave `USE_HF_TOKEN = False` for public access; an old invalid token is ignored.
+Only if deliberately switching to a private repository should it be enabled.
+That optional mode uses a notebook secret or hidden interactive input, never a
+hard-coded token. A background job cannot respond to a hidden prompt.
 
 The November 16 setup repair bypasses Debian/Kaggle `ensurepip`: it creates the
 environment without pip and uses the host pip's
 [`--python` option](https://pip.pypa.io/en/stable/topics/python-option/) to install
-into that environment. It keeps the host Python ABI and CUDA-enabled PyTorch.
-An interpreter file alone no longer counts as a healthy environment: the setup
-also checks its prefix, Python version and access to host packages. Older
-incomplete folders and all saved model/results files are preserved. This repairs
-the reported setup failure, not an unobserved GPU/model failure.
+into that environment. The final repair uses **no system site packages or parent
+package bridge**. It installs PyTorch 2.11.0+cu128 with torchvision 0.26.0+cu128
+in a separate, profile-hashed environment, then requires `pip check`, isolated
+imports, a compiled torchvision operation and a CUDA NF4 forward-pass smoke test
+to pass. Host Colab, nbconvert, cuDF and torchao packages are not inherited.
+The compatible Hub/Tokenizers pair is pinned to 1.32.0/0.23.1. All resolved
+versions are saved in the result ZIP. Older environments and saved results are
+preserved. A separate CPU profile supports local software verification only.
 
 The baseline disables the revision loop, not the diagnostic critic or safety
 filters. It runs the same 15 scenarios and 10 red-team cases, saves every
@@ -64,7 +69,7 @@ they do not certify the older snapshot.
 The baseline runner adds declared safeguards without editing the snapshot:
 
 - All 16 real COCO photos must download. Placeholders are allowed only in mock tests.
-- The private adapter must exist and load. A missing adapter cannot fall back to the base model.
+- The exact adapter must exist and load. A missing adapter cannot fall back to the base model.
 - Safety-checker exceptions block acceptance, and generated images are checked before saving.
 - Model revisions, input hashes, actual hardware and per-case checkpoints are saved.
 - Diffusion CPU offload is enabled for memory headroom. It can change timing relative to the partner run.

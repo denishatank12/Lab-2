@@ -52,7 +52,9 @@ def verify_source():
 
 
 def authenticate():
-    """Read a secret passed by the notebook, without persisting or printing it."""
+    """Use anonymous public access by default; private access is explicit opt-in."""
+    if os.environ.get("LAB2_P3_USE_HF_TOKEN", "0") != "1":
+        return False
     from huggingface_hub import get_token
     token = os.environ.get("HF_TOKEN") or get_token()
     if not token:
@@ -62,23 +64,24 @@ def authenticate():
 
 
 def resolve_models(token, output):
-    """Resolve and record immutable revisions, including the private adapter."""
+    """Resolve and record immutable revisions, including the actual adapter."""
     from huggingface_hub import HfApi, snapshot_download
     from agents.backends import BackendConfig
-    config = BackendConfig(lora_repo="Shibin22/sd15-naruto-run1-lora-r4", cpu_offload=True)
+    config = BackendConfig(lora_repo=os.environ.get("LAB2_P3_LORA_REPO", "Shibin22/sd15-naruto-run1-lora-r4"),
+                           cpu_offload=True)
     old = json.loads(output.read_text()) if output.is_file() else {}
     repos = [config.vlm_model, config.sd_model, config.pix2pix_model, config.clip_model, config.lora_repo]
     api = HfApi(token=token)
     records = {}
-    # Check private access first, before downloading any large public models.
+    # Check the requested adapter first, before downloading large public models.
     for repo in [config.lora_repo] + repos[:-1]:
         previous = old.get(repo, {})
-        info = api.model_info(repo, revision=previous.get("revision") or "main")
+        info = api.model_info(repo, revision=previous.get("revision") or None)
         records[repo] = {"revision": info.sha}
         if repo == config.lora_repo:
             names = [f.rfilename for f in info.siblings]
             if not any(n.endswith(".safetensors") for n in names):
-                raise RuntimeError("The private adapter has no safetensors weights; base-model fallback is forbidden.")
+                raise RuntimeError("The requested adapter has no safetensors weights; base-model fallback is forbidden.")
     save(output, records)
     # Local snapshot paths ensure each from_pretrained/load_lora call uses these exact revisions.
     for name in ["vlm_model", "sd_model", "pix2pix_model", "clip_model", "lora_repo"]:
@@ -314,7 +317,7 @@ def run(output, mock_only=False):
     backend.clip_score(Image.open(images / "coco_stop_sign.jpg").convert("RGB"), "a stop sign")
     backend.img2img_pipe(with_lora=True)
     if not backend._lora_loaded:
-        raise RuntimeError("Private adapter did not load; a base-model substitution is not allowed.")
+        raise RuntimeError("The requested adapter did not load; a base-model substitution is not allowed.")
     backend.pix2pix_pipe()
     save(output / "gpu_preflight.json", {"passed": True, "adapter_loaded": True,
         "note": "Loads and CLIP inference passed. Full generation is evaluated in the cases below."})

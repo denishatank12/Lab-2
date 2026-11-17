@@ -19,9 +19,11 @@ The later v7/v8 experiments remain for history but are not recommended.
 
 For **Denisha's Part 3 baseline**, use
 [Part3_Partner_Baseline_Standalone.ipynb](part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb).
-Import that one file into a fresh Kaggle GPU notebook, enable Internet and the
-`HF_TOKEN` secret, and Run All. Interactive setup can also ask for the token in
-a hidden input box if the secret is missing. Background runs need the secret.
+Import that one file into a fresh Kaggle GPU notebook, enable Internet and
+Run All. Shibin's run1 adapter is now public, so no Hugging Face token or
+PowerShell command is needed. Setup checks public access before large downloads.
+It creates a clean dependency environment without Kaggle/Colab host packages,
+checks dependencies and tests CUDA 4-bit execution before real model loading.
 It uses Shibin's actual adapter and the source
 embedded in his executed notebook, with declared download/safety safeguards.
 It runs only the no-revision-loop baseline, saves an executed notebook and

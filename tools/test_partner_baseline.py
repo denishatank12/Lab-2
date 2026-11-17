@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -41,27 +42,72 @@ class PartnerBaselineTests(unittest.TestCase):
             with patch.object(venv.EnvBuilder, "_setup_pip", side_effect=AssertionError("ensurepip must never run")):
                 python = prepare(env)
                 self.assertEqual(prepare(env), python)
-            result = subprocess.run([str(python), '-c', 'import json,sys,torch; '
-                'print(json.dumps(dict(prefix=sys.prefix, version=list(sys.version_info[:2]), torch=torch.__version__)))'],
+            result = subprocess.run([str(python), '-I', '-c', 'import json,sys,importlib.util; '
+                'print(json.dumps(dict(prefix=sys.prefix, version=list(sys.version_info[:2]), '
+                'torch_visible=importlib.util.find_spec("torch") is not None, paths=sys.path)))'],
                 check=True, text=True, capture_output=True, timeout=90)
             record = json.loads(result.stdout)
             self.assertEqual(Path(record['prefix']).resolve(), env.resolve())
             self.assertEqual(record['version'], list(sys.version_info[:2]))
-            import torch
-            self.assertEqual(record['torch'], torch.__version__)
+            self.assertFalse(record['torch_visible'])
+            self.assertFalse(any(str(ROOT / '.venv') in p for p in record['paths']))
 
     def test_environment_recovers_partial_folder_without_deleting_files(self):
         import venv
         prepare = self.notebook_helper("prepare_python_environment")
         with tempfile.TemporaryDirectory() as temporary:
             env = Path(temporary) / "partial_env"
-            venv.EnvBuilder(with_pip=False, system_site_packages=False).create(env)
+            env.mkdir()
             sentinel = env / "preserve_this_file.txt"
             sentinel.write_text("fictional previous run marker")
             with patch.object(venv.EnvBuilder, "_setup_pip", side_effect=AssertionError("broken ensurepip")):
                 prepare(env)
             self.assertTrue(sentinel.exists())
-            self.assertIn('include-system-site-packages = true', (env / 'pyvenv.cfg').read_text().lower())
+            self.assertIn('include-system-site-packages = false', (env / 'pyvenv.cfg').read_text().lower())
+
+    def test_old_host_inheriting_environment_is_preserved_not_reused(self):
+        import venv
+        prepare = self.notebook_helper("prepare_python_environment")
+        with tempfile.TemporaryDirectory() as temporary:
+            env = Path(temporary) / 'old_environment'
+            venv.EnvBuilder(with_pip=False, system_site_packages=True).create(env)
+            before = (env / 'pyvenv.cfg').read_bytes()
+            with self.assertRaisesRegex(RuntimeError, 'preserved'):
+                prepare(env)
+            self.assertEqual((env / 'pyvenv.cfg').read_bytes(), before)
+
+    def test_gpu_dependency_profile_has_matching_pair_and_exact_pins(self):
+        profile = self.notebook_helper('dependency_profile')(False)
+        self.assertTrue(profile['cuda'])
+        self.assertIn('torch==2.11.0+cu128', profile['pins'])
+        self.assertIn('torchvision==0.26.0+cu128', profile['pins'])
+        self.assertIn('bitsandbytes==0.50.2', profile['pins'])
+        # tokenizers 0.23.1 requires hub<2; transformers/diffusers need >=1.32.
+        self.assertIn('huggingface-hub==1.32.0', profile['pins'])
+        self.assertTrue(all('==' in item for item in profile['pins']))
+        self.assertFalse(any(item.split('==')[0] in ['google-colab', 'nbconvert', 'cudf-cu13', 'torchao'] for item in profile['pins']))
+
+    def test_public_adapter_access_needs_no_secret_and_private_failure_is_clear(self):
+        from urllib.error import HTTPError
+        check = self.notebook_helper('check_adapter_access')
+        info = {'sha': 'fictional-immutable-sha', 'private': False,
+                'siblings': [{'rfilename': 'pytorch_lora_weights.safetensors'}]}
+        def public(request, timeout):
+            self.assertNotIn('Authorization', request.headers)
+            return io.BytesIO(json.dumps(info).encode())
+        result = check('Shibin22/sd15-naruto-run1-lora-r4', opener=public)
+        self.assertFalse(result['authenticated'])
+        for status in [401, 403, 404]:
+            def denied(request, timeout):
+                raise HTTPError(request.full_url, status, 'fictional access failure', {}, None)
+            with self.assertRaisesRegex(RuntimeError, 'exact adapter ZIP'):
+                check('Shibin22/sd15-naruto-run1-lora-r4', opener=denied)
+
+    def test_public_mode_ignores_a_stale_token(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            module = self.unpack(Path(temporary))
+            with patch.dict(os.environ, {'LAB2_P3_USE_HF_TOKEN': '0', 'HF_TOKEN': 'fictional-stale-token'}):
+                self.assertIs(module.authenticate(), False)
 
     def test_host_pip_installs_offline_wheel_into_pip_free_target(self):
         prepare = self.notebook_helper("prepare_python_environment")
@@ -93,8 +139,11 @@ class PartnerBaselineTests(unittest.TestCase):
         notebook = nb.read(ROOT / "part3_agents/notebooks/Part3_Partner_Baseline_Standalone.ipynb", as_version=4)
         setup = notebook.cells[1].source
         self.assertNotIn('with_pip=True', setup)
+        self.assertNotIn('system_site_packages=True', setup)
         self.assertIn("[sys.executable, '-m', 'pip', '--python', str(PYTHON)", setup)
         self.assertIn('prepare_python_environment(ENV)', setup)
+        self.assertIn("'-I', '-m', 'pip', 'check'", setup)
+        self.assertIn('USE_HF_TOKEN = False', setup)
 
     def test_auth_uses_existing_environment_without_prompt(self):
         configure = self.authentication_helper()
