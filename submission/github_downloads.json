@@ -1,0 +1,24 @@
+{
+  "review_release": "https://github.com/denishatank12/Lab-2/releases/tag/lab2-submission-review",
+  "review_tag": "lab2-submission-review",
+  "source_commit": "2674e6279c29109f03ab0f43da7cdf43839a58b5",
+  "final_submission_ready": false,
+  "assets": [
+    {
+      "name": "Lab2_Team09_Report.pdf",
+      "url": "https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Team09_Report.pdf",
+      "bytes": 2893401,
+      "sha256": "1b1a7b9ba4159cbdd7461058c767d437652ed5ddebffb2f1c5ca070d320a97b5",
+      "github_asset_id": 760147381
+    },
+    {
+      "name": "Pair_Programming_Team_09.zip",
+      "url": "https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Pair_Programming_Team_09.zip",
+      "bytes": 2350831,
+      "sha256": "6586160f889dda9c10c9e2d1b6d409e4ad8d8b6b72c2b8982154bed25eb008fd",
+      "github_asset_id": 760147441
+    }
+  ],
+  "public_downloads_verified": true,
+  "synthetic_examples_in_canvas_zip": false
+}
