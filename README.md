@@ -1,10 +1,6 @@
 # DATA 266 Lab 2
 
 This repository contains the three lab implementations and their run notebooks.
-The selected Part 1 notebook is the preserved v6 associated with Denisha's
-reported 0.510 Kaggle score. Part 2 keeps the original completed GPU results.
-Part 3 now includes Shibin's credited executed notebook and a separate notebook
-for Denisha to run the baseline without repeating Part 2 training.
 
 ## Open these notebooks
 
