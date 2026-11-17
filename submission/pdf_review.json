@@ -4,5 +4,8 @@
   "visual_review": "All nine pages inspected as a contact sheet; tables and image pages checked at larger size. Two-column layout balanced; no clipping observed.",
   "colour": "Black-and-white text/diagrams; saved visual examples converted to grayscale for the report only.",
   "original_notebooks_unchanged": true,
-  "ready_for_submission": false
+  "ready_for_submission": false,
+  "latest_review_date": "2026-11-17",
+  "latest_review": "Updated Part 1 page rendered and inspected after the read-only Kaggle score check. Nine-page structure retained; remaining pages unchanged.",
+  "report_sha256": "1b1a7b9ba4159cbdd7461058c767d437652ed5ddebffb2f1c5ca070d320a97b5"
 }

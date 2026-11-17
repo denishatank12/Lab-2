@@ -1,0 +1,28 @@
+{
+  "observed_date": "2026-11-17",
+  "timezone": "America/Los_Angeles",
+  "source": "Authenticated Kaggle Submissions page and original submission detail dialog, read through the browser UI",
+  "url": "https://www.kaggle.com/competitions/data-266-fall-2026-lab-2-part-1-multimodal-rag/submissions",
+  "denisha_original_submission": {
+    "filename": "submission.csv",
+    "author_display_name": "Denisha Ketan Tank",
+    "submitted_at": "2026-11-15T14:10:22-08:00",
+    "public_score": 0.510,
+    "status": "Complete",
+    "displayed_size": "11 KiB",
+    "explicitly_selected_for_final": false,
+    "csv_recovered": false,
+    "download_limitation": "Chrome blocked the UI download with ERR_BLOCKED_BY_CLIENT. The restriction was not bypassed. No CSV contents were invented."
+  },
+  "newer_team_submission": {
+    "display_name": "notebookec4b2aff1d - Version 2",
+    "author_display_name": "Shibin Biji",
+    "public_score": 0.805,
+    "status": "Complete",
+    "source_notebook_recovered": false,
+    "interpretation": "Separate partner submission; this score is not attributed to Denisha's preserved v6 source."
+  },
+  "explicit_final_selection_slots": "0/1",
+  "ui_notice": "Kaggle states that if fewer than one submission is selected, it automatically selects from the best scoring submissions.",
+  "actions_taken": "Read details and attempted the original CSV download. No prediction was submitted, final choice changed, notebook executed or score edited."
+}

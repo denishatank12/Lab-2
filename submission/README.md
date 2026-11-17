@@ -4,10 +4,17 @@ This directory contains the requirement audit, artifact integrity checks, team
 identity, cleanup record and Canvas package manifest. It is not a certificate
 that the lab is complete.
 
-The combined PDF and `Pair_Programming_Team_09.zip` stay under ignored `output/`
-because the assignment says not to commit PDFs or datasets. The ZIP contains
+The combined PDF and `Pair_Programming_Team_09.zip` are built under ignored `output/`
+and published as GitHub review-release downloads rather than committed Git files.
+The ZIP contains
 the report, CONTRIBUTIONS.md, AI_USAGE.md and links.txt. It is a review package
 while the audit still has open items.
+
+Downloads: https://github.com/denishatank12/Lab-2/releases/tag/lab2-submission-review
+
+Fictional format examples in `docs/rating_forms/EXAMPLES_ONLY.json` are excluded
+from the Canvas ZIP and all measured human scores. Real people still need to
+complete the required independent judgments.
 
 To refresh without training or inference:
 

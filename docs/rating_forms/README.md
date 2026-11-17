@@ -1,8 +1,13 @@
 # Real rating forms
 
-These files are blank templates, not measured results. No sample scores belong
-in the submission. Denisha and Shibin must rate independently before resolving
+The blank templates contain no measured results. Sample scores must never enter
+the measured evaluation or final result tables. Denisha and Shibin must rate independently before resolving
 disagreements.
+
+`EXAMPLES_ONLY.json` contains fictional examples to explain the format. It is
+explicitly marked synthetic and uses invalid example IDs. Do not copy its
+values into completed ballots or include them in measured win rates. The
+examples do not complete the required human study.
 
 Part 1: review each of the 25 actual answers and cited passages for both systems.
 Give groundedness 1 (unsupported) through 5 (fully supported), with a short reason.

@@ -76,7 +76,9 @@ def check():
     result = dict(passed=True, scope='Offline packaging, syntax, immutable-source and saved-output integrity only',
                   selected_v6_unchanged=True, embedded_v6_files_verified=len(manifest['files']),
                   canonical_notebooks_checked=len(paths), part3_real_states=25, part3_real_traces=25,
-                  no_human_scores_generated=True, submission_ready=audit['ready'])
+                  no_human_evaluation_results_invented=True,
+                  synthetic_format_examples_present=(ROOT / 'docs/rating_forms/EXAMPLES_ONLY.json').is_file(),
+                  synthetic_examples_used_as_measurements=False, submission_ready=audit['ready'])
     (ROOT / 'submission/integrity.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, indent=2))
 

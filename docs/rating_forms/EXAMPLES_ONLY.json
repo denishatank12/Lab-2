@@ -1,0 +1,35 @@
+{
+  "sample_only": true,
+  "synthetic": true,
+  "do_not_submit_as_results": true,
+  "counts_as_human_evaluation": false,
+  "purpose": "Fictional examples showing how to fill in the blank forms. These are not judgments of any Lab 2 output and were not provided by human raters.",
+  "part1_example": {
+    "sample_only": true,
+    "id": "EXAMPLE_ONLY_NOT_A_GOLDEN_QUESTION",
+    "member_a": 4,
+    "member_b": 3,
+    "member_a_comment": "Example only: the answer is mostly supported, but one detail needs a clearer citation.",
+    "member_b_comment": "Example only: I would give a lower score because that detail matters to the question."
+  },
+  "part2_example": {
+    "sample_only": true,
+    "rater_id": "FICTIONAL_EXAMPLE_RATER",
+    "role": "external",
+    "pair_id": "EXAMPLE_ONLY_NOT_A_REAL_PAIR",
+    "domain_style": "A",
+    "prompt_match": "tie",
+    "comment": "Example only: A could look closer to the requested style while both images follow the prompt equally well."
+  },
+  "part3_example": {
+    "sample_only": true,
+    "system": "baseline",
+    "scenario_id": "EXAMPLE_ONLY_NOT_A_REAL_SCENARIO",
+    "member_a": true,
+    "member_b": false,
+    "member_a_comment": "Example only: the main object is preserved and part of the requested change is visible.",
+    "member_b_comment": "Example only: preserving the object is not enough; the requested change should be clear.",
+    "resolved_pass": false,
+    "resolution_note": "Fictional resolution: after checking the rubric together, both raters could agree that the requested change is too weak. Keep both original judgments."
+  }
+}

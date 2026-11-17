@@ -9,6 +9,9 @@ def groundedness(path, expected_ids):
     if not path.is_file():
         return dict(complete=False,mean_groundedness=None,agreement_within_one=None)
     rows=json.loads(path.read_text())
+    if not isinstance(rows,list) or any(not isinstance(r,dict) or r.get('sample_only') is True
+                                         or r.get('synthetic') is True for r in rows):
+        raise ValueError('Supply real individual judgments, not synthetic examples or a format guide.')
     if len(rows)!=len(expected_ids) or {r['id'] for r in rows}!=set(expected_ids):
         raise ValueError('Need exactly one rating row for every golden question.')
     for r in rows:

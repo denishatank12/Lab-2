@@ -6,6 +6,11 @@ import, environment isolation, adapter access, bounded baseline routing,
 fail-closed safety and explicit mock notebook execution. Fixtures are software
 tests, not trained-model quality measurements.
 
+The November 17 recheck passed the same 41 tests. Additional direct checks
+confirmed that the fictional rating guide is rejected by the real ballot merge
+and Part 1 groundedness helpers. The examples are excluded from the Canvas ZIP
+and are not used in human success, agreement or win-rate measurements.
+
 `python tools/check_submission_evidence.py` also checks:
 
 * The selected v6 notebook and its 34 embedded files match their recorded hashes.

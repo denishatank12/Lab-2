@@ -19,14 +19,26 @@ saved baseline pencil-sketch request still looks like a colour photograph.
 Both members must independently rate the actual results before human success
 and critic-agreement scores can be reported.
 
+The November 17 Kaggle check also shows a newer **0.805** submission by Shibin.
+That is separate from Denisha's preserved **0.510** v6 source. The selected
+source has not been replaced, and no final Kaggle choice was changed. See the
+[submission observation](part1_rag/evidence/kaggle_submission_observation.json).
+
 ## Submission files
 
+* [Download the report PDF](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Team09_Report.pdf)
+* [Download the Canvas review ZIP](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Pair_Programming_Team_09.zip)
+* [All review downloads](https://github.com/denishatank12/Lab-2/releases/tag/lab2-submission-review)
 * [Findings](REPORT.md), [requirement audit](SUBMISSION_STATUS.md) and [audit data](submission/audit.json)
 * [Contributions and recording log](CONTRIBUTIONS.md), [AI disclosure](AI_USAGE.md) and [links](links.txt)
 * [Blank rating forms](docs/rating_forms/README.md), [Part 2 model cards](part2_diffusion/model_cards/run1.md)
 * The combined report PDF and `Pair_Programming_Team_09.zip` are generated locally
   by `python tools/build_combined_report.py`. PDFs, image datasets and weights
   are excluded from new Git commits as the assignment requests.
+
+The PDF and ZIP are hosted as GitHub release downloads. The release is labeled
+as a review package because the audit still lists missing genuine evidence.
+The optional rating examples are fictional format guides, not human results.
 
 ## What still needs real evidence
 

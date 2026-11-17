@@ -34,11 +34,13 @@ def materials(audit):
         p('Fig. 1. The final retrieval path. Conversation assumptions are separate from the document index.'),
         h('II. Evaluation design'),
         p('The intended comparison is dense-only retrieval against the final multimodal hybrid system using the same answer model. The 25 candidate golden questions include facts/tables, figure identity, two-source questions, multiple turns, conflicts/revisions and unsupported requests. Team review of those references is still required. Correctness, Recall@5, citation support, median latency and both members\' groundedness ratings must be reported from the selected run.'),
-        ('table', [['Evidence', 'Current record'], ['Public Kaggle score', '0.510, supplied leaderboard screenshot'],
+        ('table', [['Evidence', 'Current record'], ['Denisha public Kaggle score', '0.510, screenshot and live submission details'],
+            ['Newer partner submission', '0.805, Shibin, notebook Version 2'],
             ['Selected source', 'v6, unchanged hash recorded'], ['Original executed v6 / CSV / metrics', 'Not available in current files'],
             ['Both members\' groundedness', 'Not supplied']]),
         h('III. Findings and limits'),
         p('The screenshot shows an improvement from 0.419 to 0.510 on the public leaderboard. That is a leaderboard result, not a 25-question golden accuracy or a grade. The original v6 Results ZIP was supplied earlier, but its bytes are not available in the current checkout or Downloads. The later notebook with the same filename contains v8. Its outputs cannot support the earlier run.'),
+        p('A read-only check of Kaggle on November 17 also shows a newer completed submission by Shibin with public score 0.805. That is a separate partner result, not the score of Denisha\'s preserved v6 notebook. Its source has not been imported. The original 0.510 CSV is still listed, but Chrome blocked its download. No final submission choice was changed.'),
         p('I would retain the selected source and restore its original executed notebook, CSV, traces and evaluation files before making a final comparison. Repeating a run could produce new evidence, but would not recreate the historical submission. No missing metric has been filled with a later result or a guessed value.')])
     page('Part 1: Safety and evidence quality', [
         h('IV. Source trust and prompt injection'),

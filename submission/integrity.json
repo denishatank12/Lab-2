@@ -6,6 +6,8 @@
   "canonical_notebooks_checked": 5,
   "part3_real_states": 25,
   "part3_real_traces": 25,
-  "no_human_scores_generated": true,
+  "no_human_evaluation_results_invented": true,
+  "synthetic_format_examples_present": true,
+  "synthetic_examples_used_as_measurements": false,
   "submission_ready": false
 }

@@ -43,3 +43,8 @@ the current public repository name despite the assignment's private-repo rule.
 No access token is hard-coded in the notebooks or newly imported evidence.
 The public partner adapter requires no token. Private artifact access still
 requires the actual account owner to grant access through the permitted channel.
+
+At Denisha's request, AI also supplied a small, clearly marked fictional rating
+format guide. Its IDs are examples, its values are not included in any score,
+and it does not stand in for human evaluation. The report and Canvas review ZIP
+are published as GitHub release downloads while all pending items remain visible.
