@@ -26,6 +26,15 @@
       "github_asset_id": 760831138,
       "source_only": true,
       "contains_original_execution_outputs": false
+    },
+    {
+      "name": "Lab2_Part2_Findings.pdf",
+      "url": "https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part2_Findings.pdf",
+      "bytes": 2539735,
+      "sha256": "a2c3f453627d4f62dd55ac55789be68dabe8ac98c907b74d392154b289cb555a",
+      "github_asset_id": 760973982,
+      "contains_fictional_ratings": false,
+      "human_evaluation_complete": false
     }
   ],
   "public_downloads_verified": true,

@@ -1,0 +1,14 @@
+{
+  "file": "Lab2_Part2_Findings.pdf",
+  "download_url": "https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part2_Findings.pdf",
+  "release": "https://github.com/denishatank12/Lab-2/releases/tag/lab2-submission-review",
+  "sha256": "a2c3f453627d4f62dd55ac55789be68dabe8ac98c907b74d392154b289cb555a",
+  "bytes": 2539735,
+  "github_asset_id": 760973982,
+  "public_download_verified": true,
+  "pages": 3,
+  "fictional_ratings_included": false,
+  "human_evaluation_complete": false,
+  "automatic_metrics_source": "part2_diffusion/evidence/current_result_audit.json",
+  "automatic_metrics_source_sha256": "faa80d3171368355b7135921515e2040ae27831d5ea2a7e2994a4ad609b07a90"
+}
