@@ -26,6 +26,7 @@ source has not been replaced, and no final Kaggle choice was changed. See the
 
 ## Submission files
 
+* [Part 1 v6 notebook download (source only)](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part1_v6_SOURCE_ONLY.ipynb); original saved 0.510 execution outputs remain unavailable.
 * [Download the report PDF](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Team09_Report.pdf)
 * [Download the Canvas review ZIP](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Pair_Programming_Team_09.zip)
 * [All review downloads](https://github.com/denishatank12/Lab-2/releases/tag/lab2-submission-review)

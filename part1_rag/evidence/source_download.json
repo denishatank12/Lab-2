@@ -1,0 +1,15 @@
+{
+  "asset_name": "Lab2_Part1_v6_SOURCE_ONLY.ipynb",
+  "download_url": "https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part1_v6_SOURCE_ONLY.ipynb",
+  "release": "https://github.com/denishatank12/Lab-2/releases/tag/lab2-submission-review",
+  "sha256": "73cab0044dde8763b7f8e95511288d888da21962d55a405606769b1959be1c01",
+  "github_asset_id": 760831138,
+  "bytes": 164857,
+  "download_verified": true,
+  "canonical_repository_file": "part1_rag/notebooks/Lab2_Part1_Kaggle_Final.ipynb",
+  "source_only": true,
+  "original_executed_notebook_recovered": false,
+  "executed_code_cells": 0,
+  "total_code_cells": 4,
+  "notice": "This is the unchanged preserved v6 source. It is not a reconstruction of notebook8293d0aa68.ipynb with its original 0.510 execution outputs."
+}

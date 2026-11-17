@@ -17,6 +17,15 @@
       "bytes": 2350831,
       "sha256": "6586160f889dda9c10c9e2d1b6d409e4ad8d8b6b72c2b8982154bed25eb008fd",
       "github_asset_id": 760147441
+    },
+    {
+      "name": "Lab2_Part1_v6_SOURCE_ONLY.ipynb",
+      "url": "https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part1_v6_SOURCE_ONLY.ipynb",
+      "bytes": 164857,
+      "sha256": "73cab0044dde8763b7f8e95511288d888da21962d55a405606769b1959be1c01",
+      "github_asset_id": 760831138,
+      "source_only": true,
+      "contains_original_execution_outputs": false
     }
   ],
   "public_downloads_verified": true,
