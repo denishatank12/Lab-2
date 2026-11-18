@@ -10,6 +10,8 @@ notebook is in `../notebooks/Part2_FineTune_Run.ipynb`; its outputs are unchange
 * `visual_review.json`: AI-assisted failure analysis, not human ratings.
 * `memorization.json`: saved CLIP nearest-neighbor measurements.
 * `training_table.json`: original measured training rows.
+* `report_download.json`: verified download URL and checksum of the revised
+  three-page findings report, which excludes fictional ratings.
 
 Team details are supplied. Real three-rater ballots, artifact access for graders,
 rights review and full nominal 16-GB compatibility evidence remain pending.

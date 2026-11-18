@@ -14,11 +14,11 @@ record before submission.
 
 ## Required recording log
 
-No recording URLs were supplied. Add each actual meeting's date, topic,
-participants and accessible recording link here. Do not invent retrospective
-meetings or dates. Sharing the implemented methods and explaining the code to
-each other still needs a real knowledge-transfer session.
+The user-supplied November 17 recording is linked below. The uploaded copy
+removes the first 0.10 seconds and retains the remaining video and audio.
+Add any other required meeting recordings as they become available. This entry
+records the supplied discussion; it does not certify review of every code path.
 
 | Date | Topic | Participants | Recording link |
 | :--- | :--- | :--- | :--- |
-| Pending actual record | Design and knowledge transfer | Denisha and Shibin | Not supplied |
+| 2026-11-17 | Lab 2 discussion | Denisha Ketan Tank and Shibin Biji Thomas Lnu | [Discussion video](discussion.mov) |

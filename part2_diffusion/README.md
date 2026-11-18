@@ -1,5 +1,10 @@
 # Part 2: Stable Diffusion LoRA
 
+[Download the Part 2 findings report](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part2_Findings.pdf).
+The three-page black-and-white report contains the measured training results,
+automatic metrics, saved image comparisons and nearest-neighbor checks. It has
+no fictional ratings. Real human evaluation remains pending.
+
 `notebooks/Part2_FineTune_Run.ipynb` is the actual completed RTX 4090 experiment.
 The recorded GPU cells and outputs are preserved byte for byte. Do not repeat
 training just to update the report or add human ratings.
