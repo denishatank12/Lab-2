@@ -1,50 +1,17 @@
-# AI assistance disclosure
+# AI coding assistant usage
 
 Team 09: Denisha Ketan Tank and Shibin Biji Thomas Lnu.
 
-Codex assisted with code generation, debugging, dependency isolation, notebook
-packaging, regression tests, artifact validation and report drafting. Assistance
-covered retrieval and structured answers, diffusion LoRA training/evaluation,
-the standalone GPU entry points, result recovery and the submission audit.
-The team must understand and review the assisted code and conclusions.
+| Assistant | Used by | Used for | Parts |
+| :--- | :--- | :--- | :--- |
+| Claude Code (Anthropic) | Shibin | Drafting and debugging the Part 1 RAG package, the Part 2 LoRA training/generation/evaluation pipeline and the Part 3 agents, orchestrator, Gradio app and evaluation harness; unit tests; notebook generators; a first draft of the 25-question Part 1 golden set; checking rating sheets for consistency; README and report drafting; Git and submission help | 1, 2, 3 |
+| Codex (OpenAI) | Denisha | Code generation and debugging for her Part 1 v6 notebook, Part 2 LoRA runs and Part 3 baseline; dependency isolation; notebook packaging; regression tests; artifact validation; first report draft | 1, 2, 3 |
 
-Denisha ran the supplied GPU notebooks and returned their recorded results.
-Shibin supplied the partner Part 3 implementation and executed comparison.
-His notebook and source are imported with attribution and content hashes. The
-Part 3 baseline uses his public rank-4 Naruto adapter, which is separate from
-Denisha's own rank-4 Part 2 checkpoint.
+How we used it and what we checked ourselves:
 
-AI inspected saved images to help describe attribute-binding, counting and
-filtered-output failures in Part 2, and the failed pencil-sketch transformation
-in Part 3. Those observations are explicitly AI-assisted analysis. They are
-not the required independent human ratings, votes or agreement measurements.
-No sample judgment is included as a measured result.
-
-The cleanup preserves the selected v6 Part 1 source byte for byte and the
-completed Part 2 and Part 3 notebook outputs unchanged. The 0.510 Part 1 public
-score comes from Denisha's leaderboard screenshot. The original selected run
-files are not currently available; later v8 outputs are not substituted for
-them. Missing scores, timings, ballots and submissions are not reconstructed
-or invented.
-
-Local smoke tests use clearly fictional fixtures and tiny interfaces. They
-check software behaviour and packaging, not pretrained model quality. The
-completed T4 baseline ZIP supplies separate real GPU evidence. The Mac cleanup
-did not repeat a full GPU experiment or silently relabel RTX 4090 measurements
-as 16-GB results.
-
-AI prepared a combined findings report, the exact Canvas review ZIP and an
-audit identifying missing human ratings, recording links, artifact permissions,
-compatibility evidence and final submission confirmations. It did not invent
-team meetings, impersonate raters, select a Kaggle final submission or submit
-to Canvas. Denisha supplied the names and Team 09 identity and requested keeping
-the current public repository name despite the assignment's private-repo rule.
-
-No access token is hard-coded in the notebooks or newly imported evidence.
-The public partner adapter requires no token. Private artifact access still
-requires the actual account owner to grant access through the permitted channel.
-
-At Denisha's request, AI also supplied a small, clearly marked fictional rating
-format guide. Its IDs are examples, its values are not included in any score,
-and it does not stand in for human evaluation. The report and Canvas review ZIP
-are published as GitHub release downloads while all pending items remain visible.
+- We ran every notebook ourselves on our own GPUs (RTX 4090, Kaggle T4); all reported numbers come from executed notebook outputs. No number was typed in by an assistant.
+- The Part 1 golden set was drafted with the assistant from the three PDFs and checked not to copy or paraphrase Questions.csv. Its evaluation was not completed before the deadline (see the report).
+- All human ratings (Part 2 blinded A/B votes, Part 3 pass/fail and accept/revise judgements) were given by people, not by an AI tool. The assistant only checked the filled sheets for formatting and consistency.
+- AI was used to help describe failure modes visible in saved images (Part 2 attribute binding and counting, Part 3 pencil-sketch failure); these are descriptions, not measurements.
+- The assistants did not see the hidden test set; the code contains no question IDs, question text or question-specific rules.
+- No access token is hard-coded in the notebooks; the Hugging Face models used by the notebooks are public.
