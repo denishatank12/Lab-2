@@ -26,6 +26,8 @@ source has not been replaced, and no final Kaggle choice was changed. See the
 
 ## Submission files
 
+* [Lab 2 discussion video](discussion.mov), recorded November 17, 2026.
+
 * [Part 2 findings report](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part2_Findings.pdf), with measured results and no fictional ratings.
 * [Part 1 v6 notebook download (source only)](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Part1_v6_SOURCE_ONLY.ipynb); original saved 0.510 execution outputs remain unavailable.
 * [Download the report PDF](https://github.com/denishatank12/Lab-2/releases/download/lab2-submission-review/Lab2_Team09_Report.pdf)
@@ -48,8 +50,9 @@ The optional rating examples are fictional format guides, not human results.
    The later file with the same notebook name is v8; its results are not used as v6.
 2. Finish the team's golden-reference review and real ratings: both members for
    Parts 1 and 3, and three people for Part 2, including someone outside the team.
-3. Add actual meeting recording links, confirm grader access to private Hub
-   artifacts and publish the Part 3 input/output artifact package.
+3. The November 17 discussion recording is linked in the contribution log.
+   Add any other required meeting recordings, confirm grader access to private
+   Hub artifacts and publish the Part 3 input/output artifact package.
 4. Confirm the final Kaggle selection/team name, GPU compatibility evidence for
    the remaining workloads, report review and live demo. Create the three part
    tags after the missing evidence is integrated.
